@@ -165,11 +165,12 @@ export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: Her
 
   // Rotating role text
   useEffect(() => {
+    if (heroData.roles.length === 0) return
     const interval = setInterval(() => {
       setRoleIndex((prev) => (prev + 1) % heroData.roles.length)
     }, 3000)
     return () => clearInterval(interval)
-  }, [])
+  }, [heroData.roles.length])
 
   return (
     <section ref={sectionRef} className="relative flex min-h-screen items-center overflow-hidden">

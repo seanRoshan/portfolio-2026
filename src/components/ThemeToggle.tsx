@@ -1,14 +1,22 @@
 "use client"
 
 import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 import { motion, AnimatePresence } from "motion/react"
+
+const emptySubscribe = () => () => {}
+
+function useMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  )
+}
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => setMounted(true), [])
+  const mounted = useMounted()
 
   if (!mounted) {
     return <button className="relative h-9 w-9 rounded-full" aria-label="Toggle theme" />

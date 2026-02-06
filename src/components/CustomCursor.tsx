@@ -1,22 +1,29 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import gsap from "gsap"
+
+const TOUCH_QUERY = "(pointer: coarse)"
+
+function subscribeTouchChange(callback: () => void) {
+  const mq = window.matchMedia(TOUCH_QUERY)
+  mq.addEventListener("change", callback)
+  return () => mq.removeEventListener("change", callback)
+}
+
+function getIsTouch() {
+  return window.matchMedia(TOUCH_QUERY).matches
+}
 
 export function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null)
   const cursorDotRef = useRef<HTMLDivElement>(null)
   const [isHovering, setIsHovering] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
-  const [isTouch, setIsTouch] = useState(false)
+  const isTouch = useSyncExternalStore(subscribeTouchChange, getIsTouch, () => false)
 
   useEffect(() => {
-    if (typeof window === "undefined") return
-    const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches
-    if (hasCoarsePointer) {
-      setIsTouch(true)
-      return
-    }
+    if (isTouch) return
 
     const moveCursor = (e: MouseEvent) => {
       if (!isVisible) setIsVisible(true)
@@ -61,7 +68,7 @@ export function CustomCursor() {
         el.removeEventListener("mouseleave", handleMouseLeave)
       })
     }
-  }, [isVisible])
+  }, [isVisible, isTouch])
 
   if (isTouch) return null
 
