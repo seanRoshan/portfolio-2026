@@ -1,19 +1,20 @@
+import { createClient } from "@/lib/supabase/server"
 import { AdminHeader } from "../admin-header"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { FileText } from "lucide-react"
+import { BlogList } from "./blog-list"
+import type { BlogPost } from "@/types/database"
 
-export default function BlogAdminPage() {
+export default async function BlogAdminPage() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .order("created_at", { ascending: false })
+
   return (
     <>
       <AdminHeader title="Blog" />
-      <div className="p-4 md:p-6 max-w-3xl">
-        <Alert>
-          <FileText className="h-4 w-4" />
-          <AlertTitle>Coming Soon</AlertTitle>
-          <AlertDescription>
-            Blog management will be implemented in Issue #3.
-          </AlertDescription>
-        </Alert>
+      <div className="p-4 md:p-6 max-w-5xl">
+        <BlogList posts={(data as BlogPost[]) ?? []} />
       </div>
     </>
   )

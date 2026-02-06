@@ -187,6 +187,83 @@ export async function getBlogData() {
   }));
 }
 
+export async function getBlogPost(slug: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("slug", slug)
+    .eq("published", true)
+    .single();
+  return data;
+}
+
+export async function getBlogPosts(page = 1, tag?: string) {
+  const perPage = 10;
+  const from = (page - 1) * perPage;
+  const to = from + perPage - 1;
+
+  const supabase = await createClient();
+  let query = supabase
+    .from("blog_posts")
+    .select("id, title, slug, excerpt, cover_image_url, tags, published_at, read_time_minutes", { count: "exact" })
+    .eq("published", true)
+    .order("published_at", { ascending: false })
+    .range(from, to);
+
+  if (tag) {
+    query = query.contains("tags", [tag]);
+  }
+
+  const { data, count } = await query;
+  return {
+    posts: data ?? [],
+    total: count ?? 0,
+    totalPages: Math.ceil((count ?? 0) / perPage),
+    page,
+  };
+}
+
+export async function getAdjacentPosts(publishedAt: string) {
+  const supabase = await createClient();
+  const [{ data: prev }, { data: next }] = await Promise.all([
+    supabase
+      .from("blog_posts")
+      .select("title, slug")
+      .eq("published", true)
+      .lt("published_at", publishedAt)
+      .order("published_at", { ascending: false })
+      .limit(1)
+      .single(),
+    supabase
+      .from("blog_posts")
+      .select("title, slug")
+      .eq("published", true)
+      .gt("published_at", publishedAt)
+      .order("published_at", { ascending: true })
+      .limit(1)
+      .single(),
+  ]);
+  return { prev, next };
+}
+
+export async function getAllBlogTags() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("blog_posts")
+    .select("tags")
+    .eq("published", true);
+  if (!data) return [];
+
+  const tagSet = new Set<string>();
+  for (const post of data) {
+    for (const tag of post.tags ?? []) {
+      tagSet.add(tag);
+    }
+  }
+  return Array.from(tagSet).sort();
+}
+
 export async function getNavLinks() {
   // Navigation links are static — no need to fetch from DB
   return [

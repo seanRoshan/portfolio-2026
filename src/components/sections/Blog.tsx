@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
 import { StaggerChildren } from "@/components/animations/StaggerChildren";
@@ -26,6 +27,7 @@ function BlogCard({ post }: { post: BlogPost }) {
   });
 
   return (
+    <Link href={`/blog/${post.slug}`} className="block">
     <article className="group cursor-pointer">
       <div className="glass h-full rounded-2xl p-6 transition-all duration-500 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5">
         {/* Date & reading time */}
@@ -79,6 +81,7 @@ function BlogCard({ post }: { post: BlogPost }) {
         </div>
       </div>
     </article>
+    </Link>
   );
 }
 
@@ -105,6 +108,31 @@ export function Blog({ blogData }: BlogProps) {
             <BlogCard key={post.slug} post={post} />
           ))}
         </StaggerChildren>
+
+        <RevealOnScroll>
+          <div className="mt-12 text-center">
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+            >
+              View All Posts
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Link>
+          </div>
+        </RevealOnScroll>
       </div>
     </section>
   );

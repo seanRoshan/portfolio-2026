@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { LogIn, LayoutDashboard, LogOut } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
@@ -36,10 +37,19 @@ const defaultSiteConfig: NonNullable<NavigationProps["siteConfig"]> = {
 
 export function Navigation({ navLinks, siteConfig: siteConfigProp, isAuthenticated = false }: NavigationProps) {
   const siteConfig = siteConfigProp ?? defaultSiteConfig;
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [isLoggingOut, startLogoutTransition] = useTransition();
+
+  // Resolve nav link href: on homepage use anchor, on other pages use full path for Blog
+  function resolveHref(link: { label: string; href: string }) {
+    if (link.href === "#blog" && !isHomePage) return "/blog";
+    if (link.href.startsWith("#") && !isHomePage) return `/${link.href}`;
+    return link.href;
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,31 +105,36 @@ export function Navigation({ navLinks, siteConfig: siteConfigProp, isAuthenticat
 
           {/* Desktop nav */}
           <div className="hidden items-center gap-1 md:flex">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "relative px-4 py-2 text-sm font-medium transition-colors",
-                  activeSection === link.href
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {activeSection === link.href && (
-                  <motion.span
-                    layoutId="nav-active"
-                    className="absolute inset-0 rounded-full bg-accent"
-                    transition={{
-                      type: "spring",
-                      stiffness: 380,
-                      damping: 30,
-                    }}
-                  />
-                )}
-                <span className="relative z-10">{link.label}</span>
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const href = resolveHref(link);
+              const isAnchor = href.startsWith("#");
+              const Tag = isAnchor ? "a" : Link;
+              return (
+                <Tag
+                  key={link.href}
+                  href={href}
+                  className={cn(
+                    "relative px-4 py-2 text-sm font-medium transition-colors",
+                    activeSection === link.href
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {activeSection === link.href && (
+                    <motion.span
+                      layoutId="nav-active"
+                      className="absolute inset-0 rounded-full bg-accent"
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+                  <span className="relative z-10">{link.label}</span>
+                </Tag>
+              );
+            })}
           </div>
 
           <div className="flex items-center gap-3">
@@ -202,20 +217,40 @@ export function Navigation({ navLinks, siteConfig: siteConfigProp, isAuthenticat
             className="fixed inset-0 z-[99] bg-background/95 backdrop-blur-xl md:hidden"
           >
             <nav className="flex h-full flex-col items-center justify-center gap-8">
-              {navLinks.map((link, i) => (
-                <motion.a
-                  key={link.href}
-                  href={link.href}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ delay: i * 0.07, duration: 0.4 }}
-                  className="text-3xl font-medium transition-colors hover:text-primary"
-                  onClick={() => setIsMobileOpen(false)}
-                >
-                  {link.label}
-                </motion.a>
-              ))}
+              {navLinks.map((link, i) => {
+                const href = resolveHref(link);
+                const isAnchor = href.startsWith("#");
+                return isAnchor ? (
+                  <motion.a
+                    key={link.href}
+                    href={href}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ delay: i * 0.07, duration: 0.4 }}
+                    className="text-3xl font-medium transition-colors hover:text-primary"
+                    onClick={() => setIsMobileOpen(false)}
+                  >
+                    {link.label}
+                  </motion.a>
+                ) : (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ delay: i * 0.07, duration: 0.4 }}
+                  >
+                    <Link
+                      href={href}
+                      className="text-3xl font-medium transition-colors hover:text-primary"
+                      onClick={() => setIsMobileOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                );
+              })}
 
               {/* Auth link — mobile */}
               <motion.div
