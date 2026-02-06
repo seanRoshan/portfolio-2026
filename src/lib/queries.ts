@@ -60,6 +60,7 @@ export async function getAboutData() {
   return {
     headline: data.subheading ?? data.heading ?? "About Me",
     description: [data.bio, data.bio_secondary].filter(Boolean) as string[],
+    portraitUrl: data.portrait_url ?? null,
     stats,
     techStack: (data.tech_stack ?? []).map((name: string) => ({ name, category: "" })),
   }

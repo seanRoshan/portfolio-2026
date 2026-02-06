@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import Image from "next/image"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
@@ -20,6 +21,7 @@ interface AboutProps {
   aboutData: {
     headline: string
     description: string[]
+    portraitUrl: string | null
     stats: { label: string; value: number }[]
     techStack: { name: string; category: string }[]
   } | null
@@ -29,6 +31,7 @@ interface AboutProps {
 const defaultAboutData: NonNullable<AboutProps["aboutData"]> = {
   headline: "",
   description: [],
+  portraitUrl: null,
   stats: [],
   techStack: [],
 }
@@ -91,31 +94,21 @@ export function About({ aboutData: aboutDataProp, allSkills = [] }: AboutProps) 
 
         {/* Content grid */}
         <div className="grid gap-16 lg:grid-cols-2">
-          {/* Left: Portrait placeholder */}
+          {/* Left: Portrait */}
           <RevealOnScroll className="relative">
             <div className="from-primary/20 to-secondary aspect-[4/5] overflow-hidden rounded-3xl bg-gradient-to-br">
-              <div className="flex h-full items-center justify-center">
-                <div className="text-center">
-                  <div className="bg-primary/10 mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="48"
-                      height="48"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-primary"
-                    >
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                  </div>
-                  <p className="text-muted-foreground text-sm">Your photo here</p>
-                </div>
-              </div>
+              {aboutData.portraitUrl ? (
+                <Image
+                  src={aboutData.portraitUrl}
+                  alt="Portrait"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  unoptimized
+                />
+              ) : (
+                <div className="h-full w-full" />
+              )}
             </div>
             {/* Decorative element */}
             <div className="border-primary/20 absolute -right-4 -bottom-4 -z-10 h-full w-full rounded-3xl border" />
