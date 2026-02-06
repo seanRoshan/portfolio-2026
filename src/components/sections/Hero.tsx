@@ -5,12 +5,54 @@ import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 import { MagneticButton } from "@/components/animations/MagneticButton";
-import { heroData, siteConfig } from "@/data/portfolio";
 import { useMousePosition } from "@/hooks/useMousePosition";
 
 gsap.registerPlugin(SplitText);
 
-export function Hero() {
+interface HeroProps {
+  heroData: {
+    greeting: string;
+    name: string;
+    roles: string[];
+    tagline: string;
+    cta: { label: string; href: string };
+    ctaSecondary: { label: string; href: string };
+  } | null;
+  siteConfig: {
+    name: string;
+    title: string;
+    description: string;
+    url: string;
+    email: string;
+    location: string;
+    availability: string;
+    socials: Record<string, string>;
+  } | null;
+}
+
+const defaultHeroData: NonNullable<HeroProps["heroData"]> = {
+  greeting: "Hey, I'm",
+  name: "",
+  roles: [],
+  tagline: "",
+  cta: { label: "See My Work", href: "#projects" },
+  ctaSecondary: { label: "Get In Touch", href: "#contact" },
+};
+
+const defaultSiteConfig: NonNullable<HeroProps["siteConfig"]> = {
+  name: "",
+  title: "",
+  description: "",
+  url: "",
+  email: "",
+  location: "",
+  availability: "Open to opportunities",
+  socials: {},
+};
+
+export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: HeroProps) {
+  const heroData = heroDataProp ?? defaultHeroData;
+  const siteConfig = siteConfigProp ?? defaultSiteConfig;
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const taglineRef = useRef<HTMLParagraphElement>(null);

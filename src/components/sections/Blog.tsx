@@ -3,10 +3,22 @@
 import { TextReveal } from "@/components/animations/TextReveal";
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
 import { StaggerChildren } from "@/components/animations/StaggerChildren";
-import { blogData } from "@/data/portfolio";
 import { Badge } from "@/components/ui/badge";
 
-function BlogCard({ post }: { post: (typeof blogData)[0] }) {
+interface BlogPost {
+  title: string;
+  excerpt: string;
+  date: string;
+  readTime: string;
+  tags: string[];
+  slug: string;
+}
+
+interface BlogProps {
+  blogData: BlogPost[];
+}
+
+function BlogCard({ post }: { post: BlogPost }) {
   const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -70,7 +82,7 @@ function BlogCard({ post }: { post: (typeof blogData)[0] }) {
   );
 }
 
-export function Blog() {
+export function Blog({ blogData }: BlogProps) {
   return (
     <section id="blog" className="section-padding relative">
       <div className="container-wide">

@@ -7,17 +7,34 @@ import { useGSAP } from "@gsap/react";
 import { motion, AnimatePresence } from "motion/react";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
-import { projectsData } from "@/data/portfolio";
 import { Badge } from "@/components/ui/badge";
 
 gsap.registerPlugin(ScrollTrigger);
+
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  longDescription: string;
+  tags: string[];
+  image: string;
+  liveUrl: string;
+  githubUrl: string;
+  featured: boolean;
+  year: string;
+  color: string;
+}
+
+interface ProjectsProps {
+  projectsData: Project[];
+}
 
 function ProjectCard({
   project,
   index,
   onClick,
 }: {
-  project: (typeof projectsData)[0];
+  project: Project;
   index: number;
   onClick: () => void;
 }) {
@@ -119,7 +136,7 @@ function ProjectModal({
   project,
   onClose,
 }: {
-  project: (typeof projectsData)[0];
+  project: Project;
   onClose: () => void;
 }) {
   return (
@@ -221,11 +238,9 @@ function ProjectModal({
   );
 }
 
-export function Projects() {
+export function Projects({ projectsData }: ProjectsProps) {
   const sectionRef = useRef<HTMLElement>(null);
-  const [selectedProject, setSelectedProject] = useState<
-    (typeof projectsData)[0] | null
-  >(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useGSAP(
     () => {

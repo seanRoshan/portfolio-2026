@@ -2,11 +2,36 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { siteConfig, navLinks } from "@/data/portfolio";
 import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 
-export function Navigation() {
+interface NavigationProps {
+  navLinks: { label: string; href: string }[];
+  siteConfig: {
+    name: string;
+    title: string;
+    description: string;
+    url: string;
+    email: string;
+    location: string;
+    availability: string;
+    socials: Record<string, string>;
+  } | null;
+}
+
+const defaultSiteConfig: NonNullable<NavigationProps["siteConfig"]> = {
+  name: "",
+  title: "",
+  description: "",
+  url: "",
+  email: "",
+  location: "",
+  availability: "",
+  socials: {},
+};
+
+export function Navigation({ navLinks, siteConfig: siteConfigProp }: NavigationProps) {
+  const siteConfig = siteConfigProp ?? defaultSiteConfig;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");

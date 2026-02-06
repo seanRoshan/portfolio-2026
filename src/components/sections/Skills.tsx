@@ -6,10 +6,22 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
-import { skillsData } from "@/data/portfolio";
 import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
+
+interface SkillsProps {
+  skillsData: {
+    categories: {
+      name: string;
+      skills: { name: string; level: number }[];
+    }[];
+  } | null;
+}
+
+const defaultSkillsData: NonNullable<SkillsProps["skillsData"]> = {
+  categories: [],
+};
 
 function SkillBar({ name, level }: { name: string; level: number }) {
   const barRef = useRef<HTMLDivElement>(null);
@@ -53,7 +65,8 @@ function SkillBar({ name, level }: { name: string; level: number }) {
   );
 }
 
-export function Skills() {
+export function Skills({ skillsData: skillsDataProp }: SkillsProps) {
+  const skillsData = skillsDataProp ?? defaultSkillsData;
   const [activeCategory, setActiveCategory] = useState(0);
 
   return (
@@ -96,7 +109,7 @@ export function Skills() {
         {/* Skills grid */}
         <div className="mx-auto max-w-3xl">
           <div className="grid gap-6 sm:grid-cols-2">
-            {skillsData.categories[activeCategory].skills.map((skill) => (
+            {(skillsData.categories[activeCategory]?.skills ?? []).map((skill) => (
               <SkillBar
                 key={skill.name}
                 name={skill.name}

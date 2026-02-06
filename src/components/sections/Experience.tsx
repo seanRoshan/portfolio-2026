@@ -6,15 +6,27 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
-import { experienceData } from "@/data/portfolio";
 
 gsap.registerPlugin(ScrollTrigger);
+
+interface ExperienceEntry {
+  role: string;
+  company: string;
+  companyUrl: string;
+  period: string;
+  description: string;
+  achievements: string[];
+}
+
+interface ExperienceProps {
+  experienceData: ExperienceEntry[];
+}
 
 function TimelineEntry({
   entry,
   index,
 }: {
-  entry: (typeof experienceData)[0];
+  entry: ExperienceEntry;
   index: number;
 }) {
   const isLeft = index % 2 === 0;
@@ -72,7 +84,7 @@ function TimelineEntry({
   );
 }
 
-export function Experience() {
+export function Experience({ experienceData }: ExperienceProps) {
   const sectionRef = useRef<HTMLElement>(null);
 
   useGSAP(

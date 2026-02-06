@@ -7,9 +7,24 @@ import { useGSAP } from "@gsap/react";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
 import { StaggerChildren } from "@/components/animations/StaggerChildren";
-import { aboutData } from "@/data/portfolio";
 
 gsap.registerPlugin(ScrollTrigger);
+
+interface AboutProps {
+  aboutData: {
+    headline: string;
+    description: string[];
+    stats: { label: string; value: number }[];
+    techStack: { name: string; category: string }[];
+  } | null;
+}
+
+const defaultAboutData: NonNullable<AboutProps["aboutData"]> = {
+  headline: "",
+  description: [],
+  stats: [],
+  techStack: [],
+};
 
 function AnimatedCounter({ value, label }: { value: number; label: string }) {
   const counterRef = useRef<HTMLSpanElement>(null);
@@ -47,7 +62,8 @@ function AnimatedCounter({ value, label }: { value: number; label: string }) {
   );
 }
 
-export function About() {
+export function About({ aboutData: aboutDataProp }: AboutProps) {
+  const aboutData = aboutDataProp ?? defaultAboutData;
   return (
     <section id="about" className="section-padding relative">
       <div className="container-wide">

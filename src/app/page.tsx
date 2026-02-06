@@ -9,23 +9,45 @@ import { Experience } from "@/components/sections/Experience";
 import { Blog } from "@/components/sections/Blog";
 import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/sections/Footer";
+import {
+  getSiteConfig,
+  getHeroData,
+  getAboutData,
+  getProjectsData,
+  getSkillsData,
+  getExperienceData,
+  getBlogData,
+  getNavLinks,
+} from "@/lib/queries";
 
-export default function Home() {
+export default async function Home() {
+  const [siteConfig, heroData, aboutData, projectsData, skillsData, experienceData, blogData, navLinks] =
+    await Promise.all([
+      getSiteConfig(),
+      getHeroData(),
+      getAboutData(),
+      getProjectsData(),
+      getSkillsData(),
+      getExperienceData(),
+      getBlogData(),
+      getNavLinks(),
+    ]);
+
   return (
     <div className="noise-overlay relative">
       <CustomCursor />
       <ScrollProgress />
-      <Navigation />
+      <Navigation navLinks={navLinks} siteConfig={siteConfig} />
       <main>
-        <Hero />
-        <About />
-        <Projects />
-        <Skills />
-        <Experience />
-        <Blog />
-        <Contact />
+        <Hero heroData={heroData} siteConfig={siteConfig} />
+        <About aboutData={aboutData} />
+        <Projects projectsData={projectsData} />
+        <Skills skillsData={skillsData} />
+        <Experience experienceData={experienceData} />
+        <Blog blogData={blogData} />
+        <Contact siteConfig={siteConfig} />
       </main>
-      <Footer />
+      <Footer siteConfig={siteConfig} navLinks={navLinks} />
     </div>
   );
 }

@@ -1,8 +1,32 @@
 "use client";
 
-import { siteConfig, navLinks } from "@/data/portfolio";
+interface FooterProps {
+  siteConfig: {
+    name: string;
+    title: string;
+    description: string;
+    url: string;
+    email: string;
+    location: string;
+    availability: string;
+    socials: Record<string, string>;
+  } | null;
+  navLinks: { label: string; href: string }[];
+}
 
-export function Footer() {
+const defaultSiteConfig: NonNullable<FooterProps["siteConfig"]> = {
+  name: "",
+  title: "",
+  description: "",
+  url: "",
+  email: "",
+  location: "",
+  availability: "",
+  socials: {},
+};
+
+export function Footer({ siteConfig: siteConfigProp, navLinks }: FooterProps) {
+  const siteConfig = siteConfigProp ?? defaultSiteConfig;
   const currentYear = new Date().getFullYear();
 
   const socials = [

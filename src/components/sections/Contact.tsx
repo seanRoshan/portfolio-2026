@@ -5,10 +5,34 @@ import { motion } from "motion/react";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
 import { MagneticButton } from "@/components/animations/MagneticButton";
-import { siteConfig } from "@/data/portfolio";
 import { toast } from "sonner";
 
-export function Contact() {
+interface ContactProps {
+  siteConfig: {
+    name: string;
+    title: string;
+    description: string;
+    url: string;
+    email: string;
+    location: string;
+    availability: string;
+    socials: Record<string, string>;
+  } | null;
+}
+
+const defaultSiteConfig: NonNullable<ContactProps["siteConfig"]> = {
+  name: "",
+  title: "",
+  description: "",
+  url: "",
+  email: "",
+  location: "",
+  availability: "",
+  socials: {},
+};
+
+export function Contact({ siteConfig: siteConfigProp }: ContactProps) {
+  const siteConfig = siteConfigProp ?? defaultSiteConfig;
   const formRef = useRef<HTMLFormElement>(null);
   const [focused, setFocused] = useState<string | null>(null);
 
