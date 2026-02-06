@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { Pencil, Trash2, Plus } from "lucide-react"
 import { toast } from "sonner"
+import { getTechIcon } from "@/lib/tech-icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -18,12 +19,18 @@ import { SkillFormDialog } from "./skill-form"
 import { deleteSkill } from "./actions"
 import type { Skill } from "@/types/database"
 
-const CATEGORIES = ["Frontend", "Backend", "DevOps", "Database", "Tools"]
+const CATEGORIES = [
+  { key: "frontend", label: "Frontend" },
+  { key: "backend", label: "Backend" },
+  { key: "devops", label: "DevOps" },
+  { key: "database", label: "Database" },
+  { key: "tools", label: "Tools" },
+]
 
 export function SkillsList({ skills }: { skills: Skill[] }) {
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null)
   const [showCreate, setShowCreate] = useState(false)
-  const [createCategory, setCreateCategory] = useState("Frontend")
+  const [createCategory, setCreateCategory] = useState("frontend")
   const [deleteTarget, setDeleteTarget] = useState<Skill | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -39,8 +46,8 @@ export function SkillsList({ skills }: { skills: Skill[] }) {
 
   const grouped = CATEGORIES.reduce(
     (acc, cat) => {
-      acc[cat] = skills
-        .filter((s) => s.category === cat)
+      acc[cat.key] = skills
+        .filter((s) => s.category === cat.key)
         .sort((a, b) => a.sort_order - b.sort_order)
       return acc
     },
@@ -49,63 +56,73 @@ export function SkillsList({ skills }: { skills: Skill[] }) {
 
   return (
     <>
-      <Tabs defaultValue="Frontend">
+      <Tabs defaultValue="frontend">
         <div className="mb-4 flex items-center justify-between">
           <TabsList>
             {CATEGORIES.map((cat) => (
-              <TabsTrigger key={cat} value={cat}>
-                {cat} ({grouped[cat]?.length ?? 0})
+              <TabsTrigger key={cat.key} value={cat.key}>
+                {cat.label} ({grouped[cat.key]?.length ?? 0})
               </TabsTrigger>
             ))}
           </TabsList>
         </div>
         {CATEGORIES.map((cat) => (
-          <TabsContent key={cat} value={cat} className="space-y-2">
-            {grouped[cat]?.map((skill) => (
-              <div
-                key={skill.id}
-                className="flex items-center justify-between rounded-lg border p-3"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="font-medium">{skill.name}</span>
-                  {skill.icon_name && (
-                    <span className="text-muted-foreground text-xs">{skill.icon_name}</span>
-                  )}
-                  <Badge variant={skill.published ? "default" : "outline"}>
-                    {skill.published ? "Published" : "Draft"}
-                  </Badge>
+          <TabsContent key={cat.key} value={cat.key} className="space-y-2">
+            {grouped[cat.key]?.map((skill) => {
+              const tech = getTechIcon(skill.icon_name)
+              const Icon = tech?.icon
+              return (
+                <div
+                  key={skill.id}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
+                  <div className="flex items-center gap-3">
+                    {Icon && <Icon className="h-5 w-5 shrink-0" style={{ color: tech?.color }} />}
+                    <span className="font-medium">{skill.name}</span>
+                    {skill.icon_name && (
+                      <span className="text-muted-foreground text-xs">{skill.icon_name}</span>
+                    )}
+                    <Badge variant={skill.published ? "default" : "outline"}>
+                      {skill.published ? "Published" : "Draft"}
+                    </Badge>
+                    {skill.show_on_resume && (
+                      <Badge variant="secondary" className="text-[10px]">
+                        Resume
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setEditingSkill(skill)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground hover:text-destructive h-8 w-8"
+                      onClick={() => setDeleteTarget(skill)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setEditingSkill(skill)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-destructive h-8 w-8"
-                    onClick={() => setDeleteTarget(skill)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              )
+            })}
             <Button
               variant="outline"
               size="sm"
               className="w-full"
               onClick={() => {
-                setCreateCategory(cat)
+                setCreateCategory(cat.key)
                 setShowCreate(true)
               }}
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add {cat} Skill
+              Add {cat.label} Skill
             </Button>
           </TabsContent>
         ))}

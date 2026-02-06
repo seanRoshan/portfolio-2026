@@ -189,18 +189,6 @@
       radial-gradient(at 80% 20%, oklch(0.7 0.2 330 / 12%) 0%, transparent 50%),
       radial-gradient(at 50% 50%, oklch(0.65 0.2 160 / 8%) 0%, transparent 60%);
   }
-
-  .skill-bar-bg {
-    background: oklch(0.3 0.02 264 / 30%);
-  }
-
-  .dark .skill-bar-bg {
-    background: oklch(0.2 0.02 264 / 50%);
-  }
-
-  .skill-bar-fill {
-    background: linear-gradient(90deg, oklch(0.7 0.25 264), oklch(0.7 0.2 330));
-  }
 }
 
 /* ─── Scroll-driven section reveals ─── */

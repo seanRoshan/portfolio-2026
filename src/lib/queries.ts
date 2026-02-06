@@ -99,27 +99,31 @@ export async function getSkillsData() {
   if (!data) return { categories: [] }
 
   // Group by category
-  const grouped = new Map<string, Array<{ name: string; level: number }>>()
+  const grouped = new Map<string, Array<{ name: string; iconName: string | null }>>()
+  const categoryOrder = ["frontend", "backend", "devops", "database", "tools"]
   const categoryLabels: Record<string, string> = {
     frontend: "Frontend",
     backend: "Backend",
     devops: "DevOps & Cloud",
     database: "Databases",
-    tools: "Tools",
+    tools: "Tools & Testing",
   }
 
   for (const skill of data) {
     const cat = skill.category
     if (!grouped.has(cat)) grouped.set(cat, [])
-    // Temporarily keep a default level — will be removed in skills redesign (#5)
-    grouped.get(cat)!.push({ name: skill.name, level: 85 })
+    grouped.get(cat)!.push({ name: skill.name, iconName: skill.icon_name })
   }
 
+  // Return categories in a stable order
   return {
-    categories: Array.from(grouped.entries()).map(([key, skills]) => ({
-      name: categoryLabels[key] ?? key,
-      skills,
-    })),
+    categories: categoryOrder
+      .filter((key) => grouped.has(key))
+      .map((key) => ({
+        name: categoryLabels[key] ?? key,
+        key,
+        skills: grouped.get(key)!,
+      })),
   }
 }
 
