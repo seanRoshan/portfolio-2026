@@ -55,6 +55,16 @@ export function Navigation({
     return link.href
   }
 
+  // Check if a nav link is active based on current pathname
+  function isLinkActive(link: { label: string; href: string }) {
+    // On homepage, use intersection-based activeSection for anchor links
+    if (isHomePage && link.href.startsWith("#")) return activeSection === link.href
+    // Path-based links: match current pathname
+    if (link.href === "/resume") return pathname === "/resume"
+    if (link.href === "#blog") return pathname.startsWith("/blog")
+    return false
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
@@ -98,13 +108,13 @@ export function Navigation({
       >
         <nav className="container-wide flex items-center justify-between">
           {/* Logo */}
-          <a
-            href="#"
+          <Link
+            href="/"
             className="hover:text-primary text-lg font-bold tracking-tight transition-colors"
           >
             {siteConfig.name.split(" ")[0]}
             <span className="text-primary">.</span>
-          </a>
+          </Link>
 
           {/* Desktop nav */}
           <div className="hidden items-center gap-1 md:flex">
@@ -112,18 +122,17 @@ export function Navigation({
               const href = resolveHref(link)
               const isAnchor = href.startsWith("#")
               const Tag = isAnchor ? "a" : Link
+              const active = isLinkActive(link)
               return (
                 <Tag
                   key={link.href}
                   href={href}
                   className={cn(
                     "relative px-4 py-2 text-sm font-medium transition-colors",
-                    activeSection === link.href
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground",
+                    active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  {activeSection === link.href && (
+                  {active && (
                     <motion.span
                       layoutId="nav-active"
                       className="bg-accent absolute inset-0 rounded-full"

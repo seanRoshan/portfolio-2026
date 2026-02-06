@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+
 interface FooterProps {
   siteConfig: {
     name: string
@@ -25,6 +27,22 @@ const defaultSiteConfig: NonNullable<FooterProps["siteConfig"]> = {
   socials: {},
 }
 
+function FooterNavLink({ link }: { link: { label: string; href: string } }) {
+  const className = "text-muted-foreground hover:text-foreground text-sm transition-colors"
+  if (link.href.startsWith("#")) {
+    return (
+      <a href={link.href} className={className}>
+        {link.label}
+      </a>
+    )
+  }
+  return (
+    <Link href={link.href} className={className}>
+      {link.label}
+    </Link>
+  )
+}
+
 export function Footer({ siteConfig: siteConfigProp, navLinks }: FooterProps) {
   const siteConfig = siteConfigProp ?? defaultSiteConfig
   const currentYear = new Date().getFullYear()
@@ -42,13 +60,13 @@ export function Footer({ siteConfig: siteConfigProp, navLinks }: FooterProps) {
         {/* Top row: logo + tagline */}
         <div className="mb-12 flex flex-col items-center gap-6 md:flex-row md:justify-between">
           <div>
-            <a
-              href="#"
+            <Link
+              href="/"
               className="hover:text-primary text-2xl font-bold tracking-tight transition-colors"
             >
               {siteConfig.name.split(" ")[0]}
               <span className="text-primary">.</span>
-            </a>
+            </Link>
             <p className="text-muted-foreground mt-2 max-w-xs text-sm leading-relaxed">
               Building digital experiences that are fast, accessible, and impossible to forget.
             </p>
@@ -62,13 +80,7 @@ export function Footer({ siteConfig: siteConfigProp, navLinks }: FooterProps) {
               </p>
               <nav className="flex flex-col gap-2.5">
                 {navLinks.slice(0, 3).map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  <FooterNavLink key={link.href} link={link} />
                 ))}
               </nav>
             </div>
@@ -78,13 +90,7 @@ export function Footer({ siteConfig: siteConfigProp, navLinks }: FooterProps) {
               </p>
               <nav className="flex flex-col gap-2.5">
                 {navLinks.slice(3).map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  <FooterNavLink key={link.href} link={link} />
                 ))}
               </nav>
             </div>
