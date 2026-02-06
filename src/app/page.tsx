@@ -19,9 +19,10 @@ import {
   getBlogData,
   getNavLinks,
 } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function Home() {
-  const [siteConfig, heroData, aboutData, projectsData, skillsData, experienceData, blogData, navLinks] =
+  const [siteConfig, heroData, aboutData, projectsData, skillsData, experienceData, blogData, navLinks, supabase] =
     await Promise.all([
       getSiteConfig(),
       getHeroData(),
@@ -31,13 +32,16 @@ export default async function Home() {
       getExperienceData(),
       getBlogData(),
       getNavLinks(),
+      createClient(),
     ]);
+
+  const { data: { user } } = await supabase.auth.getUser();
 
   return (
     <div className="noise-overlay relative">
       <CustomCursor />
       <ScrollProgress />
-      <Navigation navLinks={navLinks} siteConfig={siteConfig} />
+      <Navigation navLinks={navLinks} siteConfig={siteConfig} isAuthenticated={!!user} />
       <main>
         <Hero heroData={heroData} siteConfig={siteConfig} />
         <About aboutData={aboutData} />

@@ -35,11 +35,40 @@ export function Contact({ siteConfig: siteConfigProp }: ContactProps) {
   const siteConfig = siteConfigProp ?? defaultSiteConfig;
   const formRef = useRef<HTMLFormElement>(null);
   const [focused, setFocused] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Message sent! I'll get back to you soon.");
-    formRef.current?.reset();
+    if (!formRef.current) return;
+
+    const formData = new FormData(formRef.current);
+    const data = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      message: formData.get("message") as string,
+    };
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || "Failed to send message");
+      }
+
+      toast.success("Message sent! I'll get back to you soon.");
+      formRef.current.reset();
+      setFocused(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to send message");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const copyEmail = () => {
@@ -215,9 +244,10 @@ export function Contact({ siteConfig: siteConfigProp }: ContactProps) {
 
               <MagneticButton
                 type="submit"
+                disabled={submitting}
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                Send Message
+                {submitting ? "Sending..." : "Send Message"}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
