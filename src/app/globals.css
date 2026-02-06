@@ -1,26 +1,267 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-glow: var(--glow);
+  --color-glow-secondary: var(--glow-secondary);
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Light Mode (default for :root, but we default to dark via next-themes) ─── */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.985 0.002 247);
+  --foreground: oklch(0.145 0.005 247);
+  --card: oklch(1 0 0 / 70%);
+  --card-foreground: oklch(0.145 0.005 247);
+  --popover: oklch(1 0 0 / 90%);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.55 0.25 264);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.96 0.01 264);
+  --secondary-foreground: oklch(0.25 0.05 264);
+  --muted: oklch(0.95 0.005 247);
+  --muted-foreground: oklch(0.45 0.02 247);
+  --accent: oklch(0.94 0.02 264);
+  --accent-foreground: oklch(0.25 0.05 264);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.88 0.01 264);
+  --input: oklch(0.90 0.01 264);
+  --ring: oklch(0.55 0.25 264);
+  --chart-1: oklch(0.55 0.25 264);
+  --chart-2: oklch(0.6 0.2 330);
+  --chart-3: oklch(0.65 0.2 160);
+  --chart-4: oklch(0.7 0.2 80);
+  --chart-5: oklch(0.6 0.15 30);
+  --glow: oklch(0.55 0.25 264 / 30%);
+  --glow-secondary: oklch(0.6 0.2 330 / 20%);
+  --glass: oklch(1 0 0 / 60%);
+  --glass-border: oklch(1 0 0 / 80%);
+}
+
+/* ─── Dark Mode ─── */
+.dark {
+  --background: oklch(0.1 0.015 264);
+  --foreground: oklch(0.95 0.01 264);
+  --card: oklch(0.15 0.02 264 / 60%);
+  --card-foreground: oklch(0.95 0.01 264);
+  --popover: oklch(0.15 0.02 264 / 90%);
+  --popover-foreground: oklch(0.95 0.01 264);
+  --primary: oklch(0.7 0.25 264);
+  --primary-foreground: oklch(0.1 0 0);
+  --secondary: oklch(0.2 0.03 264);
+  --secondary-foreground: oklch(0.9 0.01 264);
+  --muted: oklch(0.2 0.02 264);
+  --muted-foreground: oklch(0.6 0.03 264);
+  --accent: oklch(0.22 0.04 264);
+  --accent-foreground: oklch(0.9 0.01 264);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.7 0.25 264);
+  --chart-1: oklch(0.7 0.25 264);
+  --chart-2: oklch(0.7 0.2 330);
+  --chart-3: oklch(0.75 0.2 160);
+  --chart-4: oklch(0.75 0.2 80);
+  --chart-5: oklch(0.7 0.18 30);
+  --glow: oklch(0.7 0.25 264 / 20%);
+  --glow-secondary: oklch(0.7 0.2 330 / 15%);
+  --glass: oklch(0.15 0.02 264 / 40%);
+  --glass-border: oklch(1 0 0 / 10%);
+}
+
+/* ─── Base ─── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: auto; /* Lenis handles smooth scroll */
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  ::selection {
+    background: oklch(0.7 0.25 264 / 30%);
+    color: inherit;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Fluid Typography ─── */
+@layer base {
+  :root {
+    --text-xs: clamp(0.694rem, 0.66vi + 0.53rem, 0.8rem);
+    --text-sm: clamp(0.833rem, 0.8vi + 0.63rem, 0.95rem);
+    --text-base: clamp(1rem, 0.95vi + 0.76rem, 1.125rem);
+    --text-lg: clamp(1.2rem, 1.2vi + 0.9rem, 1.35rem);
+    --text-xl: clamp(1.44rem, 1.5vi + 1.06rem, 1.7rem);
+    --text-2xl: clamp(1.728rem, 1.9vi + 1.25rem, 2.15rem);
+    --text-3xl: clamp(2.074rem, 2.5vi + 1.44rem, 2.7rem);
+    --text-4xl: clamp(2.488rem, 3.2vi + 1.68rem, 3.4rem);
+    --text-5xl: clamp(2.986rem, 4.2vi + 1.94rem, 4.5rem);
+    --text-6xl: clamp(3.583rem, 5.5vi + 2.2rem, 6rem);
+  }
+}
+
+/* ─── Noise Texture Overlay ─── */
+@layer utilities {
+  .noise-overlay::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glow {
+    box-shadow: 0 0 40px var(--glow), 0 0 80px var(--glow-secondary);
+  }
+
+  .text-gradient {
+    background: linear-gradient(
+      135deg,
+      oklch(0.7 0.25 264),
+      oklch(0.7 0.2 330),
+      oklch(0.7 0.25 264)
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-mesh {
+    background:
+      radial-gradient(at 20% 80%, oklch(0.7 0.25 264 / 15%) 0%, transparent 50%),
+      radial-gradient(at 80% 20%, oklch(0.7 0.2 330 / 12%) 0%, transparent 50%),
+      radial-gradient(at 50% 50%, oklch(0.65 0.2 160 / 8%) 0%, transparent 60%);
+  }
+
+  .skill-bar-bg {
+    background: oklch(0.3 0.02 264 / 30%);
+  }
+
+  .dark .skill-bar-bg {
+    background: oklch(0.2 0.02 264 / 50%);
+  }
+
+  .skill-bar-fill {
+    background: linear-gradient(90deg, oklch(0.7 0.25 264), oklch(0.7 0.2 330));
+  }
+}
+
+/* ─── Scroll-driven section reveals ─── */
+@layer utilities {
+  .section-padding {
+    padding-block: clamp(4rem, 10vi, 8rem);
+  }
+
+  .container-wide {
+    width: 100%;
+    max-width: 1400px;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vi, 3rem);
+  }
+}
+
+/* ─── Custom Cursor ─── */
+@media (pointer: fine) {
+  .cursor-none * {
+    cursor: none !important;
+  }
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Scroll indicator animation ─── */
+@keyframes scroll-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(200%);
+  }
+}
+
+.animate-scroll-line {
+  animation: scroll-line 1.5s ease-in-out infinite;
+}
+
+/* ─── Scrollbar ─── */
+@layer base {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.5 0.05 264 / 40%);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.6 0.1 264 / 60%);
+  }
 }
