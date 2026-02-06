@@ -1,30 +1,25 @@
-"use client";
+"use client"
 
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useTheme } from "next-themes"
+import { useEffect, useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => setMounted(true), [])
 
   if (!mounted) {
-    return (
-      <button
-        className="relative h-9 w-9 rounded-full"
-        aria-label="Toggle theme"
-      />
-    );
+    return <button className="relative h-9 w-9 rounded-full" aria-label="Toggle theme" />
   }
 
-  const isDark = theme === "dark";
+  const isDark = theme === "dark"
 
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/50 backdrop-blur-sm transition-colors hover:bg-accent"
+      className="border-border bg-card/50 hover:bg-accent relative flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-sm transition-colors"
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -75,5 +70,5 @@ export function ThemeToggle() {
         )}
       </AnimatePresence>
     </button>
-  );
+  )
 }

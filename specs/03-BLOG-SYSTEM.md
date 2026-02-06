@@ -8,23 +8,24 @@ A full-featured blog with rich text editing, media uploads, YouTube video embeds
 
 ### Why Tiptap instead of Syncfusion?
 
-| Factor | Tiptap | Syncfusion RichTextEditor |
-|--------|--------|--------------------------|
-| **License** | Free (open-source core) | Requires commercial license ($$$) |
-| **React/Next.js integration** | First-class React support, SSR-safe | Heavier, potential SSR issues |
-| **Customization** | Fully extensible node/mark system | Config-based, less flexible |
-| **Output format** | HTML or JSON (both supported) | HTML |
-| **Image uploads** | Custom upload handler (Supabase Storage) | Built-in but needs custom backend |
-| **YouTube embeds** | Official extension | Supported |
-| **Bundle size** | ~50KB (tree-shakable) | ~300KB+ |
-| **Community** | 10K+ GitHub stars, active | Smaller community |
-| **Markdown support** | Built-in shortcuts | Limited |
+| Factor                        | Tiptap                                   | Syncfusion RichTextEditor         |
+| ----------------------------- | ---------------------------------------- | --------------------------------- |
+| **License**                   | Free (open-source core)                  | Requires commercial license ($$$) |
+| **React/Next.js integration** | First-class React support, SSR-safe      | Heavier, potential SSR issues     |
+| **Customization**             | Fully extensible node/mark system        | Config-based, less flexible       |
+| **Output format**             | HTML or JSON (both supported)            | HTML                              |
+| **Image uploads**             | Custom upload handler (Supabase Storage) | Built-in but needs custom backend |
+| **YouTube embeds**            | Official extension                       | Supported                         |
+| **Bundle size**               | ~50KB (tree-shakable)                    | ~300KB+                           |
+| **Community**                 | 10K+ GitHub stars, active                | Smaller community                 |
+| **Markdown support**          | Built-in shortcuts                       | Limited                           |
 
 **Decision: Use Tiptap** — it's free, lighter, more customizable, and integrates perfectly with React/Next.js. If you already own a Syncfusion license and prefer it, it can work too, but Tiptap is the better technical fit.
 
 ### Tiptap Setup
 
 Install:
+
 ```bash
 npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-image @tiptap/extension-youtube @tiptap/extension-link @tiptap/extension-placeholder @tiptap/extension-code-block-lowlight @tiptap/extension-typography @tiptap/extension-text-align @tiptap/extension-underline @tiptap/extension-color @tiptap/extension-text-style @tiptap/extension-highlight
 ```
@@ -67,18 +68,21 @@ When user clicks "Insert Image" in the toolbar:
 ### Video Strategy
 
 **YouTube Embeds (Primary — Recommended)**
+
 - Use Tiptap's `@tiptap/extension-youtube` extension
 - User pastes a YouTube URL → converts to responsive iframe embed
 - Lazy-load iframes (use `loading="lazy"` + `srcdoc` pattern for performance)
 - Supports YouTube and Vimeo URLs
 
 **Self-hosted video (NOT recommended for now)**
+
 - Video hosting is expensive (storage + bandwidth)
 - Supabase Storage free tier is only 1GB — a single 1080p video can be 500MB+
 - YouTube/Vimeo give you free CDN, adaptive streaming, and mobile optimization
 - **If self-hosted is needed later**: Upload to Supabase Storage, use `<video>` tag with poster image
 
 **Recommendation to user**: Host ALL videos on YouTube (unlisted if private) and embed them. This gives you:
+
 - Free unlimited storage and bandwidth
 - Adaptive bitrate streaming (auto quality)
 - Mobile optimization
@@ -89,6 +93,7 @@ When user clicks "Insert Image" in the toolbar:
 ### Code Block Syntax Highlighting
 
 Use `@tiptap/extension-code-block-lowlight` with:
+
 - Language auto-detection
 - Manual language selection dropdown
 - Themes: Use a dark theme that matches the portfolio aesthetic
@@ -111,6 +116,7 @@ Use `@tiptap/extension-code-block-lowlight` with:
 ### Blog List (`/admin/blog`)
 
 Table with columns:
+
 - Cover Image (thumbnail)
 - Title
 - Status (Published / Draft — badge)
@@ -120,6 +126,7 @@ Table with columns:
 - Actions (Edit / Delete / Preview / Duplicate)
 
 Features:
+
 - Filter by status (All / Published / Drafts)
 - Search by title
 - Sort by date (newest first default)
@@ -130,10 +137,12 @@ Features:
 Layout: Two-column on desktop
 
 **Left column (70%)** — Editor:
+
 - Title input (large, prominent — like Medium)
 - Tiptap rich text editor (full height)
 
 **Right column (30%)** — Metadata sidebar:
+
 - **Status**: Draft / Published toggle
 - **Published date**: Date picker (default: now when publishing)
 - **Slug**: Auto-generated from title, editable
@@ -148,6 +157,7 @@ Layout: Two-column on desktop
   - SEO preview (shows how it looks in Google)
 
 **Top bar**:
+
 - Back to blog list
 - Save Draft button
 - Publish/Update button
@@ -166,8 +176,8 @@ Layout: Two-column on desktop
 function generateSlug(title: string): string {
   return title
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
     .substring(0, 80)
 }
 ```
@@ -178,7 +188,7 @@ Check for uniqueness against existing slugs. If duplicate, append `-2`, `-3`, et
 
 ```typescript
 function calculateReadTime(html: string): number {
-  const text = html.replace(/<[^>]*>/g, '')
+  const text = html.replace(/<[^>]*>/g, "")
   const words = text.split(/\s+/).filter(Boolean).length
   return Math.max(1, Math.ceil(words / 200)) // 200 WPM average
 }
@@ -209,6 +219,7 @@ function calculateReadTime(html: string): number {
 ### Blog Content Rendering (`BlogRenderer`)
 
 The rendered blog HTML needs:
+
 1. **Sanitization**: Use `DOMPurify` or `sanitize-html` to prevent XSS
 2. **Styling**: Apply prose styles (use Tailwind `@apply` or custom CSS for `h1-h6`, `p`, `a`, `img`, `pre`, `code`, `blockquote`, `ul`, `ol`, `table`)
 3. **Image optimization**: Wrap `<img>` tags with `next/image` for lazy loading + optimization
@@ -219,6 +230,7 @@ The rendered blog HTML needs:
 ### RSS Feed
 
 Create `/app/blog/feed.xml/route.ts` that generates an RSS 2.0 feed:
+
 - Include all published posts
 - Title, description, link, pubDate, content (excerpt)
 - Auto-discover link in `<head>` of blog pages
@@ -231,13 +243,13 @@ import { createServerClient } from '@/lib/supabase/server'
 
 export default async function BlogPage() {
   const supabase = await createServerClient()
-  
+
   const { data: posts } = await supabase
     .from('blog_posts')
     .select('id, title, slug, excerpt, cover_image_url, tags, published_at, read_time_minutes')
     .eq('published', true)
     .order('published_at', { ascending: false })
-  
+
   return <BlogListing posts={posts ?? []} />
 }
 

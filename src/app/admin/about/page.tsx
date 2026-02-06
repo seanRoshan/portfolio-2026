@@ -12,7 +12,9 @@ export default async function AboutPage() {
       <>
         <AdminHeader title="About" />
         <div className="p-4 md:p-6">
-          <p className="text-muted-foreground">No about section found. Run the seed script first.</p>
+          <p className="text-muted-foreground">
+            No about section found. Run the seed script first.
+          </p>
         </div>
       </>
     )
@@ -21,7 +23,7 @@ export default async function AboutPage() {
   return (
     <>
       <AdminHeader title="About" />
-      <div className="p-4 md:p-6 max-w-3xl">
+      <div className="max-w-3xl p-4 md:p-6">
         <AboutForm data={data as AboutSection} />
       </div>
     </>

@@ -59,7 +59,7 @@ export async function updateProjectOrder(ids: string[]) {
 
   // Update sort_order for each project based on array position
   const updates = ids.map((id, index) =>
-    supabase.from("projects").update({ sort_order: index }).eq("id", id)
+    supabase.from("projects").update({ sort_order: index }).eq("id", id),
   )
 
   const results = await Promise.all(updates)

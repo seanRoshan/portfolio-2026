@@ -53,11 +53,13 @@ Looking at the uploaded screenshot, the current skills section has major issues:
 ### Design Details
 
 **Section Header**:
+
 - Subtitle: "SKILLS & EXPERTISE" (small, blue/accent, uppercase tracking)
 - Title: "Tools and technologies I work with" (large, bold, black)
 - Changed from "I master" (too aggressive) to "I work with" (confident but humble)
 
 **Category Tabs**:
+
 - Horizontal pill-style tabs (like the current design — keep this, it works)
 - Active tab: filled accent color with white text
 - Inactive: transparent with subtle border
@@ -65,6 +67,7 @@ Looking at the uploaded screenshot, the current skills section has major issues:
 - Sticky on scroll within the section
 
 **Skill Cards** (the core redesign):
+
 - Grid layout: 4 columns desktop, 3 tablet, 2 mobile
 - Each card:
   - Technology icon (from `devicons` / `simple-icons` / custom SVG)
@@ -76,14 +79,17 @@ Looking at the uploaded screenshot, the current skills section has major issues:
 - NO percentages, NO progress bars, NO proficiency levels
 
 **Icon Source**: Use `devicon` icons (https://devicon.dev/) — they have high-quality SVGs for virtually every tech. Install via:
+
 ```bash
 npm install devicons # or use CDN / copy SVGs to public/icons/
 ```
 
 Alternative: `react-icons` with the `Si` (Simple Icons) set:
+
 ```bash
 npm install react-icons
 ```
+
 Then: `import { SiReact, SiNextdotjs, SiTypescript } from 'react-icons/si'`
 
 **Icon Mapping**: Store icon identifiers in the database `skills.icon_name` field. Map to actual icon components:
@@ -133,6 +139,7 @@ If the icon grid feels too static, consider a continuous scrolling marquee of te
 ```
 
 This works well for:
+
 - Large number of skills
 - Visual interest
 - Avoiding the "grid of boxes" look
@@ -144,6 +151,7 @@ Implementation: CSS animation (`translateX`) with duplicated items for infinite 
 ## Admin: Skills Management
 
 The admin skills page should:
+
 1. Show skills grouped by category
 2. Allow drag-and-drop reordering within each group
 3. Provide a searchable icon picker (type "react" → see React icon + variations)

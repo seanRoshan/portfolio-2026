@@ -9,7 +9,12 @@ export const experienceSchema = z.object({
   description: z.string().nullable().default(null),
   achievements: z.array(z.string().min(1)).default([]),
   company_logo_url: z.string().nullable().default(null),
-  company_url: z.string().url("Must be a valid URL").nullable().or(z.literal("")).transform(v => v || null),
+  company_url: z
+    .string()
+    .url("Must be a valid URL")
+    .nullable()
+    .or(z.literal(""))
+    .transform((v) => v || null),
   published: z.boolean().default(true),
   show_on_resume: z.boolean().default(true),
 })

@@ -8,16 +8,17 @@ We are upgrading an existing Next.js 16.1 portfolio website from hard-coded stat
 
 After evaluating options, we are using:
 
-| Concern | Solution | Why |
-|---------|----------|-----|
-| **Hosting** | Vercel Pro | Edge network, DDoS protection, custom domain, analytics, Next.js-native |
-| **Database** | Supabase (PostgreSQL) | Free tier: 500MB DB, 1GB storage, 50K MAU auth. Row Level Security built-in |
-| **Authentication** | Supabase Auth | Built into Supabase, supports email/password + OAuth, no extra service needed |
-| **File Storage** | Supabase Storage | Images, resume PDFs, blog media. 1GB free. CDN-backed. Signed URLs for private files |
-| **Custom Domain** | Vercel | SSL auto-provisioned, HTTPS enforced |
-| **Security** | Vercel (WAF/DDoS) + Supabase (RLS + Auth) | Multi-layer protection |
+| Concern            | Solution                                  | Why                                                                                  |
+| ------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Hosting**        | Vercel Pro                                | Edge network, DDoS protection, custom domain, analytics, Next.js-native              |
+| **Database**       | Supabase (PostgreSQL)                     | Free tier: 500MB DB, 1GB storage, 50K MAU auth. Row Level Security built-in          |
+| **Authentication** | Supabase Auth                             | Built into Supabase, supports email/password + OAuth, no extra service needed        |
+| **File Storage**   | Supabase Storage                          | Images, resume PDFs, blog media. 1GB free. CDN-backed. Signed URLs for private files |
+| **Custom Domain**  | Vercel                                    | SSL auto-provisioned, HTTPS enforced                                                 |
+| **Security**       | Vercel (WAF/DDoS) + Supabase (RLS + Auth) | Multi-layer protection                                                               |
 
 ### Why NOT Vercel Postgres + Vercel Blob + Auth.js?
+
 - 3 separate services vs 1 (Supabase bundles auth + DB + storage)
 - Supabase free tier is more generous (500MB DB vs 256MB Vercel Postgres)
 - Supabase has built-in Row Level Security — admin-only writes are enforced at DB level

@@ -5,7 +5,7 @@ export default function NewProjectPage() {
   return (
     <>
       <AdminHeader title="New Project" />
-      <div className="p-4 md:p-6 max-w-3xl">
+      <div className="max-w-3xl p-4 md:p-6">
         <ProjectForm />
       </div>
     </>

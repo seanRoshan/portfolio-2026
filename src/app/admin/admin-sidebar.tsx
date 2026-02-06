@@ -54,7 +54,9 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
       <div className="flex h-14 items-center border-b px-4">
         <Link href="/admin" className="flex items-center gap-2 font-semibold">
           <span className="text-lg">Portfolio</span>
-          <Badge variant="secondary" className="text-xs">Admin</Badge>
+          <Badge variant="secondary" className="text-xs">
+            Admin
+          </Badge>
         </Link>
       </div>
       <ScrollArea className="flex-1 px-3 py-4">
@@ -67,7 +69,7 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 isActive(item.href)
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -81,18 +83,18 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
           ))}
         </nav>
       </ScrollArea>
-      <div className="border-t p-3 space-y-1">
+      <div className="space-y-1 border-t p-3">
         <Link
           href="/"
           target="_blank"
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors"
         >
           <ExternalLink className="h-4 w-4" />
           View Site
         </Link>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 px-3 text-muted-foreground"
+          className="text-muted-foreground w-full justify-start gap-3 px-3"
           onClick={() => startTransition(() => logout())}
           disabled={isPending}
         >

@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { useRef } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useGSAP } from "@gsap/react"
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger)
 
 interface StaggerChildrenProps {
-  children: React.ReactNode;
-  className?: string;
-  stagger?: number;
-  y?: number;
-  duration?: number;
-  childSelector?: string;
+  children: React.ReactNode
+  className?: string
+  stagger?: number
+  y?: number
+  duration?: number
+  childSelector?: string
 }
 
 export function StaggerChildren({
@@ -24,14 +24,14 @@ export function StaggerChildren({
   duration = 0.8,
   childSelector = ":scope > *",
 }: StaggerChildrenProps) {
-  const container = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLDivElement>(null)
 
   useGSAP(
     () => {
-      const el = container.current;
-      if (!el) return;
+      const el = container.current
+      if (!el) return
 
-      const items = el.querySelectorAll(childSelector);
+      const items = el.querySelectorAll(childSelector)
 
       gsap.fromTo(
         items,
@@ -47,15 +47,15 @@ export function StaggerChildren({
             start: "top 80%",
             toggleActions: "play none none none",
           },
-        }
-      );
+        },
+      )
     },
-    { scope: container }
-  );
+    { scope: container },
+  )
 
   return (
     <div ref={container} className={className}>
       {children}
     </div>
-  );
+  )
 }

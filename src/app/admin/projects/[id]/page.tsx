@@ -14,7 +14,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
   return (
     <>
       <AdminHeader title={`Edit: ${data.title}`} />
-      <div className="p-4 md:p-6 max-w-3xl">
+      <div className="max-w-3xl p-4 md:p-6">
         <ProjectForm data={data as Project} />
       </div>
     </>

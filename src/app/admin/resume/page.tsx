@@ -1,19 +1,26 @@
+import { createClient } from "@/lib/supabase/server"
 import { AdminHeader } from "../admin-header"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { FileDown } from "lucide-react"
+import { ResumeForm } from "./resume-form"
+import type { Resume, Skill, Experience } from "@/types/database"
 
-export default function ResumeAdminPage() {
+export default async function ResumeAdminPage() {
+  const supabase = await createClient()
+
+  const [{ data: resume }, { data: skills }, { data: experience }] = await Promise.all([
+    supabase.from("resume").select("*").single(),
+    supabase.from("skills").select("*").eq("published", true).order("sort_order"),
+    supabase.from("experience").select("*").eq("published", true).order("sort_order"),
+  ])
+
   return (
     <>
       <AdminHeader title="Resume" />
-      <div className="p-4 md:p-6 max-w-3xl">
-        <Alert>
-          <FileDown className="h-4 w-4" />
-          <AlertTitle>Coming Soon</AlertTitle>
-          <AlertDescription>
-            Resume builder will be implemented in Issue #4.
-          </AlertDescription>
-        </Alert>
+      <div className="p-4 md:p-6">
+        <ResumeForm
+          data={(resume as Resume) ?? null}
+          skills={(skills as Skill[]) ?? []}
+          experience={(experience as Experience[]) ?? []}
+        />
       </div>
     </>
   )

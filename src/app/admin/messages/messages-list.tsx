@@ -55,28 +55,32 @@ export function MessagesList({ messages }: { messages: ContactSubmission[] }) {
   function renderMessage(msg: ContactSubmission) {
     const isExpanded = expandedId === msg.id
     return (
-      <div key={msg.id} className="rounded-lg border overflow-hidden">
+      <div key={msg.id} className="overflow-hidden rounded-lg border">
         <button
           type="button"
           onClick={() => handleExpand(msg)}
-          className="w-full flex items-center gap-3 p-3 text-left hover:bg-accent/50 transition-colors"
+          className="hover:bg-accent/50 flex w-full items-center gap-3 p-3 text-left transition-colors"
         >
-          {!msg.read && <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />}
-          <div className="flex-1 min-w-0">
+          {!msg.read && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />}
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className={`font-medium truncate ${!msg.read ? "text-foreground" : "text-muted-foreground"}`}>
+              <span
+                className={`truncate font-medium ${!msg.read ? "text-foreground" : "text-muted-foreground"}`}
+              >
                 {msg.name}
               </span>
-              <span className="text-xs text-muted-foreground">&lt;{msg.email}&gt;</span>
+              <span className="text-muted-foreground text-xs">&lt;{msg.email}&gt;</span>
             </div>
-            <p className="text-sm text-muted-foreground truncate">{msg.subject || "(No subject)"}</p>
+            <p className="text-muted-foreground truncate text-sm">
+              {msg.subject || "(No subject)"}
+            </p>
           </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
+          <span className="text-muted-foreground text-xs whitespace-nowrap">
             {new Date(msg.created_at).toLocaleDateString()}
           </span>
         </button>
         {isExpanded && (
-          <div className="border-t p-4 space-y-3 bg-muted/50">
+          <div className="bg-muted/50 space-y-3 border-t p-4">
             <div className="text-sm whitespace-pre-wrap">{msg.message}</div>
             <div className="flex items-center gap-2">
               <Button
@@ -86,9 +90,13 @@ export function MessagesList({ messages }: { messages: ContactSubmission[] }) {
                 disabled={isPending}
               >
                 {msg.read ? (
-                  <><Mail className="mr-2 h-3 w-3" /> Mark Unread</>
+                  <>
+                    <Mail className="mr-2 h-3 w-3" /> Mark Unread
+                  </>
                 ) : (
-                  <><MailOpen className="mr-2 h-3 w-3" /> Mark Read</>
+                  <>
+                    <MailOpen className="mr-2 h-3 w-3" /> Mark Read
+                  </>
                 )}
               </Button>
               <Button
@@ -110,9 +118,7 @@ export function MessagesList({ messages }: { messages: ContactSubmission[] }) {
     <>
       <Tabs defaultValue="all">
         <TabsList className="mb-4">
-          <TabsTrigger value="all">
-            All ({messages.length})
-          </TabsTrigger>
+          <TabsTrigger value="all">All ({messages.length})</TabsTrigger>
           <TabsTrigger value="unread">
             Unread
             {unread.length > 0 && (
@@ -125,15 +131,21 @@ export function MessagesList({ messages }: { messages: ContactSubmission[] }) {
         </TabsList>
 
         <TabsContent value="all" className="space-y-2">
-          {messages.length === 0 && <p className="text-center text-muted-foreground py-8">No messages yet</p>}
+          {messages.length === 0 && (
+            <p className="text-muted-foreground py-8 text-center">No messages yet</p>
+          )}
           {messages.map(renderMessage)}
         </TabsContent>
         <TabsContent value="unread" className="space-y-2">
-          {unread.length === 0 && <p className="text-center text-muted-foreground py-8">All caught up!</p>}
+          {unread.length === 0 && (
+            <p className="text-muted-foreground py-8 text-center">All caught up!</p>
+          )}
           {unread.map(renderMessage)}
         </TabsContent>
         <TabsContent value="read" className="space-y-2">
-          {read.length === 0 && <p className="text-center text-muted-foreground py-8">No read messages</p>}
+          {read.length === 0 && (
+            <p className="text-muted-foreground py-8 text-center">No read messages</p>
+          )}
           {read.map(renderMessage)}
         </TabsContent>
       </Tabs>
@@ -142,10 +154,14 @@ export function MessagesList({ messages }: { messages: ContactSubmission[] }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete this message?</DialogTitle>
-            <DialogDescription>From: {deleteTarget?.name}. This action cannot be undone.</DialogDescription>
+            <DialogDescription>
+              From: {deleteTarget?.name}. This action cannot be undone.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
               {isPending ? "Deleting..." : "Delete"}
             </Button>

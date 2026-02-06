@@ -58,7 +58,7 @@ export function TableOfContents({ content }: TableOfContentsProps) {
           }
         }
       },
-      { rootMargin: "-80px 0px -70% 0px" }
+      { rootMargin: "-80px 0px -70% 0px" },
     )
 
     headings.forEach((h) => {
@@ -73,7 +73,7 @@ export function TableOfContents({ content }: TableOfContentsProps) {
 
   return (
     <div className="sticky top-24">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
         On this page
       </p>
       <nav className="space-y-1">
@@ -86,11 +86,9 @@ export function TableOfContents({ content }: TableOfContentsProps) {
               document.getElementById(heading.id)?.scrollIntoView({ behavior: "smooth" })
             }}
             className={cn(
-              "block text-sm transition-colors hover:text-foreground",
+              "hover:text-foreground block text-sm transition-colors",
               heading.level === 3 && "pl-3",
-              activeId === heading.id
-                ? "font-medium text-primary"
-                : "text-muted-foreground"
+              activeId === heading.id ? "text-primary font-medium" : "text-muted-foreground",
             )}
           >
             {heading.text}

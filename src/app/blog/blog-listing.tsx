@@ -42,7 +42,7 @@ function PostCard({ post }: { post: Post }) {
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block">
-      <article className="glass h-full rounded-2xl overflow-hidden transition-all duration-500 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
+      <article className="glass hover:border-primary/20 hover:shadow-primary/5 h-full overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-1 hover:shadow-lg">
         {post.cover_image_url && (
           <div className="aspect-[2/1] overflow-hidden">
             <Image
@@ -56,20 +56,20 @@ function PostCard({ post }: { post: Post }) {
           </div>
         )}
         <div className="p-6">
-          <div className="mb-3 flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="text-muted-foreground mb-3 flex items-center gap-3 text-xs">
             {formattedDate && <time dateTime={post.published_at ?? ""}>{formattedDate}</time>}
             {post.read_time_minutes && (
               <>
-                <span className="h-1 w-1 rounded-full bg-muted-foreground" />
+                <span className="bg-muted-foreground h-1 w-1 rounded-full" />
                 <span>{post.read_time_minutes} min read</span>
               </>
             )}
           </div>
-          <h2 className="mb-2 text-xl font-semibold leading-snug transition-colors group-hover:text-primary">
+          <h2 className="group-hover:text-primary mb-2 text-xl leading-snug font-semibold transition-colors">
             {post.title}
           </h2>
           {post.excerpt && (
-            <p className="mb-4 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+            <p className="text-muted-foreground mb-4 line-clamp-2 text-sm leading-relaxed">
               {post.excerpt}
             </p>
           )}
@@ -88,7 +88,13 @@ function PostCard({ post }: { post: Post }) {
   )
 }
 
-export function BlogListing({ posts, totalPages, currentPage, currentTag, allTags }: BlogListingProps) {
+export function BlogListing({
+  posts,
+  totalPages,
+  currentPage,
+  currentTag,
+  allTags,
+}: BlogListingProps) {
   function buildHref(page: number, tag?: string) {
     const params = new URLSearchParams()
     if (page > 1) params.set("page", String(page))
@@ -109,7 +115,10 @@ export function BlogListing({ posts, totalPages, currentPage, currentTag, allTag
           </Link>
           {allTags.map((tag) => (
             <Link key={tag} href={buildHref(1, tag)}>
-              <Badge variant={currentTag === tag ? "default" : "outline"} className="cursor-pointer">
+              <Badge
+                variant={currentTag === tag ? "default" : "outline"}
+                className="cursor-pointer"
+              >
                 {tag}
               </Badge>
             </Link>
@@ -125,10 +134,10 @@ export function BlogListing({ posts, totalPages, currentPage, currentTag, allTag
           ))}
         </div>
       ) : (
-        <div className="py-16 text-center text-muted-foreground">
+        <div className="text-muted-foreground py-16 text-center">
           <p className="text-lg">No posts found</p>
           {currentTag && (
-            <Link href="/blog" className="mt-2 inline-block text-primary hover:underline">
+            <Link href="/blog" className="text-primary mt-2 inline-block hover:underline">
               Clear filter
             </Link>
           )}
@@ -147,7 +156,10 @@ export function BlogListing({ posts, totalPages, currentPage, currentTag, allTag
               )}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <PaginationItem key={page}>
-                  <PaginationLink href={buildHref(page, currentTag)} isActive={page === currentPage}>
+                  <PaginationLink
+                    href={buildHref(page, currentTag)}
+                    isActive={page === currentPage}
+                  >
                     {page}
                   </PaginationLink>
                 </PaginationItem>

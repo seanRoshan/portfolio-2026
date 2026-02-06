@@ -1,34 +1,34 @@
-"use client";
+"use client"
 
-import { useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-import { TextReveal } from "@/components/animations/TextReveal";
-import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
-import { cn } from "@/lib/utils";
+import { useRef, useState } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useGSAP } from "@gsap/react"
+import { TextReveal } from "@/components/animations/TextReveal"
+import { RevealOnScroll } from "@/components/animations/RevealOnScroll"
+import { cn } from "@/lib/utils"
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger)
 
 interface SkillsProps {
   skillsData: {
     categories: {
-      name: string;
-      skills: { name: string; level: number }[];
-    }[];
-  } | null;
+      name: string
+      skills: { name: string; level: number }[]
+    }[]
+  } | null
 }
 
 const defaultSkillsData: NonNullable<SkillsProps["skillsData"]> = {
   categories: [],
-};
+}
 
 function SkillBar({ name, level }: { name: string; level: number }) {
-  const barRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null)
 
   useGSAP(() => {
-    const el = barRef.current;
-    if (!el) return;
+    const el = barRef.current
+    if (!el) return
 
     gsap.fromTo(
       el,
@@ -42,38 +42,38 @@ function SkillBar({ name, level }: { name: string; level: number }) {
           start: "top 90%",
           toggleActions: "play none none none",
         },
-      }
-    );
-  });
+      },
+    )
+  })
 
   return (
     <div className="group">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-sm font-medium">{name}</span>
-        <span className="text-xs text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+        <span className="text-muted-foreground text-xs opacity-0 transition-opacity group-hover:opacity-100">
           {level}%
         </span>
       </div>
       <div className="skill-bar-bg h-1.5 overflow-hidden rounded-full">
         <div
           ref={barRef}
-          className="skill-bar-fill h-full rounded-full origin-left"
+          className="skill-bar-fill h-full origin-left rounded-full"
           style={{ width: `${level}%` }}
         />
       </div>
     </div>
-  );
+  )
 }
 
 export function Skills({ skillsData: skillsDataProp }: SkillsProps) {
-  const skillsData = skillsDataProp ?? defaultSkillsData;
-  const [activeCategory, setActiveCategory] = useState(0);
+  const skillsData = skillsDataProp ?? defaultSkillsData
+  const [activeCategory, setActiveCategory] = useState(0)
 
   return (
     <section id="skills" className="section-padding relative">
       <div className="container-wide">
         <RevealOnScroll>
-          <span className="mb-3 block text-sm font-medium uppercase tracking-widest text-primary">
+          <span className="text-primary mb-3 block text-sm font-medium tracking-widest uppercase">
             Skills & Expertise
           </span>
         </RevealOnScroll>
@@ -81,7 +81,7 @@ export function Skills({ skillsData: skillsDataProp }: SkillsProps) {
         <TextReveal
           as="h2"
           type="words"
-          className="mb-16 max-w-2xl text-[length:var(--text-4xl)] font-bold leading-tight"
+          className="mb-16 max-w-2xl text-[length:var(--text-4xl)] leading-tight font-bold"
         >
           Tools and technologies I master
         </TextReveal>
@@ -96,8 +96,8 @@ export function Skills({ skillsData: skillsDataProp }: SkillsProps) {
                 className={cn(
                   "rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-300",
                   activeCategory === i
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                    : "bg-card/50 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    ? "bg-primary text-primary-foreground shadow-primary/25 shadow-lg"
+                    : "bg-card/50 text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 )}
               >
                 {cat.name}
@@ -110,11 +110,7 @@ export function Skills({ skillsData: skillsDataProp }: SkillsProps) {
         <div className="mx-auto max-w-3xl">
           <div className="grid gap-6 sm:grid-cols-2">
             {(skillsData.categories[activeCategory]?.skills ?? []).map((skill) => (
-              <SkillBar
-                key={skill.name}
-                name={skill.name}
-                level={skill.level}
-              />
+              <SkillBar key={skill.name} name={skill.name} level={skill.level} />
             ))}
           </div>
         </div>
@@ -122,19 +118,28 @@ export function Skills({ skillsData: skillsDataProp }: SkillsProps) {
         {/* Floating tech tags */}
         <RevealOnScroll className="mt-20">
           <div className="flex flex-wrap justify-center gap-3 opacity-40">
-            {["Git", "Linux", "Vim", "Figma", "Webpack", "Vite", "Jest", "Cypress", "Playwright", "Storybook"].map(
-              (tool) => (
-                <span
-                  key={tool}
-                  className="rounded-lg border border-border/50 px-3 py-1.5 text-xs text-muted-foreground"
-                >
-                  {tool}
-                </span>
-              )
-            )}
+            {[
+              "Git",
+              "Linux",
+              "Vim",
+              "Figma",
+              "Webpack",
+              "Vite",
+              "Jest",
+              "Cypress",
+              "Playwright",
+              "Storybook",
+            ].map((tool) => (
+              <span
+                key={tool}
+                className="border-border/50 text-muted-foreground rounded-lg border px-3 py-1.5 text-xs"
+              >
+                {tool}
+              </span>
+            ))}
           </div>
         </RevealOnScroll>
       </div>
     </section>
-  );
+  )
 }

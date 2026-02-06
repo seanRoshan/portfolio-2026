@@ -1,69 +1,69 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
+import { useEffect, useRef, useState } from "react"
+import gsap from "gsap"
 
 export function CustomCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const cursorDotRef = useRef<HTMLDivElement>(null);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [isTouch, setIsTouch] = useState(false);
+  const cursorRef = useRef<HTMLDivElement>(null)
+  const cursorDotRef = useRef<HTMLDivElement>(null)
+  const [isHovering, setIsHovering] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+  const [isTouch, setIsTouch] = useState(false)
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    if (typeof window === "undefined") return
+    const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches
     if (hasCoarsePointer) {
-      setIsTouch(true);
-      return;
+      setIsTouch(true)
+      return
     }
 
     const moveCursor = (e: MouseEvent) => {
-      if (!isVisible) setIsVisible(true);
+      if (!isVisible) setIsVisible(true)
 
       gsap.to(cursorRef.current, {
         x: e.clientX,
         y: e.clientY,
         duration: 0.5,
         ease: "power3.out",
-      });
+      })
 
       gsap.to(cursorDotRef.current, {
         x: e.clientX,
         y: e.clientY,
         duration: 0.1,
-      });
-    };
+      })
+    }
 
     const handleMouseEnter = () => {
-      setIsHovering(true);
-    };
+      setIsHovering(true)
+    }
 
     const handleMouseLeave = () => {
-      setIsHovering(false);
-    };
+      setIsHovering(false)
+    }
 
-    window.addEventListener("mousemove", moveCursor, { passive: true });
+    window.addEventListener("mousemove", moveCursor, { passive: true })
 
     const interactiveElements = document.querySelectorAll(
-      "a, button, [role='button'], input, textarea, select, [data-cursor-hover]"
-    );
+      "a, button, [role='button'], input, textarea, select, [data-cursor-hover]",
+    )
 
     interactiveElements.forEach((el) => {
-      el.addEventListener("mouseenter", handleMouseEnter);
-      el.addEventListener("mouseleave", handleMouseLeave);
-    });
+      el.addEventListener("mouseenter", handleMouseEnter)
+      el.addEventListener("mouseleave", handleMouseLeave)
+    })
 
     return () => {
-      window.removeEventListener("mousemove", moveCursor);
+      window.removeEventListener("mousemove", moveCursor)
       interactiveElements.forEach((el) => {
-        el.removeEventListener("mouseenter", handleMouseEnter);
-        el.removeEventListener("mouseleave", handleMouseLeave);
-      });
-    };
-  }, [isVisible]);
+        el.removeEventListener("mouseenter", handleMouseEnter)
+        el.removeEventListener("mouseleave", handleMouseLeave)
+      })
+    }
+  }, [isVisible])
 
-  if (isTouch) return null;
+  if (isTouch) return null
 
   return (
     <>
@@ -99,5 +99,5 @@ export function CustomCursor() {
         />
       </div>
     </>
-  );
+  )
 }

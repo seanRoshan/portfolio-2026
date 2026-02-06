@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server"
 
 /**
  * Server-side data fetching functions.
@@ -7,17 +7,11 @@ import { createClient } from "@/lib/supabase/server";
  */
 
 export async function getSiteConfig() {
-  const supabase = await createClient();
-  const { data: settings } = await supabase
-    .from("site_settings")
-    .select("*")
-    .single();
-  const { data: hero } = await supabase
-    .from("hero_section")
-    .select("name, avatar_url")
-    .single();
+  const supabase = await createClient()
+  const { data: settings } = await supabase.from("site_settings").select("*").single()
+  const { data: hero } = await supabase.from("hero_section").select("name, avatar_url").single()
 
-  if (!settings || !hero) return null;
+  if (!settings || !hero) return null
 
   return {
     name: hero.name,
@@ -28,16 +22,13 @@ export async function getSiteConfig() {
     location: "",
     availability: "Open to opportunities",
     socials: (settings.social_links as Record<string, string>) ?? {},
-  };
+  }
 }
 
 export async function getHeroData() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("hero_section")
-    .select("*")
-    .single();
-  if (!data) return null;
+  const supabase = await createClient()
+  const { data } = await supabase.from("hero_section").select("*").single()
+  if (!data) return null
 
   return {
     greeting: data.greeting ?? "Hey, I'm",
@@ -52,39 +43,36 @@ export async function getHeroData() {
       label: data.cta_secondary_text ?? "Get In Touch",
       href: data.cta_secondary_link ?? "#contact",
     },
-  };
+  }
 }
 
 export async function getAboutData() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("about_section")
-    .select("*")
-    .single();
-  if (!data) return null;
+  const supabase = await createClient()
+  const { data } = await supabase.from("about_section").select("*").single()
+  if (!data) return null
 
   // Map stats from JSONB [{label, value}] to [{label, value: number}]
   const stats = ((data.stats as Array<{ label: string; value: string }>) ?? []).map((s) => ({
     label: s.label,
     value: parseInt(s.value.replace(/[^0-9]/g, ""), 10) || 0,
-  }));
+  }))
 
   return {
     headline: data.subheading ?? data.heading ?? "About Me",
     description: [data.bio, data.bio_secondary].filter(Boolean) as string[],
     stats,
     techStack: (data.tech_stack ?? []).map((name: string) => ({ name, category: "" })),
-  };
+  }
 }
 
 export async function getProjectsData() {
-  const supabase = await createClient();
+  const supabase = await createClient()
   const { data } = await supabase
     .from("projects")
     .select("*")
     .eq("published", true)
-    .order("sort_order");
-  if (!data) return [];
+    .order("sort_order")
+  if (!data) return []
 
   return data.map((p) => ({
     id: p.slug,
@@ -98,33 +86,33 @@ export async function getProjectsData() {
     featured: p.featured,
     year: p.year ?? "",
     color: p.color ?? "#6366f1",
-  }));
+  }))
 }
 
 export async function getSkillsData() {
-  const supabase = await createClient();
+  const supabase = await createClient()
   const { data } = await supabase
     .from("skills")
     .select("*")
     .eq("published", true)
-    .order("sort_order");
-  if (!data) return { categories: [] };
+    .order("sort_order")
+  if (!data) return { categories: [] }
 
   // Group by category
-  const grouped = new Map<string, Array<{ name: string; level: number }>>();
+  const grouped = new Map<string, Array<{ name: string; level: number }>>()
   const categoryLabels: Record<string, string> = {
     frontend: "Frontend",
     backend: "Backend",
     devops: "DevOps & Cloud",
     database: "Databases",
     tools: "Tools",
-  };
+  }
 
   for (const skill of data) {
-    const cat = skill.category;
-    if (!grouped.has(cat)) grouped.set(cat, []);
+    const cat = skill.category
+    if (!grouped.has(cat)) grouped.set(cat, [])
     // Temporarily keep a default level — will be removed in skills redesign (#5)
-    grouped.get(cat)!.push({ name: skill.name, level: 85 });
+    grouped.get(cat)!.push({ name: skill.name, level: 85 })
   }
 
   return {
@@ -132,24 +120,22 @@ export async function getSkillsData() {
       name: categoryLabels[key] ?? key,
       skills,
     })),
-  };
+  }
 }
 
 export async function getExperienceData() {
-  const supabase = await createClient();
+  const supabase = await createClient()
   const { data } = await supabase
     .from("experience")
     .select("*")
     .eq("published", true)
-    .order("sort_order");
-  if (!data) return [];
+    .order("sort_order")
+  if (!data) return []
 
   return data.map((e) => {
-    const start = new Date(e.start_date);
-    const startYear = start.getFullYear();
-    const endStr = e.end_date
-      ? new Date(e.end_date).getFullYear().toString()
-      : "Present";
+    const start = new Date(e.start_date)
+    const startYear = start.getFullYear()
+    const endStr = e.end_date ? new Date(e.end_date).getFullYear().toString() : "Present"
 
     return {
       role: e.role,
@@ -158,74 +144,70 @@ export async function getExperienceData() {
       period: `${startYear} — ${endStr}`,
       description: e.description ?? "",
       achievements: e.achievements ?? [],
-    };
-  });
+    }
+  })
 }
 
 export async function getBlogData() {
-  const supabase = await createClient();
+  const supabase = await createClient()
   const { data } = await supabase
     .from("blog_posts")
-    .select(
-      "title, slug, excerpt, tags, published_at, read_time_minutes"
-    )
+    .select("title, slug, excerpt, tags, published_at, read_time_minutes")
     .eq("published", true)
-    .order("published_at", { ascending: false });
-  if (!data) return [];
+    .order("published_at", { ascending: false })
+  if (!data) return []
 
   return data.map((post) => ({
     title: post.title,
     excerpt: post.excerpt ?? "",
-    date: post.published_at
-      ? new Date(post.published_at).toISOString().split("T")[0]
-      : "",
-    readTime: post.read_time_minutes
-      ? `${post.read_time_minutes} min`
-      : "5 min",
+    date: post.published_at ? new Date(post.published_at).toISOString().split("T")[0] : "",
+    readTime: post.read_time_minutes ? `${post.read_time_minutes} min` : "5 min",
     tags: post.tags ?? [],
     slug: post.slug,
-  }));
+  }))
 }
 
 export async function getBlogPost(slug: string) {
-  const supabase = await createClient();
+  const supabase = await createClient()
   const { data } = await supabase
     .from("blog_posts")
     .select("*")
     .eq("slug", slug)
     .eq("published", true)
-    .single();
-  return data;
+    .single()
+  return data
 }
 
 export async function getBlogPosts(page = 1, tag?: string) {
-  const perPage = 10;
-  const from = (page - 1) * perPage;
-  const to = from + perPage - 1;
+  const perPage = 10
+  const from = (page - 1) * perPage
+  const to = from + perPage - 1
 
-  const supabase = await createClient();
+  const supabase = await createClient()
   let query = supabase
     .from("blog_posts")
-    .select("id, title, slug, excerpt, cover_image_url, tags, published_at, read_time_minutes", { count: "exact" })
+    .select("id, title, slug, excerpt, cover_image_url, tags, published_at, read_time_minutes", {
+      count: "exact",
+    })
     .eq("published", true)
     .order("published_at", { ascending: false })
-    .range(from, to);
+    .range(from, to)
 
   if (tag) {
-    query = query.contains("tags", [tag]);
+    query = query.contains("tags", [tag])
   }
 
-  const { data, count } = await query;
+  const { data, count } = await query
   return {
     posts: data ?? [],
     total: count ?? 0,
     totalPages: Math.ceil((count ?? 0) / perPage),
     page,
-  };
+  }
 }
 
 export async function getAdjacentPosts(publishedAt: string) {
-  const supabase = await createClient();
+  const supabase = await createClient()
   const [{ data: prev }, { data: next }] = await Promise.all([
     supabase
       .from("blog_posts")
@@ -243,25 +225,96 @@ export async function getAdjacentPosts(publishedAt: string) {
       .order("published_at", { ascending: true })
       .limit(1)
       .single(),
-  ]);
-  return { prev, next };
+  ])
+  return { prev, next }
 }
 
 export async function getAllBlogTags() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("blog_posts")
-    .select("tags")
-    .eq("published", true);
-  if (!data) return [];
+  const supabase = await createClient()
+  const { data } = await supabase.from("blog_posts").select("tags").eq("published", true)
+  if (!data) return []
 
-  const tagSet = new Set<string>();
+  const tagSet = new Set<string>()
   for (const post of data) {
     for (const tag of post.tags ?? []) {
-      tagSet.add(tag);
+      tagSet.add(tag)
     }
   }
-  return Array.from(tagSet).sort();
+  return Array.from(tagSet).sort()
+}
+
+export async function getResumeData() {
+  const supabase = await createClient()
+  const { data } = await supabase.from("resume").select("*").single()
+  return data
+}
+
+export async function getResumeSkills() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("skills")
+    .select("*")
+    .eq("published", true)
+    .eq("show_on_resume", true)
+    .order("sort_order")
+  if (!data) return []
+
+  // Group by category
+  const grouped = new Map<string, string[]>()
+  for (const skill of data) {
+    if (!grouped.has(skill.category)) grouped.set(skill.category, [])
+    grouped.get(skill.category)!.push(skill.name)
+  }
+
+  return Array.from(grouped.entries()).map(([category, skills]) => ({
+    category,
+    skills,
+  }))
+}
+
+export async function getResumeExperience() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("experience")
+    .select("*")
+    .eq("published", true)
+    .eq("show_on_resume", true)
+    .order("sort_order")
+  if (!data) return []
+
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ]
+
+  return data.map((e) => {
+    const start = new Date(e.start_date)
+    const startStr = `${monthNames[start.getMonth()]} ${start.getFullYear()}`
+    const endStr = e.end_date
+      ? `${monthNames[new Date(e.end_date).getMonth()]} ${new Date(e.end_date).getFullYear()}`
+      : "Present"
+
+    return {
+      id: e.id,
+      company: e.company,
+      role: e.role,
+      location: e.location,
+      period: `${startStr} – ${endStr}`,
+      description: e.description,
+      achievements: e.achievements ?? [],
+      company_url: e.company_url,
+    }
+  })
 }
 
 export async function getNavLinks() {
@@ -272,6 +325,7 @@ export async function getNavLinks() {
     { label: "Skills", href: "#skills" },
     { label: "Experience", href: "#experience" },
     { label: "Blog", href: "#blog" },
+    { label: "Resume", href: "/resume" },
     { label: "Contact", href: "#contact" },
-  ];
+  ]
 }

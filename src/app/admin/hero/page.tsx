@@ -21,7 +21,7 @@ export default async function HeroPage() {
   return (
     <>
       <AdminHeader title="Hero" />
-      <div className="p-4 md:p-6 max-w-3xl">
+      <div className="max-w-3xl p-4 md:p-6">
         <HeroForm data={data as HeroSection} />
       </div>
     </>

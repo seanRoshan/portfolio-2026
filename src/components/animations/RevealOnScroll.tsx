@@ -1,20 +1,20 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { useRef } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useGSAP } from "@gsap/react"
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger)
 
 interface RevealOnScrollProps {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-  y?: number;
-  duration?: number;
-  stagger?: number;
-  once?: boolean;
+  children: React.ReactNode
+  className?: string
+  delay?: number
+  y?: number
+  duration?: number
+  stagger?: number
+  once?: boolean
 }
 
 export function RevealOnScroll({
@@ -25,12 +25,12 @@ export function RevealOnScroll({
   duration = 1,
   once = true,
 }: RevealOnScrollProps) {
-  const container = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLDivElement>(null)
 
   useGSAP(
     () => {
-      const el = container.current;
-      if (!el) return;
+      const el = container.current
+      if (!el) return
 
       gsap.fromTo(
         el,
@@ -44,19 +44,17 @@ export function RevealOnScroll({
           scrollTrigger: {
             trigger: el,
             start: "top 85%",
-            toggleActions: once
-              ? "play none none none"
-              : "play none none reverse",
+            toggleActions: once ? "play none none none" : "play none none reverse",
           },
-        }
-      );
+        },
+      )
     },
-    { scope: container }
-  );
+    { scope: container },
+  )
 
   return (
     <div ref={container} className={className} style={{ opacity: 0 }}>
       {children}
     </div>
-  );
+  )
 }

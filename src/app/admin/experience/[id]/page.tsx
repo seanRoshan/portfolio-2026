@@ -14,7 +14,7 @@ export default async function EditExperiencePage({ params }: { params: Promise<{
   return (
     <>
       <AdminHeader title={`Edit: ${data.role} at ${data.company}`} />
-      <div className="p-4 md:p-6 max-w-3xl">
+      <div className="max-w-3xl p-4 md:p-6">
         <ExperienceForm data={data as Experience} />
       </div>
     </>

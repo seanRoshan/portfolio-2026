@@ -112,9 +112,7 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
     }
 
     startTransition(async () => {
-      const result = isEdit
-        ? await updateBlogPost(data.id, values)
-        : await createBlogPost(values)
+      const result = isEdit ? await updateBlogPost(data.id, values) : await createBlogPost(values)
 
       if (result?.error) {
         toast.error(result.error)
@@ -141,16 +139,19 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         {/* Top bar */}
-        <div className="sticky top-14 z-30 flex items-center justify-between border-b bg-background px-4 py-2 md:px-6">
+        <div className="bg-background sticky top-14 z-30 flex items-center justify-between border-b px-4 py-2 md:px-6">
           <div className="flex items-center gap-3">
-            <Link href="/admin/blog" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              href="/admin/blog"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               {isEdit ? "Edit Post" : "New Post"}
             </span>
             {isEdit && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 {saveStatus === "saved" && "Saved"}
                 {saveStatus === "saving" && "Saving..."}
                 {saveStatus === "unsaved" && "Unsaved changes"}
@@ -187,7 +188,7 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
                       {...field}
                       onChange={handleTitleChange}
                       placeholder="Post title"
-                      className="text-2xl font-bold border-0 px-0 shadow-none focus-visible:ring-0 h-auto"
+                      className="h-auto border-0 px-0 text-2xl font-bold shadow-none focus-visible:ring-0"
                     />
                   </FormControl>
                   <FormMessage />
@@ -200,11 +201,7 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <BlogEditor
-                      content={field.value}
-                      onChange={field.onChange}
-                      postId={postId}
-                    />
+                    <BlogEditor content={field.value} onChange={field.onChange} postId={postId} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -240,7 +237,11 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
                       <Input
                         type="datetime-local"
                         value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
-                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value).toISOString() : null)}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ? new Date(e.target.value).toISOString() : null,
+                          )
+                        }
                       />
                     </FormControl>
                   </FormItem>
@@ -255,7 +256,9 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Slug</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -267,7 +270,12 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
                   <FormItem>
                     <FormLabel>Excerpt</FormLabel>
                     <FormControl>
-                      <Textarea rows={3} placeholder="Auto-generated from content if empty" {...field} value={field.value ?? ""} />
+                      <Textarea
+                        rows={3}
+                        placeholder="Auto-generated from content if empty"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
@@ -296,14 +304,18 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
                   <FormItem>
                     <FormLabel>Tags</FormLabel>
                     <FormControl>
-                      <DynamicList items={field.value ?? []} onChange={field.onChange} placeholder="Add tag..." />
+                      <DynamicList
+                        items={field.value ?? []}
+                        onChange={field.onChange}
+                        placeholder="Add tag..."
+                      />
                     </FormControl>
                   </FormItem>
                 )}
               />
               <div>
                 <Label className="text-sm font-medium">Read Time</Label>
-                <p className="text-sm text-muted-foreground">{readTime ?? 0} min read</p>
+                <p className="text-muted-foreground text-sm">{readTime ?? 0} min read</p>
               </div>
             </FormSection>
 
@@ -318,7 +330,13 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Meta Title</FormLabel>
-                      <FormControl><Input placeholder="Defaults to post title" {...field} value={field.value ?? ""} /></FormControl>
+                      <FormControl>
+                        <Input
+                          placeholder="Defaults to post title"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
@@ -329,7 +347,12 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
                     <FormItem>
                       <FormLabel>Meta Description</FormLabel>
                       <FormControl>
-                        <Textarea rows={2} placeholder="Defaults to excerpt" {...field} value={field.value ?? ""} />
+                        <Textarea
+                          rows={2}
+                          placeholder="Defaults to excerpt"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                     </FormItem>
                   )}

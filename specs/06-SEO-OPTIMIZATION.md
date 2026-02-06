@@ -65,12 +65,12 @@ Each blog post gets unique metadata:
 // /app/(public)/blog/[slug]/page.tsx
 export async function generateMetadata({ params }): Promise<Metadata> {
   const post = await getBlogPost(params.slug)
-  
+
   return {
     title: post.meta_title || post.title,
     description: post.meta_description || post.excerpt,
     openGraph: {
-      type: 'article',
+      type: "article",
       title: post.meta_title || post.title,
       description: post.meta_description || post.excerpt,
       images: [{ url: post.og_image_url || post.cover_image_url }],
@@ -80,7 +80,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
       authors: [heroName],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: post.meta_title || post.title,
       description: post.meta_description || post.excerpt,
       images: [post.og_image_url || post.cover_image_url],
@@ -97,6 +97,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 Add JSON-LD to every page for rich search results:
 
 **Home page** — `Person` + `WebSite`:
+
 ```json
 {
   "@context": "https://schema.org",
@@ -114,6 +115,7 @@ Add JSON-LD to every page for rich search results:
 ```
 
 **Blog posts** — `Article`:
+
 ```json
 {
   "@context": "https://schema.org",
@@ -136,6 +138,7 @@ Add JSON-LD to every page for rich search results:
 ```
 
 **Blog listing** — `CollectionPage`:
+
 ```json
 {
   "@context": "https://schema.org",
@@ -147,6 +150,7 @@ Add JSON-LD to every page for rich search results:
 ```
 
 **Resume page** — `ProfilePage`:
+
 ```json
 {
   "@context": "https://schema.org",
@@ -182,22 +186,27 @@ Generate dynamic sitemap from database content:
 
 ```typescript
 // /app/sitemap.ts
-import type { MetadataRoute } from 'next'
+import type { MetadataRoute } from "next"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getPublishedBlogPosts()
-  
-  const blogUrls = posts.map(post => ({
+
+  const blogUrls = posts.map((post) => ({
     url: `${siteUrl}/blog/${post.slug}`,
     lastModified: post.updated_at,
-    changeFrequency: 'monthly' as const,
+    changeFrequency: "monthly" as const,
     priority: 0.7,
   }))
 
   return [
-    { url: siteUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1.0 },
-    { url: `${siteUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${siteUrl}/resume`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    { url: siteUrl, lastModified: new Date(), changeFrequency: "weekly", priority: 1.0 },
+    { url: `${siteUrl}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    {
+      url: `${siteUrl}/resume`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     ...blogUrls,
   ]
 }
@@ -207,15 +216,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 ```typescript
 // /app/robots.ts
-import type { MetadataRoute } from 'next'
+import type { MetadataRoute } from "next"
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
-        userAgent: '*',
-        allow: '/',
-        disallow: ['/admin/', '/api/', '/login'],
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/login"],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
@@ -226,6 +235,7 @@ export default function robots(): MetadataRoute.Robots {
 ### 5. Canonical URLs
 
 Every page must have a canonical URL to prevent duplicate content:
+
 - Set via `metadata.alternates.canonical`
 - Important for blog posts (prevent `/blog/my-post` and `/blog/my-post/` from being separate pages)
 
@@ -243,18 +253,21 @@ Every page must have a canonical URL to prevent duplicate content:
 These directly impact SEO ranking:
 
 **LCP (Largest Contentful Paint) < 2.5s**:
+
 - Preload hero image with `priority` in next/image
 - Use `<link rel="preload">` for critical fonts
 - Server Components for instant HTML (no client JS waterfall)
 - Supabase queries cached via Next.js cache
 
 **FID/INP (Interaction to Next Paint) < 200ms**:
+
 - Minimize client-side JavaScript
 - Use Server Components by default, Client Components only where needed
 - Lazy load animation libraries (GSAP, Motion) — don't import in Server Components
 - Use `dynamic()` import for heavy components below the fold
 
 **CLS (Cumulative Layout Shift) < 0.1**:
+
 - Set explicit `width`/`height` on all images
 - Reserve space for dynamic content (skeleton loaders)
 - Don't inject content above existing content after load
@@ -308,7 +321,7 @@ These directly impact SEO ranking:
 // /app/blog/feed.xml/route.ts
 export async function GET() {
   const posts = await getPublishedBlogPosts()
-  
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
     <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
       <channel>
@@ -316,7 +329,9 @@ export async function GET() {
         <link>${siteUrl}/blog</link>
         <description>Blog description</description>
         <atom:link href="${siteUrl}/blog/feed.xml" rel="self" type="application/rss+xml"/>
-        ${posts.map(post => `
+        ${posts
+          .map(
+            (post) => `
           <item>
             <title>${escapeXml(post.title)}</title>
             <link>${siteUrl}/blog/${post.slug}</link>
@@ -324,17 +339,20 @@ export async function GET() {
             <pubDate>${new Date(post.published_at).toUTCString()}</pubDate>
             <description>${escapeXml(post.excerpt)}</description>
           </item>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </channel>
     </rss>`
 
   return new Response(xml, {
-    headers: { 'Content-Type': 'application/xml' },
+    headers: { "Content-Type": "application/xml" },
   })
 }
 ```
 
 Add RSS auto-discovery to the blog layout:
+
 ```typescript
 // In blog layout metadata
 alternates: {
@@ -347,6 +365,7 @@ alternates: {
 ### 13. Admin SEO Controls
 
 In the admin Settings page, provide:
+
 - Default site title template: `{page} — {site_name}`
 - Default meta description
 - Default OG image
@@ -355,6 +374,7 @@ In the admin Settings page, provide:
 - Per-page SEO overrides (meta title, description) in each content editor
 
 In the blog editor, provide:
+
 - SEO preview card (shows how the post appears in Google search results)
 - Character count for meta title (< 60 chars) and description (< 160 chars)
 - Slug editor with guidelines
@@ -363,6 +383,7 @@ In the blog editor, provide:
 ### 14. Post-Launch Checklist
 
 After deployment:
+
 1. Submit sitemap to Google Search Console (`sitemap.xml`)
 2. Submit sitemap to Bing Webmaster Tools
 3. Verify custom domain in Google Search Console

@@ -15,7 +15,7 @@ export function AdminHeader({ title, unreadCount }: AdminHeaderProps) {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background px-4 md:px-6">
+    <header className="bg-background sticky top-0 z-40 flex h-14 items-center gap-4 border-b px-4 md:px-6">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon" className="md:hidden">

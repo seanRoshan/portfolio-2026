@@ -12,10 +12,7 @@ import { ShareButtons } from "./share-buttons"
 
 export async function generateStaticParams() {
   const supabase = createAdminClient()
-  const { data } = await supabase
-    .from("blog_posts")
-    .select("slug")
-    .eq("published", true)
+  const { data } = await supabase.from("blog_posts").select("slug").eq("published", true)
   return (data ?? []).map((post) => ({ slug: post.slug }))
 }
 
@@ -52,11 +49,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = await getBlogPost(slug)
 
@@ -95,21 +88,24 @@ export default async function BlogPostPage({
 
       <div className="container-wide">
         {/* Back link */}
-        <Link href="/blog" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <Link
+          href="/blog"
+          className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1.5 text-sm transition-colors"
+        >
           <ArrowLeft className="h-4 w-4" />
           Back to blog
         </Link>
 
         {/* Header */}
         <header className="mb-10">
-          <h1 className="text-[length:var(--text-4xl)] font-bold leading-tight mb-4">
+          <h1 className="mb-4 text-[length:var(--text-4xl)] leading-tight font-bold">
             {post.title}
           </h1>
-          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-sm">
             {formattedDate && <time dateTime={post.published_at ?? ""}>{formattedDate}</time>}
             {post.read_time_minutes && (
               <>
-                <span className="h-1 w-1 rounded-full bg-muted-foreground" />
+                <span className="bg-muted-foreground h-1 w-1 rounded-full" />
                 <span>{post.read_time_minutes} min read</span>
               </>
             )}
@@ -118,7 +114,9 @@ export default async function BlogPostPage({
             <div className="mt-4 flex flex-wrap gap-2">
               {post.tags.map((tag: string) => (
                 <Link key={tag} href={`/blog?tag=${encodeURIComponent(tag)}`}>
-                  <Badge variant="secondary" className="cursor-pointer">{tag}</Badge>
+                  <Badge variant="secondary" className="cursor-pointer">
+                    {tag}
+                  </Badge>
                 </Link>
               ))}
             </div>
@@ -145,23 +143,37 @@ export default async function BlogPostPage({
         {/* Previous / Next navigation */}
         <nav className="mt-12 grid gap-4 border-t pt-8 sm:grid-cols-2">
           {adjacent.prev ? (
-            <Link href={`/blog/${adjacent.prev.slug}`} className="group flex items-center gap-3 rounded-lg border p-4 transition-colors hover:border-primary/30">
-              <ChevronLeft className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
+            <Link
+              href={`/blog/${adjacent.prev.slug}`}
+              className="group hover:border-primary/30 flex items-center gap-3 rounded-lg border p-4 transition-colors"
+            >
+              <ChevronLeft className="text-muted-foreground group-hover:text-primary h-5 w-5 shrink-0 transition-colors" />
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Previous</p>
-                <p className="font-medium truncate group-hover:text-primary transition-colors">{adjacent.prev.title}</p>
+                <p className="text-muted-foreground text-xs">Previous</p>
+                <p className="group-hover:text-primary truncate font-medium transition-colors">
+                  {adjacent.prev.title}
+                </p>
               </div>
             </Link>
-          ) : <div />}
+          ) : (
+            <div />
+          )}
           {adjacent.next ? (
-            <Link href={`/blog/${adjacent.next.slug}`} className="group flex items-center gap-3 rounded-lg border p-4 transition-colors hover:border-primary/30 text-right sm:justify-end">
+            <Link
+              href={`/blog/${adjacent.next.slug}`}
+              className="group hover:border-primary/30 flex items-center gap-3 rounded-lg border p-4 text-right transition-colors sm:justify-end"
+            >
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Next</p>
-                <p className="font-medium truncate group-hover:text-primary transition-colors">{adjacent.next.title}</p>
+                <p className="text-muted-foreground text-xs">Next</p>
+                <p className="group-hover:text-primary truncate font-medium transition-colors">
+                  {adjacent.next.title}
+                </p>
               </div>
-              <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
+              <ChevronRight className="text-muted-foreground group-hover:text-primary h-5 w-5 shrink-0 transition-colors" />
             </Link>
-          ) : <div />}
+          ) : (
+            <div />
+          )}
         </nav>
       </div>
     </main>

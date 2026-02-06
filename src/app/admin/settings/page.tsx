@@ -12,7 +12,9 @@ export default async function SettingsPage() {
       <>
         <AdminHeader title="Settings" />
         <div className="p-4 md:p-6">
-          <p className="text-muted-foreground">No site settings found. Run the seed script first.</p>
+          <p className="text-muted-foreground">
+            No site settings found. Run the seed script first.
+          </p>
         </div>
       </>
     )
@@ -21,7 +23,7 @@ export default async function SettingsPage() {
   return (
     <>
       <AdminHeader title="Settings" />
-      <div className="p-4 md:p-6 max-w-3xl">
+      <div className="max-w-3xl p-4 md:p-6">
         <SettingsForm data={data as SiteSettings} />
       </div>
     </>

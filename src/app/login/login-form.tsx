@@ -69,7 +69,7 @@ export function LoginForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <FormLabel className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 Email
               </FormLabel>
               <FormControl>
@@ -77,7 +77,7 @@ export function LoginForm() {
                   type="email"
                   placeholder="you@example.com"
                   autoComplete="email"
-                  className="h-11 rounded-xl border-border/50 bg-background/50 px-4 text-sm backdrop-blur-sm transition-all focus-visible:border-primary/50 focus-visible:bg-background/80"
+                  className="border-border/50 bg-background/50 focus-visible:border-primary/50 focus-visible:bg-background/80 h-11 rounded-xl px-4 text-sm backdrop-blur-sm transition-all"
                   {...field}
                 />
               </FormControl>
@@ -92,14 +92,14 @@ export function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <div className="flex items-center justify-between">
-                <FormLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <FormLabel className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                   Password
                 </FormLabel>
                 {!showReset && (
                   <button
                     type="button"
                     onClick={() => setShowReset(true)}
-                    className="text-xs text-muted-foreground/70 transition-colors hover:text-primary"
+                    className="text-muted-foreground/70 hover:text-primary text-xs transition-colors"
                   >
                     Forgot?
                   </button>
@@ -111,20 +111,16 @@ export function LoginForm() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     autoComplete="current-password"
-                    className="h-11 rounded-xl border-border/50 bg-background/50 px-4 pr-11 text-sm backdrop-blur-sm transition-all focus-visible:border-primary/50 focus-visible:bg-background/80"
+                    className="border-border/50 bg-background/50 focus-visible:border-primary/50 focus-visible:bg-background/80 h-11 rounded-xl px-4 pr-11 text-sm backdrop-blur-sm transition-all"
                     {...field}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 transition-colors hover:text-muted-foreground"
+                    className="text-muted-foreground/50 hover:text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
                     tabIndex={-1}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </FormControl>
@@ -135,8 +131,8 @@ export function LoginForm() {
 
         {/* Reset password inline */}
         {showReset && (
-          <div className="rounded-xl border border-primary/10 bg-primary/5 p-3">
-            <p className="mb-2 text-xs text-muted-foreground">
+          <div className="border-primary/10 bg-primary/5 rounded-xl border p-3">
+            <p className="text-muted-foreground mb-2 text-xs">
               We&apos;ll send a reset link to the email above.
             </p>
             <div className="flex gap-2">
@@ -149,7 +145,9 @@ export function LoginForm() {
                 className="h-8 rounded-lg text-xs"
               >
                 {isPending ? (
-                  <><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Sending...</>
+                  <>
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" /> Sending...
+                  </>
                 ) : (
                   "Send Reset Link"
                 )}
@@ -159,7 +157,7 @@ export function LoginForm() {
                 size="sm"
                 variant="ghost"
                 onClick={() => setShowReset(false)}
-                className="h-8 rounded-lg text-xs text-muted-foreground"
+                className="text-muted-foreground h-8 rounded-lg text-xs"
               >
                 Cancel
               </Button>

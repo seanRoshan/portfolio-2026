@@ -13,7 +13,7 @@ export default async function SkillsPage() {
   return (
     <>
       <AdminHeader title="Skills" />
-      <div className="p-4 md:p-6 max-w-4xl">
+      <div className="max-w-4xl p-4 md:p-6">
         <SkillsList skills={(data as Skill[]) ?? []} />
       </div>
     </>

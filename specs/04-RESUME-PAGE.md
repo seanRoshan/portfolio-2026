@@ -76,6 +76,7 @@ The online resume is NOT a copy-paste of a traditional PDF resume. It's a web-na
 ### Web Resume Enhancements (Not in PDF)
 
 The web version can include:
+
 - Subtle scroll-triggered animations (fade in sections as you scroll)
 - Clickable links (company URLs, project URLs)
 - Hover tooltips on skills showing brief context
@@ -97,14 +98,15 @@ The web version can include:
 
 **Why Puppeteer over other options?**
 
-| Option | Pros | Cons |
-|--------|------|------|
-| **Puppeteer/Playwright** | Pixel-perfect, matches web view, CSS support | Needs serverless function, heavier |
-| **react-pdf** | Pure React, lightweight | Different rendering engine, layout differences |
-| **docx-js → PDF** | Native PDF | Can't match web styles easily |
-| **Pre-generated upload** | Simplest | Admin must regenerate manually every time |
+| Option                   | Pros                                         | Cons                                           |
+| ------------------------ | -------------------------------------------- | ---------------------------------------------- |
+| **Puppeteer/Playwright** | Pixel-perfect, matches web view, CSS support | Needs serverless function, heavier             |
+| **react-pdf**            | Pure React, lightweight                      | Different rendering engine, layout differences |
+| **docx-js → PDF**        | Native PDF                                   | Can't match web styles easily                  |
+| **Pre-generated upload** | Simplest                                     | Admin must regenerate manually every time      |
 
 **Decision: Hybrid approach**
+
 1. **Primary**: Use `@react-pdf/renderer` to generate PDF server-side — it's lightweight, runs in serverless, and gives you precise control over the PDF layout
 2. **The PDF layout is a SEPARATE component** from the web view — optimized for ATS parsing
 3. **Store generated PDF in Supabase Storage** after admin saves resume content
@@ -113,6 +115,7 @@ The web version can include:
 ### PDF Design (ATS-Optimized)
 
 The PDF version must be:
+
 - **Single column** (ATS can't parse multi-column reliably)
 - **No images/icons** for text content (ATS can't read images)
 - **Standard fonts** (system fonts that ATS can parse)
@@ -141,22 +144,19 @@ Alternatively, regenerate and upload PDF to Supabase Storage every time admin sa
 
 ```typescript
 // /app/api/resume/download/route.ts
-import { createServerClient } from '@/lib/supabase/server'
+import { createServerClient } from "@/lib/supabase/server"
 
 export async function GET() {
   const supabase = await createServerClient()
-  
+
   // 1. Check if cached PDF exists and is current
-  const { data: resume } = await supabase
-    .from('resume')
-    .select('pdf_url, updated_at')
-    .single()
-  
+  const { data: resume } = await supabase.from("resume").select("pdf_url, updated_at").single()
+
   if (resume?.pdf_url) {
     // Redirect to cached PDF in Supabase Storage
     return Response.redirect(resume.pdf_url)
   }
-  
+
   // 2. Generate fresh PDF (fallback)
   // ... generate with @react-pdf/renderer
   // ... upload to Supabase Storage
@@ -170,28 +170,33 @@ export async function GET() {
 ### Form Layout
 
 Two-column layout:
+
 - **Left (60%)**: Edit form
 - **Right (40%)**: Live preview (web version rendering in real-time)
 
 ### Form Sections
 
 **Personal Info**:
+
 - Full name
 - Professional title
 - Email, Phone, Location
 - Website URL, LinkedIn URL, GitHub URL
 
 **Professional Summary**:
+
 - Textarea (3-5 sentences, ~300 chars max recommended)
 - Character counter with guideline
 
 **Technical Skills**:
+
 - Pulls from the Skills table (same data as portfolio skills section)
 - Toggle which skills appear on resume
 - Override category groupings for resume context
 - Reorder within categories
 
 **Work Experience**:
+
 - Pulls from the Experience table (same data as portfolio experience section)
 - Toggle which entries appear on resume
 - For each entry: editable list of achievement bullets
@@ -201,14 +206,17 @@ Two-column layout:
   - "Led migration of 500K+ user records from MongoDB to PostgreSQL"
 
 **Education**:
+
 - Dynamic list of entries
 - Each: School, Degree, Field of Study, Year, Details (optional)
 
 **Certifications**:
+
 - Dynamic list
 - Each: Name, Issuing Organization, Year
 
 **Additional Sections**:
+
 - Dynamic — admin can add custom sections
 - Each section: Title + list of items
 - Examples: Open Source Contributions, Speaking Engagements, Publications, Awards
@@ -216,6 +224,7 @@ Two-column layout:
 ### Save Action
 
 When admin saves:
+
 1. Update `resume` table in Supabase
 2. Generate new PDF using `@react-pdf/renderer`
 3. Upload PDF to Supabase Storage (`resume/resume-{timestamp}.pdf`)
@@ -227,6 +236,7 @@ When admin saves:
 ## Data Source Sharing
 
 The resume page shares data with the portfolio:
+
 - **Skills** → from `skills` table (filtered by `published = true`)
 - **Experience** → from `experience` table (filtered by `published = true`)
 - **Personal info** → from `resume` table (unique to resume)

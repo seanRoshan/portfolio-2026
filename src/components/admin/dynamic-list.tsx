@@ -50,15 +50,22 @@ function SortableItem({
 
   return (
     <div ref={setNodeRef} style={style} className="flex items-center gap-2">
-      <button type="button" className="cursor-grab text-muted-foreground" {...attributes} {...listeners}>
+      <button
+        type="button"
+        className="text-muted-foreground cursor-grab"
+        {...attributes}
+        {...listeners}
+      >
         <GripVertical className="h-4 w-4" />
       </button>
-      <Input
-        value={value}
-        onChange={(e) => onEdit(e.target.value)}
-        className="flex-1"
-      />
-      <Button type="button" variant="ghost" size="icon" onClick={onRemove} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+      <Input value={value} onChange={(e) => onEdit(e.target.value)} className="flex-1" />
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={onRemove}
+        className="text-muted-foreground hover:text-destructive h-8 w-8"
+      >
         <Trash2 className="h-4 w-4" />
       </Button>
     </div>
@@ -69,7 +76,7 @@ export function DynamicList({ items, onChange, label, placeholder, maxItems }: D
   const [newValue, setNewValue] = useState("")
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 
   // Stable IDs for each item
@@ -125,7 +132,12 @@ export function DynamicList({ items, onChange, label, placeholder, maxItems }: D
           value={newValue}
           onChange={(e) => setNewValue(e.target.value)}
           placeholder={placeholder ?? "Add item..."}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addItem() } }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault()
+              addItem()
+            }
+          }}
           className="flex-1"
         />
         <Button

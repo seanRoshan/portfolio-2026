@@ -36,7 +36,10 @@ export function BlogEditor({ content, onChange, postId }: BlogEditorProps) {
       StarterKit.configure({
         codeBlock: false,
       }),
-      TiptapImage.configure({ allowBase64: false, HTMLAttributes: { class: "rounded-lg max-w-full" } }),
+      TiptapImage.configure({
+        allowBase64: false,
+        HTMLAttributes: { class: "rounded-lg max-w-full" },
+      }),
       Youtube.configure({ width: 640, height: 360, HTMLAttributes: { class: "rounded-lg" } }),
       Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-primary underline" } }),
       Placeholder.configure({ placeholder: "Start writing your blog post..." }),
@@ -55,7 +58,8 @@ export function BlogEditor({ content, onChange, postId }: BlogEditorProps) {
     },
     editorProps: {
       attributes: {
-        class: "prose prose-sm sm:prose dark:prose-invert max-w-none min-h-[400px] p-4 focus:outline-none",
+        class:
+          "prose prose-sm sm:prose dark:prose-invert max-w-none min-h-[400px] p-4 focus:outline-none",
       },
     },
   })

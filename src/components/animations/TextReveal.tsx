@@ -1,23 +1,23 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
-import { useGSAP } from "@gsap/react";
+import { useRef } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { SplitText } from "gsap/SplitText"
+import { useGSAP } from "@gsap/react"
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger, SplitText)
 
 interface TextRevealProps {
-  children: string;
-  as?: "h1" | "h2" | "h3" | "h4" | "p" | "span";
-  className?: string;
-  type?: "chars" | "words" | "lines";
-  stagger?: number;
-  duration?: number;
-  delay?: number;
-  scrollTrigger?: boolean;
-  y?: number;
+  children: string
+  as?: "h1" | "h2" | "h3" | "h4" | "p" | "span"
+  className?: string
+  type?: "chars" | "words" | "lines"
+  stagger?: number
+  duration?: number
+  delay?: number
+  scrollTrigger?: boolean
+  y?: number
 }
 
 export function TextReveal({
@@ -31,33 +31,28 @@ export function TextReveal({
   scrollTrigger = true,
   y = 40,
 }: TextRevealProps) {
-  const textRef = useRef<HTMLElement>(null);
+  const textRef = useRef<HTMLElement>(null)
 
   useGSAP(
     () => {
-      const el = textRef.current;
-      if (!el) return;
+      const el = textRef.current
+      if (!el) return
 
       // Make parent visible — children will be individually hidden by GSAP
-      el.style.opacity = "1";
+      el.style.opacity = "1"
 
       const split = SplitText.create(el, {
         type: type,
         mask: type === "lines" ? "lines" : undefined,
-      });
+      })
 
-      const targets =
-        type === "chars"
-          ? split.chars
-          : type === "words"
-            ? split.words
-            : split.lines;
+      const targets = type === "chars" ? split.chars : type === "words" ? split.words : split.lines
 
       const animConfig: gsap.TweenVars = {
         opacity: 0,
         y,
         rotateX: type === "chars" ? 40 : 0,
-      };
+      }
 
       const toConfig: gsap.TweenVars = {
         opacity: 1,
@@ -67,7 +62,7 @@ export function TextReveal({
         stagger,
         delay,
         ease: "power3.out",
-      };
+      }
 
       if (scrollTrigger) {
         gsap.fromTo(targets, animConfig, {
@@ -77,13 +72,13 @@ export function TextReveal({
             start: "top 85%",
             toggleActions: "play none none none",
           },
-        });
+        })
       } else {
-        gsap.fromTo(targets, animConfig, toConfig);
+        gsap.fromTo(targets, animConfig, toConfig)
       }
     },
-    { scope: textRef }
-  );
+    { scope: textRef },
+  )
 
   return (
     <Tag
@@ -93,5 +88,5 @@ export function TextReveal({
     >
       {children}
     </Tag>
-  );
+  )
 }

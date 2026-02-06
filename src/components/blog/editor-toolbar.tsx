@@ -47,66 +47,130 @@ export function EditorToolbar({ editor, onImageClick, onYoutubeClick }: EditorTo
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-b-0 bg-muted/30 p-1.5">
+    <div className="bg-muted/30 flex flex-wrap items-center gap-0.5 rounded-t-md border border-b-0 p-1.5">
       {/* Text formatting */}
-      <Toggle size="sm" pressed={editor.isActive("bold")} onPressedChange={() => editor.chain().focus().toggleBold().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("bold")}
+        onPressedChange={() => editor.chain().focus().toggleBold().run()}
+      >
         <Bold className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("italic")} onPressedChange={() => editor.chain().focus().toggleItalic().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("italic")}
+        onPressedChange={() => editor.chain().focus().toggleItalic().run()}
+      >
         <Italic className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("underline")} onPressedChange={() => editor.chain().focus().toggleUnderline().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("underline")}
+        onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
+      >
         <Underline className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("strike")} onPressedChange={() => editor.chain().focus().toggleStrike().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("strike")}
+        onPressedChange={() => editor.chain().focus().toggleStrike().run()}
+      >
         <Strikethrough className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("code")} onPressedChange={() => editor.chain().focus().toggleCode().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("code")}
+        onPressedChange={() => editor.chain().focus().toggleCode().run()}
+      >
         <Code className="h-4 w-4" />
       </Toggle>
 
       <Separator orientation="vertical" className="mx-1 h-6" />
 
       {/* Headings */}
-      <Toggle size="sm" pressed={editor.isActive("heading", { level: 1 })} onPressedChange={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("heading", { level: 1 })}
+        onPressedChange={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+      >
         <Heading1 className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("heading", { level: 2 })} onPressedChange={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("heading", { level: 2 })}
+        onPressedChange={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+      >
         <Heading2 className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("heading", { level: 3 })} onPressedChange={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("heading", { level: 3 })}
+        onPressedChange={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+      >
         <Heading3 className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("paragraph")} onPressedChange={() => editor.chain().focus().setParagraph().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("paragraph")}
+        onPressedChange={() => editor.chain().focus().setParagraph().run()}
+      >
         <Pilcrow className="h-4 w-4" />
       </Toggle>
 
       <Separator orientation="vertical" className="mx-1 h-6" />
 
       {/* Blocks */}
-      <Toggle size="sm" pressed={editor.isActive("blockquote")} onPressedChange={() => editor.chain().focus().toggleBlockquote().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("blockquote")}
+        onPressedChange={() => editor.chain().focus().toggleBlockquote().run()}
+      >
         <Quote className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("codeBlock")} onPressedChange={() => editor.chain().focus().toggleCodeBlock().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("codeBlock")}
+        onPressedChange={() => editor.chain().focus().toggleCodeBlock().run()}
+      >
         <CodeSquare className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("bulletList")} onPressedChange={() => editor.chain().focus().toggleBulletList().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("bulletList")}
+        onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
+      >
         <List className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive("orderedList")} onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive("orderedList")}
+        onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
+      >
         <ListOrdered className="h-4 w-4" />
       </Toggle>
 
       <Separator orientation="vertical" className="mx-1 h-6" />
 
       {/* Alignment */}
-      <Toggle size="sm" pressed={editor.isActive({ textAlign: "left" })} onPressedChange={() => editor.chain().focus().setTextAlign("left").run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive({ textAlign: "left" })}
+        onPressedChange={() => editor.chain().focus().setTextAlign("left").run()}
+      >
         <AlignLeft className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive({ textAlign: "center" })} onPressedChange={() => editor.chain().focus().setTextAlign("center").run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive({ textAlign: "center" })}
+        onPressedChange={() => editor.chain().focus().setTextAlign("center").run()}
+      >
         <AlignCenter className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={editor.isActive({ textAlign: "right" })} onPressedChange={() => editor.chain().focus().setTextAlign("right").run()}>
+      <Toggle
+        size="sm"
+        pressed={editor.isActive({ textAlign: "right" })}
+        onPressedChange={() => editor.chain().focus().setTextAlign("right").run()}
+      >
         <AlignRight className="h-4 w-4" />
       </Toggle>
 
@@ -126,13 +190,27 @@ export function EditorToolbar({ editor, onImageClick, onYoutubeClick }: EditorTo
       <Separator orientation="vertical" className="mx-1 h-6" />
 
       {/* History & clear */}
-      <Toggle size="sm" pressed={false} onPressedChange={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>
+      <Toggle
+        size="sm"
+        pressed={false}
+        onPressedChange={() => editor.chain().focus().undo().run()}
+        disabled={!editor.can().undo()}
+      >
         <Undo className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={false} onPressedChange={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>
+      <Toggle
+        size="sm"
+        pressed={false}
+        onPressedChange={() => editor.chain().focus().redo().run()}
+        disabled={!editor.can().redo()}
+      >
         <Redo className="h-4 w-4" />
       </Toggle>
-      <Toggle size="sm" pressed={false} onPressedChange={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}>
+      <Toggle
+        size="sm"
+        pressed={false}
+        onPressedChange={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
+      >
         <RemoveFormatting className="h-4 w-4" />
       </Toggle>
     </div>

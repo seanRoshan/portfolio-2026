@@ -3,11 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { AdminSidebar } from "./admin-sidebar"
 import { Toaster } from "@/components/ui/sonner"
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAuth()
 
   // Fetch unread message count for sidebar badge
@@ -18,17 +14,15 @@ export default async function AdminLayout({
     .eq("read", false)
 
   return (
-    <div className="min-h-screen bg-background" data-theme="light">
+    <div className="bg-background min-h-screen" data-theme="light">
       <div className="flex">
         {/* Desktop sidebar */}
-        <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 border-r bg-background">
+        <aside className="bg-background hidden border-r md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
           <AdminSidebar unreadCount={count ?? 0} />
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 md:pl-64">
-          {children}
-        </main>
+        <main className="flex-1 md:pl-64">{children}</main>
       </div>
       <Toaster />
     </div>

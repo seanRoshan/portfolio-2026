@@ -8,10 +8,7 @@ export async function markMessageRead(id: string, read: boolean) {
   await requireAuth()
   const supabase = await createClient()
 
-  const { error } = await supabase
-    .from("contact_submissions")
-    .update({ read })
-    .eq("id", id)
+  const { error } = await supabase.from("contact_submissions").update({ read }).eq("id", id)
 
   if (error) return { error: error.message }
 
@@ -24,10 +21,7 @@ export async function deleteMessage(id: string) {
   await requireAuth()
   const supabase = await createClient()
 
-  const { error } = await supabase
-    .from("contact_submissions")
-    .delete()
-    .eq("id", id)
+  const { error } = await supabase.from("contact_submissions").delete().eq("id", id)
 
   if (error) return { error: error.message }
 

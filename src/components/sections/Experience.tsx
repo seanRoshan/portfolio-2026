@@ -1,35 +1,29 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-import { TextReveal } from "@/components/animations/TextReveal";
-import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
+import { useRef } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useGSAP } from "@gsap/react"
+import { TextReveal } from "@/components/animations/TextReveal"
+import { RevealOnScroll } from "@/components/animations/RevealOnScroll"
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger)
 
 interface ExperienceEntry {
-  role: string;
-  company: string;
-  companyUrl: string;
-  period: string;
-  description: string;
-  achievements: string[];
+  role: string
+  company: string
+  companyUrl: string
+  period: string
+  description: string
+  achievements: string[]
 }
 
 interface ExperienceProps {
-  experienceData: ExperienceEntry[];
+  experienceData: ExperienceEntry[]
 }
 
-function TimelineEntry({
-  entry,
-  index,
-}: {
-  entry: ExperienceEntry;
-  index: number;
-}) {
-  const isLeft = index % 2 === 0;
+function TimelineEntry({ entry, index }: { entry: ExperienceEntry; index: number }) {
+  const isLeft = index % 2 === 0
 
   return (
     <div
@@ -41,29 +35,23 @@ function TimelineEntry({
       {/* Content */}
       <div className={`flex-1 md:px-8 ${isLeft ? "md:text-right" : "md:text-left"}`}>
         <div
-          className={`glass inline-block rounded-2xl p-6 text-left transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5`}
+          className={`glass hover:border-primary/20 hover:shadow-primary/5 inline-block rounded-2xl p-6 text-left transition-all duration-300 hover:shadow-lg`}
         >
-          <span className="mb-1 block text-xs font-medium text-primary">
-            {entry.period}
-          </span>
-          <h3 className="mb-1 text-[length:var(--text-xl)] font-semibold">
-            {entry.role}
-          </h3>
+          <span className="text-primary mb-1 block text-xs font-medium">{entry.period}</span>
+          <h3 className="mb-1 text-[length:var(--text-xl)] font-semibold">{entry.role}</h3>
           <a
             href={entry.companyUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mb-3 inline-block text-sm text-muted-foreground transition-colors hover:text-primary"
+            className="text-muted-foreground hover:text-primary mb-3 inline-block text-sm transition-colors"
           >
             {entry.company}
           </a>
-          <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-            {entry.description}
-          </p>
+          <p className="text-muted-foreground mb-4 text-sm leading-relaxed">{entry.description}</p>
           <ul className="space-y-1.5">
             {entry.achievements.map((achievement, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
+              <li key={i} className="text-muted-foreground flex items-start gap-2 text-sm">
+                <span className="bg-primary mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
                 {achievement}
               </li>
             ))}
@@ -72,27 +60,27 @@ function TimelineEntry({
       </div>
 
       {/* Timeline dot */}
-      <div className="absolute left-0 top-0 flex h-full flex-col items-center md:left-1/2 md:-translate-x-1/2">
-        <div className="z-10 flex h-4 w-4 items-center justify-center rounded-full border-2 border-primary bg-background">
-          <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+      <div className="absolute top-0 left-0 flex h-full flex-col items-center md:left-1/2 md:-translate-x-1/2">
+        <div className="border-primary bg-background z-10 flex h-4 w-4 items-center justify-center rounded-full border-2">
+          <div className="bg-primary h-1.5 w-1.5 rounded-full" />
         </div>
       </div>
 
       {/* Empty space for alternating layout */}
       <div className="hidden flex-1 md:block" />
     </div>
-  );
+  )
 }
 
 export function Experience({ experienceData }: ExperienceProps) {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLElement>(null)
 
   useGSAP(
     () => {
-      const entries = gsap.utils.toArray<HTMLElement>(".timeline-entry");
+      const entries = gsap.utils.toArray<HTMLElement>(".timeline-entry")
 
       entries.forEach((entry, i) => {
-        const isLeft = i % 2 === 0;
+        const isLeft = i % 2 === 0
         gsap.fromTo(
           entry,
           { opacity: 0, x: isLeft ? -40 : 40 },
@@ -106,9 +94,9 @@ export function Experience({ experienceData }: ExperienceProps) {
               start: "top 80%",
               toggleActions: "play none none none",
             },
-          }
-        );
-      });
+          },
+        )
+      })
 
       // Animate the timeline line
       gsap.fromTo(
@@ -123,21 +111,17 @@ export function Experience({ experienceData }: ExperienceProps) {
             end: "bottom 40%",
             scrub: 1,
           },
-        }
-      );
+        },
+      )
     },
-    { scope: sectionRef }
-  );
+    { scope: sectionRef },
+  )
 
   return (
-    <section
-      id="experience"
-      ref={sectionRef}
-      className="section-padding relative"
-    >
+    <section id="experience" ref={sectionRef} className="section-padding relative">
       <div className="container-wide">
         <RevealOnScroll>
-          <span className="mb-3 block text-sm font-medium uppercase tracking-widest text-primary">
+          <span className="text-primary mb-3 block text-sm font-medium tracking-widest uppercase">
             Career Journey
           </span>
         </RevealOnScroll>
@@ -145,7 +129,7 @@ export function Experience({ experienceData }: ExperienceProps) {
         <TextReveal
           as="h2"
           type="words"
-          className="mb-16 max-w-2xl text-[length:var(--text-4xl)] font-bold leading-tight"
+          className="mb-16 max-w-2xl text-[length:var(--text-4xl)] leading-tight font-bold"
         >
           Where I have been and what I have built
         </TextReveal>
@@ -153,12 +137,12 @@ export function Experience({ experienceData }: ExperienceProps) {
         {/* Timeline */}
         <div className="relative">
           {/* Vertical line */}
-          <div className="absolute left-0 top-0 hidden h-full w-px md:left-1/2 md:block">
-            <div className="timeline-line h-full w-full origin-top bg-gradient-to-b from-primary via-primary/50 to-transparent" />
+          <div className="absolute top-0 left-0 hidden h-full w-px md:left-1/2 md:block">
+            <div className="timeline-line from-primary via-primary/50 h-full w-full origin-top bg-gradient-to-b to-transparent" />
           </div>
 
           {/* Mobile line */}
-          <div className="absolute left-[7px] top-0 h-full w-px bg-border md:hidden" />
+          <div className="bg-border absolute top-0 left-[7px] h-full w-px md:hidden" />
 
           <div className="space-y-12 pl-8 md:space-y-16 md:pl-0">
             {experienceData.map((entry, i) => (
@@ -168,5 +152,5 @@ export function Experience({ experienceData }: ExperienceProps) {
         </div>
       </div>
     </section>
-  );
+  )
 }

@@ -78,12 +78,12 @@ export function BlogList({ posts: initial }: { posts: BlogPost[] }) {
         </Tabs>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search posts..."
-              className="pl-8 w-[200px]"
+              className="w-[200px] pl-8"
             />
           </div>
           <Link href="/admin/blog/new">
@@ -104,23 +104,21 @@ export function BlogList({ posts: initial }: { posts: BlogPost[] }) {
                 alt={post.title}
                 width={64}
                 height={42}
-                className="rounded object-cover h-[42px]"
+                className="h-[42px] rounded object-cover"
                 unoptimized
               />
             )}
-            <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{post.title}</p>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium">{post.title}</p>
+              <div className="text-muted-foreground flex items-center gap-2 text-xs">
                 {post.published_at && (
                   <time>{new Date(post.published_at).toLocaleDateString()}</time>
                 )}
                 {post.read_time_minutes && <span>{post.read_time_minutes} min read</span>}
-                {post.tags.length > 0 && (
-                  <span className="truncate">{post.tags.join(", ")}</span>
-                )}
+                {post.tags.length > 0 && <span className="truncate">{post.tags.join(", ")}</span>}
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex shrink-0 items-center gap-2">
               <Badge variant={post.published ? "default" : "outline"}>
                 {post.published ? "Published" : "Draft"}
               </Badge>
@@ -129,10 +127,21 @@ export function BlogList({ posts: initial }: { posts: BlogPost[] }) {
                   <Pencil className="h-4 w-4" />
                 </Button>
               </Link>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicate(post)} disabled={isPending}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => handleDuplicate(post)}
+                disabled={isPending}
+              >
                 <Copy className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteTarget(post)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-destructive h-8 w-8"
+                onClick={() => setDeleteTarget(post)}
+              >
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
@@ -141,7 +150,7 @@ export function BlogList({ posts: initial }: { posts: BlogPost[] }) {
       </div>
 
       {filtered.length === 0 && (
-        <p className="text-center text-muted-foreground py-8">
+        <p className="text-muted-foreground py-8 text-center">
           {search ? "No posts match your search." : "No blog posts yet. Create your first one!"}
         </p>
       )}
@@ -150,10 +159,14 @@ export function BlogList({ posts: initial }: { posts: BlogPost[] }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete &quot;{deleteTarget?.title}&quot;?</DialogTitle>
-            <DialogDescription>This will permanently delete the post and its images. This action cannot be undone.</DialogDescription>
+            <DialogDescription>
+              This will permanently delete the post and its images. This action cannot be undone.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
               {isPending ? "Deleting..." : "Delete"}
             </Button>

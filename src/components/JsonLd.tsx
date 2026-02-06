@@ -1,4 +1,4 @@
-import Script from "next/script";
+import Script from "next/script"
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -11,16 +11,12 @@ const jsonLd = {
     "https://linkedin.com/in/alexrivera",
     "https://x.com/alexrivera",
   ],
-};
+}
 
 export function JsonLd() {
   return (
-    <Script
-      id="json-ld"
-      type="application/ld+json"
-      strategy="afterInteractive"
-    >
+    <Script id="json-ld" type="application/ld+json" strategy="afterInteractive">
       {JSON.stringify(jsonLd)}
     </Script>
-  );
+  )
 }

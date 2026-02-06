@@ -7,12 +7,12 @@ Follow these steps in order to replicate the setup on a new machine or project.
 
 ## Prerequisites
 
-| Tool | Version | Install |
-|------|---------|---------|
-| Node.js | 24.x | `nvm install 24` |
+| Tool         | Version | Install                              |
+| ------------ | ------- | ------------------------------------ |
+| Node.js      | 24.x    | `nvm install 24`                     |
 | Supabase CLI | 2.75.0+ | `brew install supabase/tap/supabase` |
-| Vercel CLI | 50.x | `npm i -g vercel` |
-| GitHub CLI | 2.x | `brew install gh` |
+| Vercel CLI   | 50.x    | `npm i -g vercel`                    |
+| GitHub CLI   | 2.x     | `brew install gh`                    |
 
 ---
 
@@ -31,6 +31,7 @@ Follow these steps in order to replicate the setup on a new machine or project.
 ## Step 2: Get Supabase Credentials
 
 After project is created, go to **Project Settings > API** and note:
+
 - **Project URL**: `https://xxxx.supabase.co`
 - **Anon (public) key**: `eyJ...` (safe for browser)
 - **Service role key**: `eyJ...` (secret, server-only)
@@ -141,6 +142,7 @@ vercel env add <name>             # Add environment variable
 ## Security Practices
 
 ### Secrets Management
+
 - **`.env.local`** is gitignored (`.env*` pattern) — never committed to repo
 - **`.env.local.example`** is committed as a template with placeholder values only
 - **Supabase anon key** (`NEXT_PUBLIC_SUPABASE_ANON_KEY`) is safe for browser — RLS enforces access
@@ -152,13 +154,15 @@ vercel env add <name>             # Add environment variable
 - **Keys are fetched via CLI** (`supabase projects api-keys`) — never copied from browser
 
 ### Three Supabase Clients
-| Client | File | Key Used | RLS | Use Case |
-|--------|------|----------|-----|----------|
-| Browser | `lib/supabase/client.ts` | Anon | Enforced | Client components (auth state) |
-| Server | `lib/supabase/server.ts` | Anon + cookies | Enforced | Server Components, Server Actions |
-| Admin | `lib/supabase/admin.ts` | Service role | Bypassed | API routes, scripts only |
+
+| Client  | File                     | Key Used       | RLS      | Use Case                          |
+| ------- | ------------------------ | -------------- | -------- | --------------------------------- |
+| Browser | `lib/supabase/client.ts` | Anon           | Enforced | Client components (auth state)    |
+| Server  | `lib/supabase/server.ts` | Anon + cookies | Enforced | Server Components, Server Actions |
+| Admin   | `lib/supabase/admin.ts`  | Service role   | Bypassed | API routes, scripts only          |
 
 ### Row Level Security (RLS)
+
 - ALL tables have RLS enabled
 - Public users can only READ published content
 - Only authenticated users (admin) can INSERT/UPDATE/DELETE
@@ -166,7 +170,9 @@ vercel env add <name>             # Add environment variable
 - Storage buckets: public read, admin-only write
 
 ### Vercel Environment Variables
+
 Set via CLI (`vercel env add`) or Vercel Dashboard — never in code:
+
 ```bash
 vercel env add NEXT_PUBLIC_SUPABASE_URL        # all environments
 vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY   # all environments

@@ -10,9 +10,7 @@ export async function POST(request: Request) {
     // Use admin client to bypass RLS (public insert policy exists, but admin is more reliable)
     const supabase = createAdminClient()
 
-    const { error } = await supabase
-      .from("contact_submissions")
-      .insert(validated)
+    const { error } = await supabase.from("contact_submissions").insert(validated)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

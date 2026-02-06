@@ -51,9 +51,7 @@ export function SkillFormDialog({ data, onDone }: SkillFormDialogProps) {
 
   function onSubmit(values: SkillFormValues) {
     startTransition(async () => {
-      const result = isEdit
-        ? await updateSkill(data.id, values)
-        : await createSkill(values)
+      const result = isEdit ? await updateSkill(data.id, values) : await createSkill(values)
 
       if (result?.error) {
         toast.error(result.error)
@@ -73,7 +71,9 @@ export function SkillFormDialog({ data, onDone }: SkillFormDialogProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -86,11 +86,15 @@ export function SkillFormDialog({ data, onDone }: SkillFormDialogProps) {
               <FormLabel>Category</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -104,7 +108,9 @@ export function SkillFormDialog({ data, onDone }: SkillFormDialogProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Icon Name</FormLabel>
-              <FormControl><Input placeholder="e.g. SiReact" {...field} value={field.value ?? ""} /></FormControl>
+              <FormControl>
+                <Input placeholder="e.g. SiReact" {...field} value={field.value ?? ""} />
+              </FormControl>
             </FormItem>
           )}
         />
@@ -138,7 +144,9 @@ export function SkillFormDialog({ data, onDone }: SkillFormDialogProps) {
           <Button type="submit" disabled={isPending}>
             {isPending ? "Saving..." : isEdit ? "Save" : "Create"}
           </Button>
-          <Button type="button" variant="outline" onClick={onDone}>Cancel</Button>
+          <Button type="button" variant="outline" onClick={onDone}>
+            Cancel
+          </Button>
         </div>
       </form>
     </Form>

@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react"
 
 interface MousePosition {
-  x: number;
-  y: number;
-  normalizedX: number;
-  normalizedY: number;
+  x: number
+  y: number
+  normalizedX: number
+  normalizedY: number
 }
 
 export function useMousePosition(): MousePosition {
@@ -15,7 +15,7 @@ export function useMousePosition(): MousePosition {
     y: 0,
     normalizedX: 0,
     normalizedY: 0,
-  });
+  })
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     setPosition({
@@ -23,13 +23,13 @@ export function useMousePosition(): MousePosition {
       y: e.clientY,
       normalizedX: (e.clientX / window.innerWidth - 0.5) * 2,
       normalizedY: (e.clientY / window.innerHeight - 0.5) * 2,
-    });
-  }, []);
+    })
+  }, [])
 
   useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [handleMouseMove]);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true })
+    return () => window.removeEventListener("mousemove", handleMouseMove)
+  }, [handleMouseMove])
 
-  return position;
+  return position
 }

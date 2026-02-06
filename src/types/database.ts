@@ -110,6 +110,26 @@ export interface BlogPost {
   updated_at: string
 }
 
+export interface EducationEntry {
+  school: string
+  degree: string
+  field: string | null
+  year: string | null
+  details: string | null
+}
+
+export interface CertificationEntry {
+  name: string
+  issuer: string
+  year: string | null
+  url: string | null
+}
+
+export interface AdditionalSectionEntry {
+  title: string
+  items: string[]
+}
+
 export interface Resume {
   id: string
   full_name: string
@@ -121,9 +141,9 @@ export interface Resume {
   linkedin: string | null
   github: string | null
   summary: string | null
-  education: Record<string, unknown>[]
-  certifications: Record<string, unknown>[]
-  additional_sections: Record<string, unknown>[]
+  education: EducationEntry[]
+  certifications: CertificationEntry[]
+  additional_sections: AdditionalSectionEntry[]
   pdf_url: string | null
   updated_at: string
 }

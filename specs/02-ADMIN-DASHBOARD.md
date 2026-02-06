@@ -69,6 +69,7 @@
 ## Dashboard Home (`/admin`)
 
 Overview cards showing:
+
 - Total blog posts (published / drafts)
 - Total projects
 - Unread contact messages (with badge count)
@@ -91,6 +92,7 @@ Every admin page follows this pattern:
 ### Hero Section Editor (`/admin/hero`)
 
 Form fields:
+
 - Greeting text (text input)
 - Name (text input)
 - Rotating titles (dynamic list — add/remove/reorder items)
@@ -103,6 +105,7 @@ Form fields:
 ### About Section Editor (`/admin/about`)
 
 Form fields:
+
 - Heading (text input)
 - Bio (rich textarea with basic formatting — bold, italic, links)
 - Portrait image (file upload with preview)
@@ -111,10 +114,12 @@ Form fields:
 ### Projects Manager (`/admin/projects`)
 
 **List view**: Table with columns: Thumbnail, Title, Featured (toggle), Published (toggle), Sort Order, Actions (Edit/Delete)
+
 - Drag-and-drop reordering
 - Bulk actions: Publish/Unpublish selected
 
 **Edit/Create form**:
+
 - Title (text input) → auto-generates slug (editable)
 - Short description (textarea, 160 char limit for SEO)
 - Long description (rich textarea)
@@ -129,10 +134,12 @@ Form fields:
 ### Skills Manager (`/admin/skills`)
 
 **List view**: Grouped by category with drag-and-drop reordering within groups
+
 - Each skill shows: Icon preview, Name, Category, Published toggle
 - Quick-add inline form at bottom of each category group
 
 **Edit/Create form**:
+
 - Name (text input)
 - Category (select: Frontend, Backend, DevOps & Cloud, Databases, Tools & Other)
 - Icon selection (searchable grid of tech icons from `devicons` or `simple-icons` — click to select)
@@ -144,6 +151,7 @@ Form fields:
 **List view**: Timeline-ordered table with: Company, Role, Dates, Published toggle, Actions
 
 **Edit/Create form**:
+
 - Company name (text input)
 - Role / Title (text input)
 - Location (text input)
@@ -157,6 +165,7 @@ Form fields:
 ### Contact Info Editor (`/admin/contact`)
 
 Form fields:
+
 - Contact email
 - Contact form enabled (toggle)
 - Social links (dynamic key-value: platform name + URL)
@@ -166,6 +175,7 @@ Form fields:
 ### Contact Messages (`/admin/messages`)
 
 **List view**: Table with: Name, Email, Subject, Date, Read status (badge), Actions
+
 - Click row to expand/view full message
 - Mark as read/unread
 - Delete message
@@ -175,6 +185,7 @@ Form fields:
 ### Settings (`/admin/settings`)
 
 Form fields:
+
 - Site title
 - Site description (used as default meta description)
 - Default OG image (file upload)
@@ -197,6 +208,7 @@ Props:
 ```
 
 Behavior:
+
 1. Show current image preview (or placeholder)
 2. Click to open file picker
 3. Client-side validation (size, type)
@@ -212,11 +224,11 @@ All mutations go through Server Actions (NOT API routes) for type safety:
 
 ```typescript
 // Example: /app/(admin)/admin/hero/actions.ts
-'use server'
+"use server"
 
-import { createServerClient } from '@/lib/supabase/server'
-import { revalidateTag } from 'next/cache'
-import { z } from 'zod'
+import { createServerClient } from "@/lib/supabase/server"
+import { revalidateTag } from "next/cache"
+import { z } from "zod"
 
 const heroSchema = z.object({
   name: z.string().min(1),
@@ -228,26 +240,28 @@ const heroSchema = z.object({
 
 export async function updateHero(formData: z.infer<typeof heroSchema>) {
   const supabase = await createServerClient()
-  
+
   // Verify auth
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
   // Validate
   const validated = heroSchema.parse(formData)
-  
+
   // Update
   const { error } = await supabase
-    .from('hero_section')
+    .from("hero_section")
     .update(validated)
-    .eq('id', 'the-hero-row-id')
-  
+    .eq("id", "the-hero-row-id")
+
   if (error) throw error
-  
+
   // Revalidate public page cache
-  revalidateTag('hero')
-  revalidatePath('/')
-  
+  revalidateTag("hero")
+  revalidatePath("/")
+
   return { success: true }
 }
 ```
@@ -265,6 +279,7 @@ Props:
 ```
 
 Features:
+
 - Add new item (text input + "Add" button)
 - Remove item (X button)
 - Drag-and-drop reorder (use `@dnd-kit/sortable`)

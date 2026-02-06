@@ -11,9 +11,8 @@ interface ShareButtonsProps {
 
 export function ShareButtons({ title, slug }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false)
-  const url = typeof window !== "undefined"
-    ? `${window.location.origin}/blog/${slug}`
-    : `/blog/${slug}`
+  const url =
+    typeof window !== "undefined" ? `${window.location.origin}/blog/${slug}` : `/blog/${slug}`
 
   async function copyLink() {
     await navigator.clipboard.writeText(url)
@@ -26,7 +25,7 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground mr-2">Share:</span>
+      <span className="text-muted-foreground mr-2 text-sm">Share:</span>
       <Button variant="outline" size="icon" className="h-8 w-8" asChild>
         <a
           href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}

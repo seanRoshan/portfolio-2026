@@ -12,8 +12,15 @@ export default async function AdminDashboardPage() {
     supabase.from("skills").select("*", { count: "exact", head: true }),
     supabase.from("experience").select("*", { count: "exact", head: true }),
     supabase.from("blog_posts").select("*", { count: "exact", head: true }),
-    supabase.from("contact_submissions").select("*", { count: "exact", head: true }).eq("read", false),
-    supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }).limit(5),
+    supabase
+      .from("contact_submissions")
+      .select("*", { count: "exact", head: true })
+      .eq("read", false),
+    supabase
+      .from("contact_submissions")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(5),
   ])
 
   return (

@@ -61,7 +61,14 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Contact Email</FormLabel>
-                <FormControl><Input type="email" placeholder="you@example.com" {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -72,7 +79,9 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
               <FormItem className="flex items-center justify-between rounded-lg border p-4">
                 <div>
                   <FormLabel>Contact Form</FormLabel>
-                  <FormDescription>Allow visitors to send messages via the contact form</FormDescription>
+                  <FormDescription>
+                    Allow visitors to send messages via the contact form
+                  </FormDescription>
                 </div>
                 <FormControl>
                   <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -87,7 +96,9 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
             items={socialLinksArray}
             onChange={(items) => {
               const record: Record<string, string> = {}
-              items.forEach(({ label, value }) => { if (label) record[label] = value })
+              items.forEach(({ label, value }) => {
+                if (label) record[label] = value
+              })
               form.setValue("social_links", record)
             }}
             keyLabel="Platform"

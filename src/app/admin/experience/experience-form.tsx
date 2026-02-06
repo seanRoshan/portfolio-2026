@@ -81,7 +81,9 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Company</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -92,7 +94,9 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -105,7 +109,13 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Location</FormLabel>
-                  <FormControl><Input placeholder="Remote / San Francisco, CA" {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input
+                      placeholder="Remote / San Francisco, CA"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -115,7 +125,14 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Company URL</FormLabel>
-                  <FormControl><Input type="url" placeholder="https://..." {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      placeholder="https://..."
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -148,7 +165,9 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Start Date</FormLabel>
-                  <FormControl><Input type="date" {...field} /></FormControl>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -160,12 +179,7 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
                 <FormItem>
                   <FormLabel>End Date</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      disabled={isPresent}
-                      {...field}
-                      value={field.value ?? ""}
-                    />
+                    <Input type="date" disabled={isPresent} {...field} value={field.value ?? ""} />
                   </FormControl>
                 </FormItem>
               )}
@@ -179,7 +193,9 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
                 form.setValue("end_date", checked ? null : "")
               }}
             />
-            <label htmlFor="present" className="text-sm">Currently working here</label>
+            <label htmlFor="present" className="text-sm">
+              Currently working here
+            </label>
           </div>
         </FormSection>
 
@@ -190,7 +206,9 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Description</FormLabel>
-                <FormControl><Textarea rows={4} {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Textarea rows={4} {...field} value={field.value ?? ""} />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -201,7 +219,11 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
               <FormItem>
                 <FormLabel>Achievements</FormLabel>
                 <FormControl>
-                  <DynamicList items={field.value ?? []} onChange={field.onChange} placeholder="Add achievement..." />
+                  <DynamicList
+                    items={field.value ?? []}
+                    onChange={field.onChange}
+                    placeholder="Add achievement..."
+                  />
                 </FormControl>
               </FormItem>
             )}

@@ -57,7 +57,7 @@ export async function updateExperienceOrder(ids: string[]) {
   const supabase = await createClient()
 
   const updates = ids.map((id, index) =>
-    supabase.from("experience").update({ sort_order: index }).eq("id", id)
+    supabase.from("experience").update({ sort_order: index }).eq("id", id),
   )
 
   const results = await Promise.all(updates)

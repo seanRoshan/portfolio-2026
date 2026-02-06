@@ -53,7 +53,7 @@ export function BlogRenderer({ content }: BlogRendererProps) {
   return (
     <div
       ref={containerRef}
-      className="prose prose-lg dark:prose-invert max-w-none prose-headings:scroll-mt-20 prose-a:text-primary prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-pre:bg-muted prose-img:rounded-lg"
+      className="prose prose-lg dark:prose-invert prose-headings:scroll-mt-20 prose-a:text-primary prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-pre:bg-muted prose-img:rounded-lg max-w-none"
     />
   )
 }

@@ -4,19 +4,22 @@ import { LoginForm } from "./login-form"
 
 export default function LoginPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-4">
+    <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden p-4">
       {/* Gradient mesh background — matches Hero */}
       <div className="gradient-mesh absolute inset-0 -z-10" />
 
       {/* Animated floating orbs */}
       <div className="absolute inset-0 -z-[5] overflow-hidden" aria-hidden="true">
-        <div className="login-orb-1 absolute top-[15%] left-[10%] h-72 w-72 rounded-full opacity-20 blur-3xl"
+        <div
+          className="login-orb-1 absolute top-[15%] left-[10%] h-72 w-72 rounded-full opacity-20 blur-3xl"
           style={{ background: "oklch(0.7 0.25 264 / 40%)" }}
         />
-        <div className="login-orb-2 absolute right-[10%] bottom-[15%] h-96 w-96 rounded-full opacity-15 blur-3xl"
+        <div
+          className="login-orb-2 absolute right-[10%] bottom-[15%] h-96 w-96 rounded-full opacity-15 blur-3xl"
           style={{ background: "oklch(0.7 0.2 330 / 30%)" }}
         />
-        <div className="login-orb-3 absolute top-[50%] left-[50%] h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-10 blur-3xl"
+        <div
+          className="login-orb-3 absolute top-[50%] left-[50%] h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-10 blur-3xl"
           style={{ background: "oklch(0.65 0.2 160 / 25%)" }}
         />
       </div>
@@ -41,7 +44,7 @@ export default function LoginPage() {
       {/* Back to site */}
       <Link
         href="/"
-        className="absolute top-6 left-6 z-10 flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground absolute top-6 left-6 z-10 flex items-center gap-2 text-sm transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to site
@@ -52,14 +55,17 @@ export default function LoginPage() {
         {/* Glow behind card */}
         <div
           className="absolute -inset-px -z-10 rounded-2xl opacity-60 blur-xl"
-          style={{ background: "linear-gradient(135deg, oklch(0.7 0.25 264 / 20%), oklch(0.7 0.2 330 / 15%))" }}
+          style={{
+            background:
+              "linear-gradient(135deg, oklch(0.7 0.25 264 / 20%), oklch(0.7 0.2 330 / 15%))",
+          }}
           aria-hidden="true"
         />
 
         <div className="glass rounded-2xl p-8 sm:p-10">
           {/* Header */}
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+            <div className="bg-primary/10 ring-primary/20 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl ring-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="22"
@@ -80,7 +86,7 @@ export default function LoginPage() {
             <h1 className="text-[length:var(--text-xl)] font-semibold tracking-tight">
               Welcome back
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-sm">
               Sign in to your portfolio dashboard
             </p>
           </div>
@@ -88,7 +94,7 @@ export default function LoginPage() {
           <LoginForm />
 
           {/* Footer */}
-          <p className="mt-8 text-center text-xs text-muted-foreground/60">
+          <p className="text-muted-foreground/60 mt-8 text-center text-xs">
             Protected area. Authorized access only.
           </p>
         </div>

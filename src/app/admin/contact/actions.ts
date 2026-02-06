@@ -6,7 +6,12 @@ import { requireAuth } from "@/lib/admin-auth"
 import { z } from "zod"
 
 const contactInfoSchema = z.object({
-  contact_email: z.string().email().nullable().or(z.literal("")).transform(v => v || null),
+  contact_email: z
+    .string()
+    .email()
+    .nullable()
+    .or(z.literal(""))
+    .transform((v) => v || null),
   contact_form_enabled: z.boolean(),
   social_links: z.record(z.string(), z.string()),
 })

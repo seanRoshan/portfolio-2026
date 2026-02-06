@@ -48,7 +48,7 @@ async function resizeAndConvertToWebP(file: File, maxWidth = 1920): Promise<Blob
           else reject(new Error("WebP conversion failed"))
         },
         "image/webp",
-        0.85
+        0.85,
       )
     }
     img.onerror = () => reject(new Error("Image load failed"))
@@ -56,7 +56,12 @@ async function resizeAndConvertToWebP(file: File, maxWidth = 1920): Promise<Blob
   })
 }
 
-export function ImageUploadDialog({ open, onOpenChange, onInsert, postId }: ImageUploadDialogProps) {
+export function ImageUploadDialog({
+  open,
+  onOpenChange,
+  onInsert,
+  postId,
+}: ImageUploadDialogProps) {
   const [uploading, setUploading] = useState(false)
   const [url, setUrl] = useState("")
   const [alt, setAlt] = useState("")
@@ -99,9 +104,9 @@ export function ImageUploadDialog({ open, onOpenChange, onInsert, postId }: Imag
 
       if (error) throw error
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("blog")
-        .getPublicUrl(filename)
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("blog").getPublicUrl(filename)
 
       setUrl(publicUrl)
       toast.success("Image uploaded")
@@ -128,44 +133,68 @@ export function ImageUploadDialog({ open, onOpenChange, onInsert, postId }: Imag
 
         <Tabs defaultValue="upload">
           <TabsList className="w-full">
-            <TabsTrigger value="upload" className="flex-1">Upload</TabsTrigger>
-            <TabsTrigger value="url" className="flex-1">URL</TabsTrigger>
+            <TabsTrigger value="upload" className="flex-1">
+              Upload
+            </TabsTrigger>
+            <TabsTrigger value="url" className="flex-1">
+              URL
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="upload" className="space-y-3 pt-3">
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="flex h-24 w-full items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors"
+              className="border-muted-foreground/25 hover:border-muted-foreground/50 flex h-24 w-full items-center justify-center rounded-md border-2 border-dashed transition-colors"
             >
               {uploading ? (
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
               ) : (
-                <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                <div className="text-muted-foreground flex flex-col items-center gap-1">
                   <Upload className="h-6 w-6" />
                   <span className="text-xs">Click to upload (max 5MB)</span>
                 </div>
               )}
             </button>
-            <input ref={fileRef} type="file" accept={ALLOWED_TYPES.join(",")} onChange={handleFileUpload} className="hidden" />
-            {url && <p className="text-xs text-muted-foreground truncate">Uploaded: {url}</p>}
+            <input
+              ref={fileRef}
+              type="file"
+              accept={ALLOWED_TYPES.join(",")}
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            {url && <p className="text-muted-foreground truncate text-xs">Uploaded: {url}</p>}
           </TabsContent>
           <TabsContent value="url" className="space-y-3 pt-3">
             <div>
               <Label htmlFor="img-url">Image URL</Label>
-              <Input id="img-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." />
+              <Input
+                id="img-url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://..."
+              />
             </div>
           </TabsContent>
         </Tabs>
 
         <div>
           <Label htmlFor="img-alt">Alt text</Label>
-          <Input id="img-alt" value={alt} onChange={(e) => setAlt(e.target.value)} placeholder="Describe the image..." />
+          <Input
+            id="img-alt"
+            value={alt}
+            onChange={(e) => setAlt(e.target.value)}
+            placeholder="Describe the image..."
+          />
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
-          <Button onClick={handleInsert} disabled={!url}>Insert</Button>
+          <Button variant="outline" onClick={() => handleClose(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleInsert} disabled={!url}>
+            Insert
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

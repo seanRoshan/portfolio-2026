@@ -7,26 +7,24 @@
  * Requires .env.local with NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
  */
 
-import { createClient } from "@supabase/supabase-js";
-import { config } from "dotenv";
-import { resolve } from "path";
+import { createClient } from "@supabase/supabase-js"
+import { config } from "dotenv"
+import { resolve } from "path"
 
 // Load .env.local
-config({ path: resolve(process.cwd(), ".env.local") });
+config({ path: resolve(process.cwd(), ".env.local") })
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseUrl || !serviceRoleKey) {
-  console.error(
-    "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local"
-  );
-  process.exit(1);
+  console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local")
+  process.exit(1)
 }
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
-});
+})
 
 // ---------- Data from portfolio.ts ----------
 
@@ -43,7 +41,7 @@ const siteSettings = {
   },
   contact_form_enabled: true,
   maintenance_mode: false,
-};
+}
 
 const heroSection = {
   greeting: "Hey, I'm",
@@ -54,13 +52,12 @@ const heroSection = {
     "Open Source Builder",
     "Performance Obsessed",
   ],
-  description:
-    "I build digital experiences that are fast, accessible, and impossible to forget.",
+  description: "I build digital experiences that are fast, accessible, and impossible to forget.",
   cta_primary_text: "See My Work",
   cta_primary_link: "#projects",
   cta_secondary_text: "Get In Touch",
   cta_secondary_link: "#contact",
-};
+}
 
 const aboutSection = {
   heading: "About Me",
@@ -92,7 +89,7 @@ const aboutSection = {
     "Kubernetes",
     "Terraform",
   ],
-};
+}
 
 const projects = [
   {
@@ -175,7 +172,7 @@ const projects = [
     sort_order: 4,
     published: true,
   },
-];
+]
 
 // Map skills with category codes matching the DB schema
 const skills = [
@@ -216,7 +213,7 @@ const skills = [
   { name: "Cypress", category: "tools", icon_name: "cypress", sort_order: 7 },
   { name: "Playwright", category: "tools", icon_name: "playwright", sort_order: 8 },
   { name: "Storybook", category: "tools", icon_name: "storybook", sort_order: 9 },
-];
+]
 
 const experience = [
   {
@@ -290,7 +287,7 @@ const experience = [
     sort_order: 3,
     published: true,
   },
-];
+]
 
 const blogPosts = [
   {
@@ -337,7 +334,7 @@ const blogPosts = [
     published_at: "2025-07-12T00:00:00Z",
     read_time_minutes: 6,
   },
-];
+]
 
 const resume = {
   full_name: "Alex Rivera",
@@ -373,46 +370,46 @@ const resume = {
       ],
     },
   ],
-};
+}
 
 // ---------- Seed function ----------
 
 async function seed() {
-  console.log("🌱 Seeding database...\n");
+  console.log("🌱 Seeding database...\n")
 
   // Site settings
-  const { error: e1 } = await supabase.from("site_settings").insert(siteSettings);
-  console.log(e1 ? `❌ site_settings: ${e1.message}` : "✅ site_settings");
+  const { error: e1 } = await supabase.from("site_settings").insert(siteSettings)
+  console.log(e1 ? `❌ site_settings: ${e1.message}` : "✅ site_settings")
 
   // Hero
-  const { error: e2 } = await supabase.from("hero_section").insert(heroSection);
-  console.log(e2 ? `❌ hero_section: ${e2.message}` : "✅ hero_section");
+  const { error: e2 } = await supabase.from("hero_section").insert(heroSection)
+  console.log(e2 ? `❌ hero_section: ${e2.message}` : "✅ hero_section")
 
   // About
-  const { error: e3 } = await supabase.from("about_section").insert(aboutSection);
-  console.log(e3 ? `❌ about_section: ${e3.message}` : "✅ about_section");
+  const { error: e3 } = await supabase.from("about_section").insert(aboutSection)
+  console.log(e3 ? `❌ about_section: ${e3.message}` : "✅ about_section")
 
   // Projects
-  const { error: e4 } = await supabase.from("projects").insert(projects);
-  console.log(e4 ? `❌ projects: ${e4.message}` : `✅ projects (${projects.length} rows)`);
+  const { error: e4 } = await supabase.from("projects").insert(projects)
+  console.log(e4 ? `❌ projects: ${e4.message}` : `✅ projects (${projects.length} rows)`)
 
   // Skills
-  const { error: e5 } = await supabase.from("skills").insert(skills);
-  console.log(e5 ? `❌ skills: ${e5.message}` : `✅ skills (${skills.length} rows)`);
+  const { error: e5 } = await supabase.from("skills").insert(skills)
+  console.log(e5 ? `❌ skills: ${e5.message}` : `✅ skills (${skills.length} rows)`)
 
   // Experience
-  const { error: e6 } = await supabase.from("experience").insert(experience);
-  console.log(e6 ? `❌ experience: ${e6.message}` : `✅ experience (${experience.length} rows)`);
+  const { error: e6 } = await supabase.from("experience").insert(experience)
+  console.log(e6 ? `❌ experience: ${e6.message}` : `✅ experience (${experience.length} rows)`)
 
   // Blog posts
-  const { error: e7 } = await supabase.from("blog_posts").insert(blogPosts);
-  console.log(e7 ? `❌ blog_posts: ${e7.message}` : `✅ blog_posts (${blogPosts.length} rows)`);
+  const { error: e7 } = await supabase.from("blog_posts").insert(blogPosts)
+  console.log(e7 ? `❌ blog_posts: ${e7.message}` : `✅ blog_posts (${blogPosts.length} rows)`)
 
   // Resume
-  const { error: e8 } = await supabase.from("resume").insert(resume);
-  console.log(e8 ? `❌ resume: ${e8.message}` : "✅ resume");
+  const { error: e8 } = await supabase.from("resume").insert(resume)
+  console.log(e8 ? `❌ resume: ${e8.message}` : "✅ resume")
 
-  console.log("\n🎉 Seed complete!");
+  console.log("\n🎉 Seed complete!")
 }
 
-seed().catch(console.error);
+seed().catch(console.error)

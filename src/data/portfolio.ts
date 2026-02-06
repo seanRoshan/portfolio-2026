@@ -13,7 +13,7 @@ export const siteConfig = {
     twitter: "https://x.com/alexrivera",
     dribbble: "https://dribbble.com/alexrivera",
   },
-};
+}
 
 export const heroData = {
   greeting: "Hey, I'm",
@@ -24,11 +24,10 @@ export const heroData = {
     "Open Source Builder",
     "Performance Obsessed",
   ],
-  tagline:
-    "I build digital experiences that are fast, accessible, and impossible to forget.",
+  tagline: "I build digital experiences that are fast, accessible, and impossible to forget.",
   cta: { label: "See My Work", href: "#projects" },
   ctaSecondary: { label: "Get In Touch", href: "#contact" },
-};
+}
 
 export const aboutData = {
   headline: "Crafting the web, one pixel at a time",
@@ -60,7 +59,7 @@ export const aboutData = {
     { name: "Kubernetes", category: "devops" },
     { name: "Terraform", category: "devops" },
   ],
-};
+}
 
 export const projectsData = [
   {
@@ -138,7 +137,7 @@ export const projectsData = [
     year: "2023",
     color: "#8b5cf6",
   },
-];
+]
 
 export const skillsData = {
   categories: [
@@ -185,7 +184,7 @@ export const skillsData = {
       ],
     },
   ],
-};
+}
 
 export const experienceData = [
   {
@@ -243,7 +242,7 @@ export const experienceData = [
       "Implemented CI/CD pipeline reducing deploy time from hours to minutes",
     ],
   },
-];
+]
 
 export const blogData = [
   {
@@ -282,7 +281,7 @@ export const blogData = [
     tags: ["TypeScript", "Frontend"],
     slug: "typescript-5-9-features-that-matter",
   },
-];
+]
 
 export const navLinks = [
   { label: "About", href: "#about" },
@@ -291,4 +290,4 @@ export const navLinks = [
   { label: "Experience", href: "#experience" },
   { label: "Blog", href: "#blog" },
   { label: "Contact", href: "#contact" },
-];
+]

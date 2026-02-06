@@ -62,9 +62,7 @@ export function ProjectForm({ data }: ProjectFormProps) {
 
   function onSubmit(values: ProjectFormValues) {
     startTransition(async () => {
-      const result = isEdit
-        ? await updateProject(data.id, values)
-        : await createProject(values)
+      const result = isEdit ? await updateProject(data.id, values) : await createProject(values)
 
       if (result?.error) {
         toast.error(result.error)
@@ -108,7 +106,9 @@ export function ProjectForm({ data }: ProjectFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Slug</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -119,7 +119,9 @@ export function ProjectForm({ data }: ProjectFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Short Description ({shortDescValue.length}/160)</FormLabel>
-                <FormControl><Textarea rows={2} {...field} /></FormControl>
+                <FormControl>
+                  <Textarea rows={2} {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -130,7 +132,9 @@ export function ProjectForm({ data }: ProjectFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Long Description</FormLabel>
-                <FormControl><Textarea rows={6} {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Textarea rows={6} {...field} value={field.value ?? ""} />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -164,7 +168,11 @@ export function ProjectForm({ data }: ProjectFormProps) {
               <FormItem>
                 <FormLabel>Tech Stack</FormLabel>
                 <FormControl>
-                  <DynamicList items={field.value ?? []} onChange={field.onChange} placeholder="Add technology..." />
+                  <DynamicList
+                    items={field.value ?? []}
+                    onChange={field.onChange}
+                    placeholder="Add technology..."
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -176,7 +184,9 @@ export function ProjectForm({ data }: ProjectFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Accent Color</FormLabel>
-                  <FormControl><Input placeholder="#6366f1" {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="#6366f1" {...field} value={field.value ?? ""} />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -186,7 +196,9 @@ export function ProjectForm({ data }: ProjectFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Year</FormLabel>
-                  <FormControl><Input placeholder="2026" {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="2026" {...field} value={field.value ?? ""} />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -198,7 +210,14 @@ export function ProjectForm({ data }: ProjectFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Live URL</FormLabel>
-                  <FormControl><Input type="url" placeholder="https://..." {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      placeholder="https://..."
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -209,7 +228,14 @@ export function ProjectForm({ data }: ProjectFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>GitHub URL</FormLabel>
-                  <FormControl><Input type="url" placeholder="https://github.com/..." {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      placeholder="https://github.com/..."
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

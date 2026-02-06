@@ -1,17 +1,12 @@
-"use client";
+"use client"
 
-import { ThemeProvider } from "next-themes";
-import { SmoothScroll } from "./SmoothScroll";
-import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "next-themes"
+import { SmoothScroll } from "./SmoothScroll"
+import { Toaster } from "@/components/ui/sonner"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-      enableSystem
-      disableTransitionOnChange
-    >
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
       <SmoothScroll>
         {children}
         <Toaster
@@ -22,5 +17,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
         />
       </SmoothScroll>
     </ThemeProvider>
-  );
+  )
 }

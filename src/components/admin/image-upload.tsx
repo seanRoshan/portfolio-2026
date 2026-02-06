@@ -40,15 +40,13 @@ export function ImageUpload({ value, onChange, bucket, path = "" }: ImageUploadP
       const ext = file.name.split(".").pop()
       const filename = `${path ? path + "/" : ""}${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
-      const { error } = await supabase.storage
-        .from(bucket)
-        .upload(filename, file, { upsert: true })
+      const { error } = await supabase.storage.from(bucket).upload(filename, file, { upsert: true })
 
       if (error) throw error
 
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(filename)
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(bucket).getPublicUrl(filename)
 
       onChange(publicUrl)
       toast.success("Image uploaded")
@@ -91,12 +89,12 @@ export function ImageUpload({ value, onChange, bucket, path = "" }: ImageUploadP
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex h-32 w-full items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors"
+          className="border-muted-foreground/25 hover:border-muted-foreground/50 flex h-32 w-full items-center justify-center rounded-md border-2 border-dashed transition-colors"
         >
           {uploading ? (
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
           ) : (
-            <div className="flex flex-col items-center gap-1 text-muted-foreground">
+            <div className="text-muted-foreground flex flex-col items-center gap-1">
               <Upload className="h-6 w-6" />
               <span className="text-xs">Click to upload</span>
             </div>

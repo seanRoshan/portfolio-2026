@@ -64,7 +64,7 @@ export function YouTubeEmbedDialog({ open, onOpenChange, onInsert }: YouTubeEmbe
             />
           </div>
           {videoId && (
-            <div className="aspect-video w-full overflow-hidden rounded-md border bg-muted">
+            <div className="bg-muted aspect-video w-full overflow-hidden rounded-md border">
               <Image
                 src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
                 alt="Video preview"
@@ -76,12 +76,16 @@ export function YouTubeEmbedDialog({ open, onOpenChange, onInsert }: YouTubeEmbe
             </div>
           )}
           {url && !videoId && (
-            <p className="text-sm text-destructive">Could not extract video ID from URL</p>
+            <p className="text-destructive text-sm">Could not extract video ID from URL</p>
           )}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
-          <Button onClick={handleInsert} disabled={!videoId}>Insert</Button>
+          <Button variant="outline" onClick={() => handleClose(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleInsert} disabled={!videoId}>
+            Insert
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -62,7 +62,9 @@ export function SettingsForm({ data }: SettingsFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Site Title</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -73,7 +75,9 @@ export function SettingsForm({ data }: SettingsFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Site Description</FormLabel>
-                <FormControl><Textarea rows={3} {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Textarea rows={3} {...field} value={field.value ?? ""} />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -103,7 +107,9 @@ export function SettingsForm({ data }: SettingsFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Google Analytics ID</FormLabel>
-                <FormControl><Input placeholder="G-XXXXXXXXXX" {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Input placeholder="G-XXXXXXXXXX" {...field} value={field.value ?? ""} />
+                </FormControl>
               </FormItem>
             )}
           />

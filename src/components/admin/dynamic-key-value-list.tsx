@@ -58,7 +58,12 @@ function SortableRow({
 
   return (
     <div ref={setNodeRef} style={style} className="flex items-center gap-2">
-      <button type="button" className="cursor-grab text-muted-foreground" {...attributes} {...listeners}>
+      <button
+        type="button"
+        className="text-muted-foreground cursor-grab"
+        {...attributes}
+        {...listeners}
+      >
         <GripVertical className="h-4 w-4" />
       </button>
       <Input
@@ -73,7 +78,13 @@ function SortableRow({
         placeholder={valueLabel}
         className="flex-1"
       />
-      <Button type="button" variant="ghost" size="icon" onClick={onRemove} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={onRemove}
+        className="text-muted-foreground hover:text-destructive h-8 w-8"
+      >
         <Trash2 className="h-4 w-4" />
       </Button>
     </div>
@@ -90,7 +101,7 @@ export function DynamicKeyValueList({
   const [newValue, setNewValue] = useState("")
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 
   const itemIds = items.map((_, i) => `kv-${i}`)
@@ -152,7 +163,12 @@ export function DynamicKeyValueList({
           onChange={(e) => setNewValue(e.target.value)}
           placeholder={valueLabel}
           className="flex-1"
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addItem() } }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault()
+              addItem()
+            }
+          }}
         />
         <Button
           type="button"

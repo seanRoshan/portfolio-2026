@@ -66,7 +66,9 @@ export function HeroForm({ data }: HeroFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Greeting</FormLabel>
-                <FormControl><Input placeholder="Hi, I'm" {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Input placeholder="Hi, I'm" {...field} value={field.value ?? ""} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -77,7 +79,9 @@ export function HeroForm({ data }: HeroFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -105,7 +109,9 @@ export function HeroForm({ data }: HeroFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Description</FormLabel>
-                <FormControl><Textarea rows={4} {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Textarea rows={4} {...field} value={field.value ?? ""} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -120,7 +126,9 @@ export function HeroForm({ data }: HeroFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Primary Button Text</FormLabel>
-                  <FormControl><Input {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input {...field} value={field.value ?? ""} />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -130,7 +138,9 @@ export function HeroForm({ data }: HeroFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Primary Button Link</FormLabel>
-                  <FormControl><Input placeholder="#projects" {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="#projects" {...field} value={field.value ?? ""} />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -140,7 +150,9 @@ export function HeroForm({ data }: HeroFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Secondary Button Text</FormLabel>
-                  <FormControl><Input {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input {...field} value={field.value ?? ""} />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -150,7 +162,9 @@ export function HeroForm({ data }: HeroFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Secondary Button Link</FormLabel>
-                  <FormControl><Input placeholder="#contact" {...field} value={field.value ?? ""} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="#contact" {...field} value={field.value ?? ""} />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -181,7 +195,9 @@ export function HeroForm({ data }: HeroFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Resume URL</FormLabel>
-                <FormControl><Input placeholder="https://..." {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Input placeholder="https://..." {...field} value={field.value ?? ""} />
+                </FormControl>
               </FormItem>
             )}
           />

@@ -1,15 +1,14 @@
-"use client";
+"use client"
 
-import { useMagneticEffect } from "@/hooks/useMagneticEffect";
-import { cn } from "@/lib/utils";
+import { useMagneticEffect } from "@/hooks/useMagneticEffect"
+import { cn } from "@/lib/utils"
 
-interface MagneticButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode;
-  strength?: number;
-  className?: string;
-  as?: "button" | "a";
-  href?: string;
+interface MagneticButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode
+  strength?: number
+  className?: string
+  as?: "button" | "a"
+  href?: string
 }
 
 export function MagneticButton({
@@ -20,15 +19,14 @@ export function MagneticButton({
   href,
   ...props
 }: MagneticButtonProps) {
-  const { ref, handleMouseMove, handleMouseLeave } =
-    useMagneticEffect(strength);
+  const { ref, handleMouseMove, handleMouseLeave } = useMagneticEffect(strength)
 
   const baseClasses = cn(
     "relative inline-flex items-center justify-center gap-2",
     "px-8 py-4 rounded-full font-medium",
     "transition-colors duration-300",
-    className
-  );
+    className,
+  )
 
   if (as === "a" && href) {
     return (
@@ -41,7 +39,7 @@ export function MagneticButton({
       >
         {children}
       </a>
-    );
+    )
   }
 
   return (
@@ -54,5 +52,5 @@ export function MagneticButton({
     >
       {children}
     </button>
-  );
+  )
 }

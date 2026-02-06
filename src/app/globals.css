@@ -60,7 +60,7 @@
   --accent-foreground: oklch(0.25 0.05 264);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.88 0.01 264);
-  --input: oklch(0.90 0.01 264);
+  --input: oklch(0.9 0.01 264);
   --ring: oklch(0.55 0.25 264);
   --chart-1: oklch(0.55 0.25 264);
   --chart-2: oklch(0.6 0.2 330);
@@ -116,7 +116,9 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
   }
 
   ::selection {
@@ -163,7 +165,9 @@
   }
 
   .glow {
-    box-shadow: 0 0 40px var(--glow), 0 0 80px var(--glow-secondary);
+    box-shadow:
+      0 0 40px var(--glow),
+      0 0 80px var(--glow-secondary);
   }
 
   .text-gradient {
@@ -234,25 +238,50 @@
 
 /* ─── Login page floating orbs ─── */
 @keyframes login-float-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -20px) scale(1.05); }
-  66% { transform: translate(-15px, 15px) scale(0.97); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -20px) scale(1.05);
+  }
+  66% {
+    transform: translate(-15px, 15px) scale(0.97);
+  }
 }
 
 @keyframes login-float-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-25px, 20px) scale(0.95); }
-  66% { transform: translate(20px, -10px) scale(1.03); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-25px, 20px) scale(0.95);
+  }
+  66% {
+    transform: translate(20px, -10px) scale(1.03);
+  }
 }
 
 @keyframes login-float-3 {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.15); }
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+  }
 }
 
-.login-orb-1 { animation: login-float-1 12s ease-in-out infinite; }
-.login-orb-2 { animation: login-float-2 15s ease-in-out infinite; }
-.login-orb-3 { animation: login-float-3 10s ease-in-out infinite; }
+.login-orb-1 {
+  animation: login-float-1 12s ease-in-out infinite;
+}
+.login-orb-2 {
+  animation: login-float-2 15s ease-in-out infinite;
+}
+.login-orb-3 {
+  animation: login-float-3 10s ease-in-out infinite;
+}
 
 /* ─── Scroll indicator animation ─── */
 @keyframes scroll-line {

@@ -64,7 +64,9 @@ export function AboutForm({ data }: AboutFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Heading</FormLabel>
-                <FormControl><Input placeholder="About Me" {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Input placeholder="About Me" {...field} value={field.value ?? ""} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -75,7 +77,9 @@ export function AboutForm({ data }: AboutFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Subheading</FormLabel>
-                <FormControl><Input {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Input {...field} value={field.value ?? ""} />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -85,7 +89,9 @@ export function AboutForm({ data }: AboutFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Bio</FormLabel>
-                <FormControl><Textarea rows={5} {...field} /></FormControl>
+                <FormControl>
+                  <Textarea rows={5} {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -96,7 +102,9 @@ export function AboutForm({ data }: AboutFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Secondary Bio</FormLabel>
-                <FormControl><Textarea rows={3} {...field} value={field.value ?? ""} /></FormControl>
+                <FormControl>
+                  <Textarea rows={3} {...field} value={field.value ?? ""} />
+                </FormControl>
               </FormItem>
             )}
           />

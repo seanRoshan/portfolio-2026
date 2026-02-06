@@ -17,17 +17,20 @@ NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 Create three Supabase client configurations:
 
 **Browser Client** (`/lib/supabase/client.ts`):
+
 - Uses `createBrowserClient` from `@supabase/ssr`
 - Uses anon key
 - For client components that need auth state
 
 **Server Client** (`/lib/supabase/server.ts`):
+
 - Uses `createServerClient` from `@supabase/ssr`
 - Reads cookies from Next.js `cookies()` function
 - For Server Components and Server Actions
 - Respects RLS policies based on logged-in user
 
 **Admin Client** (`/lib/supabase/admin.ts`):
+
 - Uses `createClient` from `@supabase/supabase-js` with service role key
 - Bypasses RLS — use ONLY in API routes for admin operations
 - NEVER import this in client components
@@ -35,6 +38,7 @@ Create three Supabase client configurations:
 ### Auth Middleware
 
 Create Next.js middleware (`/middleware.ts`) that:
+
 1. Refreshes the Supabase auth session on every request (prevents stale tokens)
 2. Protects `/admin/*` routes — redirect to `/login` if not authenticated
 3. Redirects `/login` to `/admin` if already authenticated
@@ -42,8 +46,8 @@ Create Next.js middleware (`/middleware.ts`) that:
 
 ```typescript
 // middleware.ts pattern
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from "@supabase/ssr"
+import { NextResponse, type NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
   // 1. Create supabase client with cookie handling
@@ -53,13 +57,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login']
+  matcher: ["/admin/:path*", "/login"],
 }
 ```
 
 ## Database Schema
 
 ### Table: `site_settings`
+
 Global site configuration (single row).
 
 ```sql
@@ -81,6 +86,7 @@ CREATE TABLE site_settings (
 ```
 
 ### Table: `hero_section`
+
 Hero content (single row).
 
 ```sql
@@ -323,6 +329,7 @@ CREATE POLICY "Admin delete" ON storage.objects FOR DELETE USING (auth.role() = 
 ```
 
 **Bucket usage:**
+
 - `avatars/` — Profile photo for hero/about section
 - `projects/` — Project thumbnails and screenshots
 - `blog/` — Blog post images and media
@@ -331,6 +338,7 @@ CREATE POLICY "Admin delete" ON storage.objects FOR DELETE USING (auth.role() = 
 ## Seed Script
 
 Create `/scripts/seed.ts` that:
+
 1. Reads the current hard-coded data from `/data/portfolio.ts`
 2. Maps it to the database schema
 3. Inserts it into Supabase using the service role client
@@ -341,6 +349,7 @@ This ensures zero data loss during migration.
 ## Vercel Deployment
 
 ### vercel.json
+
 ```json
 {
   "framework": "nextjs",
@@ -361,9 +370,11 @@ This ensures zero data loss during migration.
 ```
 
 ### Environment Variables in Vercel
+
 Set all env vars from `.env.local` in Vercel Dashboard > Settings > Environment Variables.
 
 ### Revalidation Strategy
+
 - Use Next.js `revalidateTag()` and `revalidatePath()` in admin Server Actions
 - When admin updates content → revalidate the affected page/tag
 - Public pages use `cache: 'force-cache'` with tags for instant loads + on-demand revalidation
@@ -371,4 +382,5 @@ Set all env vars from `.env.local` in Vercel Dashboard > Settings > Environment 
 - Home page sections: `revalidateTag('hero')`, `revalidateTag('projects')`, etc.
 
 ### On-Demand Revalidation API Route
+
 Create `/app/api/revalidate/route.ts` that accepts a secret + tag/path to revalidate. This allows the admin dashboard to bust cache after content updates without redeploying.

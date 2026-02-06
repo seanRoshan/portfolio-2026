@@ -58,12 +58,19 @@ function SortableRow({ exp }: { exp: Experience }) {
   return (
     <>
       <div ref={setNodeRef} style={style} className="flex items-center gap-3 rounded-lg border p-3">
-        <button type="button" className="cursor-grab text-muted-foreground" {...attributes} {...listeners}>
+        <button
+          type="button"
+          className="text-muted-foreground cursor-grab"
+          {...attributes}
+          {...listeners}
+        >
           <GripVertical className="h-4 w-4" />
         </button>
-        <div className="flex-1 min-w-0">
-          <p className="font-medium truncate">{exp.role}</p>
-          <p className="text-sm text-muted-foreground truncate">{exp.company} &middot; {dateRange}</p>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium">{exp.role}</p>
+          <p className="text-muted-foreground truncate text-sm">
+            {exp.company} &middot; {dateRange}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant={exp.published ? "default" : "outline"}>
@@ -74,7 +81,12 @@ function SortableRow({ exp }: { exp: Experience }) {
               <Pencil className="h-4 w-4" />
             </Button>
           </Link>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setShowDelete(true)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-destructive h-8 w-8"
+            onClick={() => setShowDelete(true)}
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -84,10 +96,14 @@ function SortableRow({ exp }: { exp: Experience }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete this experience entry?</DialogTitle>
-            <DialogDescription>{exp.role} at {exp.company}. This action cannot be undone.</DialogDescription>
+            <DialogDescription>
+              {exp.role} at {exp.company}. This action cannot be undone.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDelete(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowDelete(false)}>
+              Cancel
+            </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
               {isPending ? "Deleting..." : "Delete"}
             </Button>
@@ -103,7 +119,7 @@ export function ExperienceList({ entries: initial }: { entries: Experience[] }) 
   const [, startTransition] = useTransition()
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 
   function handleDragEnd(event: DragEndEvent) {
@@ -123,7 +139,7 @@ export function ExperienceList({ entries: initial }: { entries: Experience[] }) 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{entries.length} entries</p>
+        <p className="text-muted-foreground text-sm">{entries.length} entries</p>
         <Link href="/admin/experience/new">
           <Button size="sm">
             <Plus className="mr-2 h-4 w-4" />
@@ -141,7 +157,7 @@ export function ExperienceList({ entries: initial }: { entries: Experience[] }) 
         </SortableContext>
       </DndContext>
       {entries.length === 0 && (
-        <p className="text-center text-muted-foreground py-8">No experience entries yet.</p>
+        <p className="text-muted-foreground py-8 text-center">No experience entries yet.</p>
       )}
     </div>
   )

@@ -13,7 +13,7 @@ export default async function BlogAdminPage() {
   return (
     <>
       <AdminHeader title="Blog" />
-      <div className="p-4 md:p-6 max-w-5xl">
+      <div className="max-w-5xl p-4 md:p-6">
         <BlogList posts={(data as BlogPost[]) ?? []} />
       </div>
     </>

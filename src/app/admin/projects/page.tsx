@@ -13,7 +13,7 @@ export default async function ProjectsPage() {
   return (
     <>
       <AdminHeader title="Projects" />
-      <div className="p-4 md:p-6 max-w-4xl">
+      <div className="max-w-4xl p-4 md:p-6">
         <ProjectsList projects={(data as Project[]) ?? []} />
       </div>
     </>

@@ -1,22 +1,22 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-import { TextReveal } from "@/components/animations/TextReveal";
-import { RevealOnScroll } from "@/components/animations/RevealOnScroll";
-import { StaggerChildren } from "@/components/animations/StaggerChildren";
+import { useRef } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useGSAP } from "@gsap/react"
+import { TextReveal } from "@/components/animations/TextReveal"
+import { RevealOnScroll } from "@/components/animations/RevealOnScroll"
+import { StaggerChildren } from "@/components/animations/StaggerChildren"
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger)
 
 interface AboutProps {
   aboutData: {
-    headline: string;
-    description: string[];
-    stats: { label: string; value: number }[];
-    techStack: { name: string; category: string }[];
-  } | null;
+    headline: string
+    description: string[]
+    stats: { label: string; value: number }[]
+    techStack: { name: string; category: string }[]
+  } | null
 }
 
 const defaultAboutData: NonNullable<AboutProps["aboutData"]> = {
@@ -24,16 +24,16 @@ const defaultAboutData: NonNullable<AboutProps["aboutData"]> = {
   description: [],
   stats: [],
   techStack: [],
-};
+}
 
 function AnimatedCounter({ value, label }: { value: number; label: string }) {
-  const counterRef = useRef<HTMLSpanElement>(null);
+  const counterRef = useRef<HTMLSpanElement>(null)
 
   useGSAP(() => {
-    const el = counterRef.current;
-    if (!el) return;
+    const el = counterRef.current
+    if (!el) return
 
-    const obj = { val: 0 };
+    const obj = { val: 0 }
     gsap.to(obj, {
       val: value,
       duration: 2,
@@ -44,32 +44,32 @@ function AnimatedCounter({ value, label }: { value: number; label: string }) {
         toggleActions: "play none none none",
       },
       onUpdate: () => {
-        el.textContent = Math.round(obj.val).toLocaleString() + (value >= 100 ? "+" : "+");
+        el.textContent = Math.round(obj.val).toLocaleString() + (value >= 100 ? "+" : "+")
       },
-    });
-  });
+    })
+  })
 
   return (
     <div className="text-center">
       <span
         ref={counterRef}
-        className="block text-[length:var(--text-4xl)] font-bold text-gradient"
+        className="text-gradient block text-[length:var(--text-4xl)] font-bold"
       >
         0
       </span>
-      <span className="mt-1 block text-sm text-muted-foreground">{label}</span>
+      <span className="text-muted-foreground mt-1 block text-sm">{label}</span>
     </div>
-  );
+  )
 }
 
 export function About({ aboutData: aboutDataProp }: AboutProps) {
-  const aboutData = aboutDataProp ?? defaultAboutData;
+  const aboutData = aboutDataProp ?? defaultAboutData
   return (
     <section id="about" className="section-padding relative">
       <div className="container-wide">
         {/* Section heading */}
         <RevealOnScroll>
-          <span className="mb-3 block text-sm font-medium uppercase tracking-widest text-primary">
+          <span className="text-primary mb-3 block text-sm font-medium tracking-widest uppercase">
             About Me
           </span>
         </RevealOnScroll>
@@ -77,7 +77,7 @@ export function About({ aboutData: aboutDataProp }: AboutProps) {
         <TextReveal
           as="h2"
           type="words"
-          className="mb-16 max-w-3xl text-[length:var(--text-4xl)] font-bold leading-tight"
+          className="mb-16 max-w-3xl text-[length:var(--text-4xl)] leading-tight font-bold"
         >
           {aboutData.headline}
         </TextReveal>
@@ -86,10 +86,10 @@ export function About({ aboutData: aboutDataProp }: AboutProps) {
         <div className="grid gap-16 lg:grid-cols-2">
           {/* Left: Portrait placeholder */}
           <RevealOnScroll className="relative">
-            <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 to-secondary">
+            <div className="from-primary/20 to-secondary aspect-[4/5] overflow-hidden rounded-3xl bg-gradient-to-br">
               <div className="flex h-full items-center justify-center">
                 <div className="text-center">
-                  <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
+                  <div className="bg-primary/10 mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="48"
@@ -106,21 +106,19 @@ export function About({ aboutData: aboutDataProp }: AboutProps) {
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Your photo here
-                  </p>
+                  <p className="text-muted-foreground text-sm">Your photo here</p>
                 </div>
               </div>
             </div>
             {/* Decorative element */}
-            <div className="absolute -right-4 -bottom-4 -z-10 h-full w-full rounded-3xl border border-primary/20" />
+            <div className="border-primary/20 absolute -right-4 -bottom-4 -z-10 h-full w-full rounded-3xl border" />
           </RevealOnScroll>
 
           {/* Right: Text content */}
           <div className="flex flex-col justify-center">
             {aboutData.description.map((paragraph, i) => (
               <RevealOnScroll key={i} delay={i * 0.15}>
-                <p className="mb-6 text-[length:var(--text-base)] leading-relaxed text-muted-foreground">
+                <p className="text-muted-foreground mb-6 text-[length:var(--text-base)] leading-relaxed">
                   {paragraph}
                 </p>
               </RevealOnScroll>
@@ -129,11 +127,7 @@ export function About({ aboutData: aboutDataProp }: AboutProps) {
             {/* Stats */}
             <StaggerChildren className="mt-8 grid grid-cols-2 gap-8 sm:grid-cols-4">
               {aboutData.stats.map((stat) => (
-                <AnimatedCounter
-                  key={stat.label}
-                  value={stat.value}
-                  label={stat.label}
-                />
+                <AnimatedCounter key={stat.label} value={stat.value} label={stat.label} />
               ))}
             </StaggerChildren>
           </div>
@@ -151,7 +145,7 @@ export function About({ aboutData: aboutDataProp }: AboutProps) {
             {aboutData.techStack.map((tech) => (
               <span
                 key={tech.name}
-                className="glass rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-300 hover:scale-105 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10"
+                className="glass hover:border-primary/30 hover:shadow-primary/10 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 {tech.name}
               </span>
@@ -160,5 +154,5 @@ export function About({ aboutData: aboutDataProp }: AboutProps) {
         </div>
       </div>
     </section>
-  );
+  )
 }
