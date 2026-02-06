@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
+import { LogIn, LayoutDashboard, LogOut } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "@/lib/utils";
+import { logout } from "@/app/admin/actions";
 
 interface NavigationProps {
   navLinks: { label: string; href: string }[];
+  isAuthenticated?: boolean;
   siteConfig: {
     name: string;
     title: string;
@@ -30,11 +34,12 @@ const defaultSiteConfig: NonNullable<NavigationProps["siteConfig"]> = {
   socials: {},
 };
 
-export function Navigation({ navLinks, siteConfig: siteConfigProp }: NavigationProps) {
+export function Navigation({ navLinks, siteConfig: siteConfigProp, isAuthenticated = false }: NavigationProps) {
   const siteConfig = siteConfigProp ?? defaultSiteConfig;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
+  const [isLoggingOut, startLogoutTransition] = useTransition();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,7 +68,7 @@ export function Navigation({ navLinks, siteConfig: siteConfigProp }: NavigationP
       window.removeEventListener("scroll", handleScroll);
       observer.disconnect();
     };
-  }, []);
+  }, [navLinks]);
 
   return (
     <>
@@ -118,6 +123,37 @@ export function Navigation({ navLinks, siteConfig: siteConfigProp }: NavigationP
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Auth buttons — desktop */}
+            <div className="hidden items-center gap-2 md:flex">
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-1.5 rounded-full border border-border/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+                  >
+                    <LayoutDashboard className="h-3 w-3" />
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => startLogoutTransition(() => logout())}
+                    disabled={isLoggingOut}
+                    className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <LogOut className="h-3 w-3" />
+                    {isLoggingOut ? "..." : "Logout"}
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-1.5 rounded-full border border-border/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+                >
+                  <LogIn className="h-3 w-3" />
+                  Sign In
+                </Link>
+              )}
+            </div>
+
             <ThemeToggle />
 
             {/* Mobile menu button */}
@@ -180,6 +216,45 @@ export function Navigation({ navLinks, siteConfig: siteConfigProp }: NavigationP
                   {link.label}
                 </motion.a>
               ))}
+
+              {/* Auth link — mobile */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ delay: navLinks.length * 0.07, duration: 0.4 }}
+                className="mt-4 flex items-center gap-4 border-t border-border/30 pt-8"
+              >
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsMobileOpen(false)}
+                      className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      <LayoutDashboard className="h-5 w-5" />
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => { setIsMobileOpen(false); startLogoutTransition(() => logout()) }}
+                      disabled={isLoggingOut}
+                      className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      <LogOut className="h-5 w-5" />
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileOpen(false)}
+                    className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-primary"
+                  >
+                    <LogIn className="h-5 w-5" />
+                    Sign In
+                  </Link>
+                )}
+              </motion.div>
             </nav>
           </motion.div>
         )}
