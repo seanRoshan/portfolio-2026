@@ -79,6 +79,8 @@ This creates all tables, RLS policies, triggers, and storage buckets.
 4. Toggle OFF **"Auto Confirm"** if it asks (or go to Auth > Providers > Email and disable "Confirm email")
 5. This is the ONLY admin user — no public sign-up exists
 
+**Current admin**: `sean.roshan.91@gmail.com` (created 2026-02-06)
+
 ## Step 7: Seed the Database
 
 ```bash
