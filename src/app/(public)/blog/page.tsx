@@ -1,15 +1,24 @@
 import type { Metadata } from "next"
 import { getBlogPosts, getAllBlogTags } from "@/lib/queries"
+import { getCachedSiteConfig } from "@/lib/seo"
+import { collectionPageJsonLd } from "@/lib/json-ld"
+import { JsonLd } from "@/components/JsonLd"
 import { BlogListing } from "./blog-listing"
 
-export const metadata: Metadata = {
-  title: "Blog — Alex Rivera",
-  description:
-    "Thoughts on code, craft, and the modern web. Articles about React, TypeScript, architecture, and more.",
-  openGraph: {
-    title: "Blog — Alex Rivera",
-    description: "Thoughts on code, craft, and the modern web.",
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getCachedSiteConfig()
+  const description = config
+    ? `Articles and thoughts by ${config.name} on code, craft, and the modern web.`
+    : "Thoughts on code, craft, and the modern web."
+
+  return {
+    title: "Blog",
+    description,
+    openGraph: {
+      title: config ? `Blog — ${config.name}` : "Blog",
+      description,
+    },
+  }
 }
 
 export default async function BlogPage({
@@ -20,10 +29,15 @@ export default async function BlogPage({
   const { page: pageStr, tag } = await searchParams
   const page = Math.max(1, parseInt(pageStr ?? "1", 10) || 1)
 
-  const [result, allTags] = await Promise.all([getBlogPosts(page, tag), getAllBlogTags()])
+  const [result, allTags, config] = await Promise.all([
+    getBlogPosts(page, tag),
+    getAllBlogTags(),
+    getCachedSiteConfig(),
+  ])
 
   return (
     <main className="min-h-screen pt-24 pb-16">
+      {config && <JsonLd data={collectionPageJsonLd(config)} />}
       <div className="container-wide">
         <div className="mb-12">
           <h1 className="mb-3 text-[length:var(--text-4xl)] font-bold">Blog</h1>

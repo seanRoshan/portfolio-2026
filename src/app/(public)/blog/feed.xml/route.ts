@@ -11,13 +11,19 @@ function escapeXml(str: string): string {
 
 export async function GET() {
   const supabase = await createClient()
-  const { data: posts } = await supabase
-    .from("blog_posts")
-    .select("title, slug, excerpt, published_at")
-    .eq("published", true)
-    .order("published_at", { ascending: false })
+  const [{ data: posts }, { data: settings }, { data: hero }] = await Promise.all([
+    supabase
+      .from("blog_posts")
+      .select("title, slug, excerpt, published_at")
+      .eq("published", true)
+      .order("published_at", { ascending: false }),
+    supabase.from("site_settings").select("site_description").single(),
+    supabase.from("hero_section").select("name").single(),
+  ])
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://alexrivera.dev"
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ""
+  const name = hero?.name ?? "Blog"
+  const description = settings?.site_description ?? ""
 
   const items = (posts ?? [])
     .map(
@@ -35,8 +41,8 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Alex Rivera — Blog</title>
-    <description>Thoughts on code and craft</description>
+    <title>${escapeXml(name)} — Blog</title>
+    <description>${escapeXml(description)}</description>
     <link>${siteUrl}/blog</link>
     <atom:link href="${siteUrl}/blog/feed.xml" rel="self" type="application/rss+xml"/>
     <language>en-us</language>
