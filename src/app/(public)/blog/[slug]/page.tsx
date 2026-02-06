@@ -5,6 +5,9 @@ import Image from "next/image"
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getBlogPost, getAdjacentPosts } from "@/lib/queries"
+import { getCachedSiteConfig } from "@/lib/seo"
+import { articleJsonLd } from "@/lib/json-ld"
+import { JsonLd } from "@/components/JsonLd"
 import { Badge } from "@/components/ui/badge"
 import { BlogRenderer } from "@/components/blog/blog-renderer"
 import { TableOfContents } from "./table-of-contents"
@@ -30,7 +33,7 @@ export async function generateMetadata({
   const ogImage = post.og_image_url || post.cover_image_url
 
   return {
-    title: `${title} — Alex Rivera`,
+    title,
     description,
     openGraph: {
       title,
@@ -55,6 +58,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   if (!post) notFound()
 
+  const config = await getCachedSiteConfig()
+
   const adjacent = post.published_at
     ? await getAdjacentPosts(post.published_at)
     : { prev: null, next: null }
@@ -69,6 +74,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <main className="min-h-screen pt-24 pb-16">
+      {config && (
+        <JsonLd data={articleJsonLd(post, { name: config.name, siteUrl: config.siteUrl })} />
+      )}
       {/* Cover image */}
       {post.cover_image_url && (
         <div className="container-wide mb-10">
