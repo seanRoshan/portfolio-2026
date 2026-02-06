@@ -55,7 +55,14 @@ export default async function Home() {
       <Navigation navLinks={navLinks} siteConfig={siteConfig} isAuthenticated={!!user} />
       <main>
         <Hero heroData={heroData} siteConfig={siteConfig} />
-        <About aboutData={aboutData} />
+        <About
+          aboutData={aboutData}
+          allSkills={
+            skillsData?.categories.flatMap((cat) =>
+              cat.skills.map((s) => ({ name: s.name, iconName: s.iconName })),
+            ) ?? []
+          }
+        />
         <Projects projectsData={projectsData} />
         <Skills skillsData={skillsData} />
         <Experience experienceData={experienceData} />

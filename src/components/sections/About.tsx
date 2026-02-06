@@ -7,8 +7,14 @@ import { useGSAP } from "@gsap/react"
 import { TextReveal } from "@/components/animations/TextReveal"
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll"
 import { StaggerChildren } from "@/components/animations/StaggerChildren"
+import { FloatingTechCloud } from "@/components/animations/FloatingTechCloud"
 
 gsap.registerPlugin(ScrollTrigger)
+
+interface SkillItem {
+  name: string
+  iconName: string | null
+}
 
 interface AboutProps {
   aboutData: {
@@ -17,6 +23,7 @@ interface AboutProps {
     stats: { label: string; value: number }[]
     techStack: { name: string; category: string }[]
   } | null
+  allSkills?: SkillItem[]
 }
 
 const defaultAboutData: NonNullable<AboutProps["aboutData"]> = {
@@ -62,7 +69,7 @@ function AnimatedCounter({ value, label }: { value: number; label: string }) {
   )
 }
 
-export function About({ aboutData: aboutDataProp }: AboutProps) {
+export function About({ aboutData: aboutDataProp, allSkills = [] }: AboutProps) {
   const aboutData = aboutDataProp ?? defaultAboutData
   return (
     <section id="about" className="section-padding relative">
@@ -133,25 +140,21 @@ export function About({ aboutData: aboutDataProp }: AboutProps) {
           </div>
         </div>
 
-        {/* Tech stack */}
-        <div className="mt-24">
-          <RevealOnScroll>
-            <h3 className="mb-8 text-center text-[length:var(--text-xl)] font-semibold">
-              Technologies I Work With
-            </h3>
-          </RevealOnScroll>
+        {/* Technologies — interactive floating cloud */}
+        {allSkills.length > 0 && (
+          <div className="mt-24">
+            <RevealOnScroll>
+              <h3 className="mb-2 text-center text-[length:var(--text-xl)] font-semibold">
+                Technologies I Work With
+              </h3>
+              <p className="text-muted-foreground mx-auto mb-8 max-w-md text-center text-sm">
+                Hover to explore — push them around
+              </p>
+            </RevealOnScroll>
 
-          <StaggerChildren className="mx-auto flex max-w-3xl flex-wrap justify-center gap-3">
-            {aboutData.techStack.map((tech) => (
-              <span
-                key={tech.name}
-                className="glass hover:border-primary/30 hover:shadow-primary/10 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg"
-              >
-                {tech.name}
-              </span>
-            ))}
-          </StaggerChildren>
-        </div>
+            <FloatingTechCloud items={allSkills} className="rounded-2xl" />
+          </div>
+        )}
       </div>
     </section>
   )
