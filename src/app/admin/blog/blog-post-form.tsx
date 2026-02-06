@@ -1,4 +1,5 @@
 "use client"
+"use no memo" // React Hook Form's watch() is incompatible with React Compiler
 
 import { useState, useEffect, useRef, useTransition, useCallback } from "react"
 import { useRouter } from "next/navigation"
@@ -61,6 +62,7 @@ export function BlogPostForm({ data }: BlogPostFormProps) {
   })
 
   // Track content changes for read time / excerpt auto-generation
+  // eslint-disable-next-line react-hooks/incompatible-library -- React Hook Form watch() is intentionally reactive
   const content = form.watch("content")
   const title = form.watch("title")
   const published = form.watch("published")
