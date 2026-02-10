@@ -13,6 +13,7 @@ export const projectSchema = z.object({
   long_description: z.string().nullable().default(null),
   thumbnail_url: z.string().nullable().default(null),
   images: z.array(z.string()).default([]),
+  image_captions: z.record(z.string(), z.string()).default({}),
   tech_stack: z.array(z.string().min(1)).default([]),
   color: z.string().nullable().default(null),
   year: z.string().nullable().default(null),
@@ -28,8 +29,17 @@ export const projectSchema = z.object({
     .nullable()
     .or(z.literal(""))
     .transform((v) => v || null),
+  architecture_url: z.string().nullable().default(null),
+  project_role: z.string().nullable().default(null),
+  status: z.enum(["completed", "in_progress", "open_source"]).nullable().default("completed"),
+  highlights: z.array(z.object({ metric: z.string(), value: z.string() })).default([]),
   featured: z.boolean().default(false),
   published: z.boolean().default(true),
+  // Form-only fields (junction table data, not stored in projects table)
+  experience_ids: z.array(z.string()).default([]),
+  skill_ids: z.array(z.string()).default([]),
+  education_ids: z.array(z.string()).default([]),
+  certification_ids: z.array(z.string()).default([]),
 })
 
 export type ProjectFormValues = z.input<typeof projectSchema>

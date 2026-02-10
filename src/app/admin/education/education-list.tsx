@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import {
   DndContext,
   closestCenter,
@@ -32,13 +31,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { deleteProject, updateProjectOrder } from "./actions"
-import type { Project } from "@/types/database"
+import { deleteEducation, updateEducationOrder } from "./actions"
+import type { Education } from "@/types/database"
 
-function SortableRow({ project }: { project: Project }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: project.id,
-  })
+function SortableRow({ entry }: { entry: Education }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: entry.id })
   const [showDelete, setShowDelete] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -49,20 +46,16 @@ function SortableRow({ project }: { project: Project }) {
 
   function handleDelete() {
     startTransition(async () => {
-      const result = await deleteProject(project.id)
+      const result = await deleteEducation(entry.id)
       if (result?.error) toast.error(result.error)
-      else toast.success("Project deleted")
+      else toast.success("Education deleted")
       setShowDelete(false)
     })
   }
 
   return (
     <>
-      <div
-        ref={setNodeRef}
-        style={style}
-        className="flex min-h-[4.5rem] items-center gap-3 rounded-lg border p-3"
-      >
+      <div ref={setNodeRef} style={style} className="flex items-center gap-3 rounded-lg border p-3">
         <button
           type="button"
           className="text-muted-foreground cursor-grab"
@@ -71,38 +64,18 @@ function SortableRow({ project }: { project: Project }) {
         >
           <GripVertical className="h-4 w-4" />
         </button>
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded">
-          {project.thumbnail_url ? (
-            <Image
-              src={project.thumbnail_url}
-              alt={project.title}
-              width={48}
-              height={48}
-              className="h-full w-full object-cover"
-              unoptimized
-            />
-          ) : (
-            <div
-              className="flex h-full w-full items-center justify-center text-xs font-bold opacity-40"
-              style={{
-                backgroundColor: (project.color ?? "#6366f1") + "15",
-                color: project.color ?? "#6366f1",
-              }}
-            >
-              {project.title[0]}
-            </div>
-          )}
-        </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium">{project.title}</p>
-          <p className="text-muted-foreground truncate text-xs">{project.short_description}</p>
+          <p className="truncate font-medium">{entry.school}</p>
+          <p className="text-muted-foreground truncate text-sm">
+            {[entry.degree, entry.field].filter(Boolean).join(" in ")}
+            {entry.year && ` · ${entry.year}`}
+          </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {project.featured && <Badge variant="secondary">Featured</Badge>}
-          <Badge variant={project.published ? "default" : "outline"}>
-            {project.published ? "Published" : "Draft"}
+        <div className="flex items-center gap-2">
+          <Badge variant={entry.published ? "default" : "outline"}>
+            {entry.published ? "Published" : "Draft"}
           </Badge>
-          <Link href={`/admin/projects/${project.id}`}>
+          <Link href={`/admin/education/${entry.id}`}>
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <Pencil className="h-4 w-4" />
             </Button>
@@ -121,8 +94,10 @@ function SortableRow({ project }: { project: Project }) {
       <Dialog open={showDelete} onOpenChange={setShowDelete}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete &quot;{project.title}&quot;?</DialogTitle>
-            <DialogDescription>This action cannot be undone.</DialogDescription>
+            <DialogTitle>Delete this education entry?</DialogTitle>
+            <DialogDescription>
+              {entry.degree} at {entry.school}. This action cannot be undone.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDelete(false)}>
@@ -138,8 +113,8 @@ function SortableRow({ project }: { project: Project }) {
   )
 }
 
-export function ProjectsList({ projects: initial }: { projects: Project[] }) {
-  const [projects, setProjects] = useState(initial)
+export function EducationList({ entries: initial }: { entries: Education[] }) {
+  const [entries, setEntries] = useState(initial)
   const [, startTransition] = useTransition()
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -149,12 +124,12 @@ export function ProjectsList({ projects: initial }: { projects: Project[] }) {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (over && active.id !== over.id) {
-      const oldIndex = projects.findIndex((p) => p.id === active.id)
-      const newIndex = projects.findIndex((p) => p.id === over.id)
-      const reordered = arrayMove(projects, oldIndex, newIndex)
-      setProjects(reordered)
+      const oldIndex = entries.findIndex((e) => e.id === active.id)
+      const newIndex = entries.findIndex((e) => e.id === over.id)
+      const reordered = arrayMove(entries, oldIndex, newIndex)
+      setEntries(reordered)
       startTransition(async () => {
-        const result = await updateProjectOrder(reordered.map((p) => p.id))
+        const result = await updateEducationOrder(reordered.map((e) => e.id))
         if (result?.error) toast.error(result.error)
       })
     }
@@ -163,27 +138,25 @@ export function ProjectsList({ projects: initial }: { projects: Project[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">{projects.length} projects</p>
-        <Link href="/admin/projects/new">
+        <p className="text-muted-foreground text-sm">{entries.length} entries</p>
+        <Link href="/admin/education/new">
           <Button size="sm">
             <Plus className="mr-2 h-4 w-4" />
-            New Project
+            New Education
           </Button>
         </Link>
       </div>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={projects.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={entries.map((e) => e.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
-            {projects.map((project) => (
-              <SortableRow key={project.id} project={project} />
+            {entries.map((entry) => (
+              <SortableRow key={entry.id} entry={entry} />
             ))}
           </div>
         </SortableContext>
       </DndContext>
-      {projects.length === 0 && (
-        <p className="text-muted-foreground py-8 text-center">
-          No projects yet. Create your first one!
-        </p>
+      {entries.length === 0 && (
+        <p className="text-muted-foreground py-8 text-center">No education entries yet.</p>
       )}
     </div>
   )

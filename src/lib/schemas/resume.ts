@@ -67,8 +67,6 @@ export const resumeSchema = z.object({
     .nullable()
     .or(z.literal(""))
     .transform((v) => v || null),
-  education: z.array(educationItemSchema).default([]),
-  certifications: z.array(certificationItemSchema).default([]),
   additional_sections: z.array(additionalSectionSchema).default([]),
 })
 

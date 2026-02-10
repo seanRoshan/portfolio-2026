@@ -1,4 +1,4 @@
-import type { EducationEntry, CertificationEntry, AdditionalSectionEntry } from "@/types/database"
+import type { AdditionalSectionEntry } from "@/types/database"
 
 const categoryLabels: Record<string, string> = {
   frontend: "Frontend",
@@ -19,8 +19,6 @@ interface ResumePreviewProps {
     linkedin: string | null
     github: string | null
     summary: string | null
-    education: EducationEntry[]
-    certifications: CertificationEntry[]
     additional_sections: AdditionalSectionEntry[]
   }
   skills?: { category: string; skills: string[] }[]
@@ -31,9 +29,28 @@ interface ResumePreviewProps {
     period: string
     achievements: string[]
   }[]
+  education?: {
+    school: string
+    degree: string
+    field: string | null
+    year: string | null
+    details: string | null
+  }[]
+  certifications?: {
+    name: string
+    issuer: string
+    year: string | null
+    url: string | null
+  }[]
 }
 
-export function ResumePreview({ data, skills = [], experience = [] }: ResumePreviewProps) {
+export function ResumePreview({
+  data,
+  skills = [],
+  experience = [],
+  education = [],
+  certifications = [],
+}: ResumePreviewProps) {
   const contactItems = [
     data.email,
     data.phone,
@@ -108,12 +125,12 @@ export function ResumePreview({ data, skills = [], experience = [] }: ResumePrev
       )}
 
       {/* Education */}
-      {data.education.length > 0 && (
+      {education.length > 0 && (
         <section className="mb-3">
           <h3 className="mb-1.5 border-b border-gray-300 pb-0.5 text-[11px] font-bold tracking-wider uppercase">
             Education
           </h3>
-          {data.education.map((edu, i) => (
+          {education.map((edu, i) => (
             <div key={i} className="mb-1.5">
               <div className="flex justify-between">
                 <span className="font-bold">{edu.school}</span>
@@ -129,12 +146,12 @@ export function ResumePreview({ data, skills = [], experience = [] }: ResumePrev
       )}
 
       {/* Certifications */}
-      {data.certifications.length > 0 && (
+      {certifications.length > 0 && (
         <section className="mb-3">
           <h3 className="mb-1.5 border-b border-gray-300 pb-0.5 text-[11px] font-bold tracking-wider uppercase">
             Certifications
           </h3>
-          {data.certifications.map((cert, i) => (
+          {certifications.map((cert, i) => (
             <p key={i}>
               <span className="font-bold">{cert.name}</span>
               <span className="text-gray-600"> — {cert.issuer}</span>

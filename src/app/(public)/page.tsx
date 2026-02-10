@@ -4,6 +4,7 @@ import { About } from "@/components/sections/About"
 import { Projects } from "@/components/sections/Projects"
 import { Skills } from "@/components/sections/Skills"
 import { Experience } from "@/components/sections/Experience"
+import { Credentials } from "@/components/sections/Credentials"
 import { Blog } from "@/components/sections/Blog"
 import { Contact } from "@/components/sections/Contact"
 import { JsonLd } from "@/components/JsonLd"
@@ -16,6 +17,8 @@ import {
   getProjectsData,
   getSkillsData,
   getExperienceData,
+  getEducationData,
+  getCertificationData,
   getBlogData,
 } from "@/lib/queries"
 
@@ -36,6 +39,8 @@ export default async function Home() {
     projectsData,
     skillsData,
     experienceData,
+    educationData,
+    certificationData,
     blogData,
     seoConfig,
   ] = await Promise.all([
@@ -45,6 +50,8 @@ export default async function Home() {
     getProjectsData(),
     getSkillsData(),
     getExperienceData(),
+    getEducationData(),
+    getCertificationData(),
     getBlogData(),
     getCachedSiteConfig(),
   ])
@@ -64,6 +71,7 @@ export default async function Home() {
       <Projects projectsData={projectsData} />
       <Skills skillsData={skillsData} />
       <Experience experienceData={experienceData} />
+      <Credentials educationData={educationData} certificationData={certificationData} />
       <Blog blogData={blogData} />
       <Contact siteConfig={siteConfig} />
     </main>

@@ -3,7 +3,7 @@
 import { Download, Printer, Mail, MapPin, Globe, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll"
-import type { EducationEntry, CertificationEntry, AdditionalSectionEntry } from "@/types/database"
+import type { AdditionalSectionEntry } from "@/types/database"
 
 interface ResumePublicViewProps {
   data: {
@@ -16,8 +16,6 @@ interface ResumePublicViewProps {
     linkedin: string | null
     github: string | null
     summary: string | null
-    education: EducationEntry[]
-    certifications: CertificationEntry[]
     additional_sections: AdditionalSectionEntry[]
     pdf_url: string | null
   }
@@ -30,6 +28,19 @@ interface ResumePublicViewProps {
     achievements: string[]
     company_url: string | null
   }[]
+  education: {
+    school: string
+    degree: string
+    field: string | null
+    year: string | null
+    details: string | null
+  }[]
+  certifications: {
+    name: string
+    issuer: string
+    year: string | null
+    url: string | null
+  }[]
 }
 
 const categoryLabels: Record<string, string> = {
@@ -40,7 +51,13 @@ const categoryLabels: Record<string, string> = {
   tools: "Tools",
 }
 
-export function ResumePublicView({ data, skills, experience }: ResumePublicViewProps) {
+export function ResumePublicView({
+  data,
+  skills,
+  experience,
+  education,
+  certifications,
+}: ResumePublicViewProps) {
   return (
     <div className="mx-auto max-w-3xl">
       {/* Action buttons */}
@@ -203,14 +220,14 @@ export function ResumePublicView({ data, skills, experience }: ResumePublicViewP
       )}
 
       {/* Education */}
-      {data.education.length > 0 && (
+      {education.length > 0 && (
         <RevealOnScroll>
           <section className="mb-10">
             <h2 className="mb-4 border-b pb-2 text-lg font-bold tracking-wider uppercase">
               Education
             </h2>
             <div className="space-y-4">
-              {data.education.map((edu, i) => (
+              {education.map((edu, i) => (
                 <div key={i}>
                   <div className="flex items-baseline justify-between gap-4">
                     <h3 className="font-bold">{edu.school}</h3>
@@ -230,14 +247,14 @@ export function ResumePublicView({ data, skills, experience }: ResumePublicViewP
       )}
 
       {/* Certifications */}
-      {data.certifications.length > 0 && (
+      {certifications.length > 0 && (
         <RevealOnScroll>
           <section className="mb-10">
             <h2 className="mb-4 border-b pb-2 text-lg font-bold tracking-wider uppercase">
               Certifications
             </h2>
             <div className="space-y-2">
-              {data.certifications.map((cert, i) => (
+              {certifications.map((cert, i) => (
                 <div key={i} className="text-sm">
                   {cert.url ? (
                     <a

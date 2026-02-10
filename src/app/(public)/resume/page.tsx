@@ -1,6 +1,12 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getResumeData, getResumeSkills, getResumeExperience } from "@/lib/queries"
+import {
+  getResumeData,
+  getResumeSkills,
+  getResumeExperience,
+  getResumeEducation,
+  getResumeCertifications,
+} from "@/lib/queries"
 import { getCachedSiteConfig } from "@/lib/seo"
 import { profilePageJsonLd } from "@/lib/json-ld"
 import { JsonLd } from "@/components/JsonLd"
@@ -23,10 +29,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ResumePage() {
-  const [resume, skills, experience, config] = await Promise.all([
+  const [resume, skills, experience, education, certifications, config] = await Promise.all([
     getResumeData(),
     getResumeSkills(),
     getResumeExperience(),
+    getResumeEducation(),
+    getResumeCertifications(),
     getCachedSiteConfig(),
   ])
 
@@ -36,7 +44,13 @@ export default async function ResumePage() {
     <main className="min-h-screen pt-24 pb-16">
       {config && <JsonLd data={profilePageJsonLd(config)} />}
       <div className="container-wide">
-        <ResumePublicView data={resume} skills={skills} experience={experience} />
+        <ResumePublicView
+          data={resume}
+          skills={skills}
+          experience={experience}
+          education={education}
+          certifications={certifications}
+        />
       </div>
     </main>
   )

@@ -51,6 +51,33 @@ export async function toggleExperienceResume(id: string, show: boolean) {
   return { success: true }
 }
 
+export async function toggleEducationResume(id: string, show: boolean) {
+  await requireAuth()
+  const supabase = await createClient()
+
+  const { error } = await supabase.from("education").update({ show_on_resume: show }).eq("id", id)
+  if (error) return { error: error.message }
+
+  revalidateTag("resume", "max")
+  revalidateTag("education", "max")
+  return { success: true }
+}
+
+export async function toggleCertificationResume(id: string, show: boolean) {
+  await requireAuth()
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("certifications")
+    .update({ show_on_resume: show })
+    .eq("id", id)
+  if (error) return { error: error.message }
+
+  revalidateTag("resume", "max")
+  revalidateTag("certifications", "max")
+  return { success: true }
+}
+
 export async function generateAndUploadPdf() {
   await requireAuth()
   const supabase = await createClient()
@@ -70,6 +97,21 @@ export async function generateAndUploadPdf() {
   // Fetch experience for resume
   const { data: experience } = await supabase
     .from("experience")
+    .select("*")
+    .eq("published", true)
+    .eq("show_on_resume", true)
+    .order("sort_order")
+
+  // Fetch education and certifications from standalone tables
+  const { data: educationData } = await supabase
+    .from("education")
+    .select("*")
+    .eq("published", true)
+    .eq("show_on_resume", true)
+    .order("sort_order")
+
+  const { data: certificationData } = await supabase
+    .from("certifications")
     .select("*")
     .eq("published", true)
     .eq("show_on_resume", true)
@@ -119,6 +161,19 @@ export async function generateAndUploadPdf() {
 
   const pdfBuffer = await generateResumePdf({
     ...resume,
+    education: (educationData ?? []).map((e) => ({
+      school: e.school,
+      degree: e.degree,
+      field: e.field,
+      year: e.year,
+      details: e.details,
+    })),
+    certifications: (certificationData ?? []).map((c) => ({
+      name: c.name,
+      issuer: c.issuer,
+      year: c.year,
+      url: c.url,
+    })),
     skillGroups: Array.from(skillGroups.entries()).map(([category, names]) => ({
       category,
       skills: names,

@@ -10,6 +10,8 @@ import {
   updateResume,
   toggleSkillResume,
   toggleExperienceResume,
+  toggleEducationResume,
+  toggleCertificationResume,
   generateAndUploadPdf,
 } from "./actions"
 import { Button } from "@/components/ui/button"
@@ -31,8 +33,8 @@ import type {
   Resume,
   Skill,
   Experience,
-  EducationEntry,
-  CertificationEntry,
+  Education,
+  Certification,
   AdditionalSectionEntry,
 } from "@/types/database"
 
@@ -40,9 +42,17 @@ interface ResumeFormProps {
   data: Resume | null
   skills: Skill[]
   experience: Experience[]
+  educationEntries: Education[]
+  certificationEntries: Certification[]
 }
 
-export function ResumeForm({ data, skills, experience }: ResumeFormProps) {
+export function ResumeForm({
+  data,
+  skills,
+  experience,
+  educationEntries,
+  certificationEntries,
+}: ResumeFormProps) {
   const [isPending, startTransition] = useTransition()
   const [isPdfPending, startPdfTransition] = useTransition()
 
@@ -58,14 +68,10 @@ export function ResumeForm({ data, skills, experience }: ResumeFormProps) {
       linkedin: data?.linkedin ?? "",
       github: data?.github ?? "",
       summary: data?.summary ?? "",
-      education: data?.education ?? [],
-      certifications: data?.certifications ?? [],
       additional_sections: data?.additional_sections ?? [],
     },
   })
 
-  const educationFields = useFieldArray({ control: form.control, name: "education" })
-  const certificationFields = useFieldArray({ control: form.control, name: "certifications" })
   const additionalFields = useFieldArray({ control: form.control, name: "additional_sections" })
 
   const watched = useWatch({ control: form.control })
@@ -157,6 +163,20 @@ export function ResumeForm({ data, skills, experience }: ResumeFormProps) {
   function handleToggleExperience(id: string, current: boolean) {
     startTransition(async () => {
       const result = await toggleExperienceResume(id, !current)
+      if (result?.error) toast.error(result.error)
+    })
+  }
+
+  function handleToggleEducation(id: string, current: boolean) {
+    startTransition(async () => {
+      const result = await toggleEducationResume(id, !current)
+      if (result?.error) toast.error(result.error)
+    })
+  }
+
+  function handleToggleCertification(id: string, current: boolean) {
+    startTransition(async () => {
+      const result = await toggleCertificationResume(id, !current)
       if (result?.error) toast.error(result.error)
     })
   }
@@ -374,204 +394,68 @@ export function ResumeForm({ data, skills, experience }: ResumeFormProps) {
               )}
             </FormSection>
 
-            {/* Education */}
-            <FormSection title="Education">
-              {educationFields.fields.map((field, index) => (
-                <div key={field.id} className="space-y-3 rounded-lg border p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Education #{index + 1}</p>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => educationFields.remove(index)}
-                      className="text-muted-foreground hover:text-destructive h-8 w-8"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name={`education.${index}.school`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>School</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`education.${index}.degree`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Degree</FormLabel>
-                          <FormControl>
-                            <Input placeholder="B.S." {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name={`education.${index}.field`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Field of Study</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Computer Science"
-                              {...field}
-                              value={field.value ?? ""}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`education.${index}.year`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Year</FormLabel>
-                          <FormControl>
-                            <Input placeholder="2020" {...field} value={field.value ?? ""} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name={`education.${index}.details`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Details</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="GPA, honors, etc."
-                            {...field}
-                            value={field.value ?? ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+            {/* Education selector */}
+            <FormSection
+              title="Education"
+              description="Select which education entries to show on the resume"
+            >
+              {educationEntries.map((edu) => (
+                <label
+                  key={edu.id}
+                  className="hover:bg-accent/50 flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors"
+                >
+                  <Checkbox
+                    checked={edu.show_on_resume}
+                    onCheckedChange={() => handleToggleEducation(edu.id, edu.show_on_resume)}
+                    className="mt-0.5"
                   />
-                </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{edu.school}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {[edu.degree, edu.field].filter(Boolean).join(" in ")}
+                      {edu.year && ` (${edu.year})`}
+                    </p>
+                  </div>
+                </label>
               ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  educationFields.append({
-                    school: "",
-                    degree: "",
-                    field: null,
-                    year: null,
-                    details: null,
-                  })
-                }
-              >
-                <Plus className="mr-1 h-4 w-4" /> Add Education
-              </Button>
+              {educationEntries.length === 0 && (
+                <p className="text-muted-foreground text-sm">
+                  No published education entries found. Add education in the Education section
+                  first.
+                </p>
+              )}
             </FormSection>
 
-            {/* Certifications */}
-            <FormSection title="Certifications">
-              {certificationFields.fields.map((field, index) => (
-                <div key={field.id} className="space-y-3 rounded-lg border p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Certification #{index + 1}</p>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => certificationFields.remove(index)}
-                      className="text-muted-foreground hover:text-destructive h-8 w-8"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+            {/* Certifications selector */}
+            <FormSection
+              title="Certifications"
+              description="Select which certifications to show on the resume"
+            >
+              {certificationEntries.map((cert) => (
+                <label
+                  key={cert.id}
+                  className="hover:bg-accent/50 flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors"
+                >
+                  <Checkbox
+                    checked={cert.show_on_resume}
+                    onCheckedChange={() => handleToggleCertification(cert.id, cert.show_on_resume)}
+                    className="mt-0.5"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{cert.name}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {cert.issuer}
+                      {cert.year && ` (${cert.year})`}
+                    </p>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name={`certifications.${index}.name`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`certifications.${index}.issuer`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Issuer</FormLabel>
-                          <FormControl>
-                            <Input placeholder="AWS, Google, etc." {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name={`certifications.${index}.year`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Year</FormLabel>
-                          <FormControl>
-                            <Input placeholder="2024" {...field} value={field.value ?? ""} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`certifications.${index}.url`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Credential URL</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="url"
-                              placeholder="https://..."
-                              {...field}
-                              value={field.value ?? ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
+                </label>
               ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  certificationFields.append({ name: "", issuer: "", year: null, url: "" })
-                }
-              >
-                <Plus className="mr-1 h-4 w-4" /> Add Certification
-              </Button>
+              {certificationEntries.length === 0 && (
+                <p className="text-muted-foreground text-sm">
+                  No published certifications found. Add certifications in the Certifications
+                  section first.
+                </p>
+              )}
             </FormSection>
 
             {/* Additional Sections */}
@@ -674,18 +558,14 @@ export function ResumeForm({ data, skills, experience }: ResumeFormProps) {
               linkedin: watched.linkedin ?? null,
               github: watched.github ?? null,
               summary: watched.summary ?? null,
-              education: (watched.education ?? []).filter(
-                (e) => e?.school && e?.degree,
-              ) as EducationEntry[],
-              certifications: (watched.certifications ?? []).filter(
-                (c) => c?.name && c?.issuer,
-              ) as CertificationEntry[],
               additional_sections: (watched.additional_sections ?? []).filter(
                 (s) => s?.title,
               ) as AdditionalSectionEntry[],
             }}
             skills={resumeSkillsForPreview}
             experience={experienceForPreview}
+            education={educationEntries.filter((e) => e.show_on_resume)}
+            certifications={certificationEntries.filter((c) => c.show_on_resume)}
           />
         </div>
       </div>

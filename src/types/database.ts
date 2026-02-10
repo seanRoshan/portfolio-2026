@@ -58,8 +58,34 @@ export interface Project {
   featured: boolean
   sort_order: number
   published: boolean
+  architecture_url: string | null
+  project_role: string | null
+  status: "completed" | "in_progress" | "open_source" | null
+  highlights: { metric: string; value: string }[]
+  image_captions: Record<string, string>
   created_at: string
   updated_at: string
+}
+
+export interface ProjectWithRelations extends Project {
+  experience_ids: string[]
+  skill_ids: string[]
+  education_ids: string[]
+  certification_ids: string[]
+}
+
+export interface ProjectExperience {
+  id: string
+  project_id: string
+  experience_id: string
+  created_at: string
+}
+
+export interface ProjectSkill {
+  id: string
+  project_id: string
+  skill_id: string
+  created_at: string
 }
 
 export interface Skill {
@@ -123,6 +149,35 @@ export interface CertificationEntry {
   issuer: string
   year: string | null
   url: string | null
+}
+
+export interface Education {
+  id: string
+  school: string
+  degree: string
+  field: string | null
+  year: string | null
+  details: string | null
+  logo_url: string | null
+  sort_order: number
+  published: boolean
+  show_on_resume: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface Certification {
+  id: string
+  name: string
+  issuer: string
+  year: string | null
+  url: string | null
+  badge_url: string | null
+  sort_order: number
+  published: boolean
+  show_on_resume: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface AdditionalSectionEntry {

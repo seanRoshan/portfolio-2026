@@ -7,7 +7,8 @@ import { projectSchema, type ProjectFormValues } from "@/lib/schemas/project"
 
 export async function createProject(data: ProjectFormValues) {
   await requireAuth()
-  const validated = projectSchema.parse(data)
+  const { experience_ids, skill_ids, education_ids, certification_ids, ...projectData } =
+    projectSchema.parse(data)
   const supabase = await createClient()
 
   // Auto-increment sort_order
@@ -20,8 +21,49 @@ export async function createProject(data: ProjectFormValues) {
 
   const sort_order = (last?.sort_order ?? 0) + 1
 
-  const { error } = await supabase.from("projects").insert({ ...validated, sort_order })
+  const { data: project, error } = await supabase
+    .from("projects")
+    .insert({ ...projectData, sort_order })
+    .select("id")
+    .single()
   if (error) return { error: error.message }
+
+  // Insert junction table rows
+  if (experience_ids.length > 0) {
+    await supabase.from("project_experiences").insert(
+      experience_ids.map((experience_id) => ({
+        project_id: project.id,
+        experience_id,
+      })),
+    )
+  }
+
+  if (skill_ids.length > 0) {
+    await supabase.from("project_skills").insert(
+      skill_ids.map((skill_id) => ({
+        project_id: project.id,
+        skill_id,
+      })),
+    )
+  }
+
+  if (education_ids.length > 0) {
+    await supabase.from("project_education").insert(
+      education_ids.map((education_id) => ({
+        project_id: project.id,
+        education_id,
+      })),
+    )
+  }
+
+  if (certification_ids.length > 0) {
+    await supabase.from("project_certifications").insert(
+      certification_ids.map((certification_id) => ({
+        project_id: project.id,
+        certification_id,
+      })),
+    )
+  }
 
   revalidateTag("projects", "max")
   revalidatePath("/")
@@ -30,11 +72,56 @@ export async function createProject(data: ProjectFormValues) {
 
 export async function updateProject(id: string, data: ProjectFormValues) {
   await requireAuth()
-  const validated = projectSchema.parse(data)
+  const { experience_ids, skill_ids, education_ids, certification_ids, ...projectData } =
+    projectSchema.parse(data)
   const supabase = await createClient()
 
-  const { error } = await supabase.from("projects").update(validated).eq("id", id)
+  const { error } = await supabase.from("projects").update(projectData).eq("id", id)
   if (error) return { error: error.message }
+
+  // Replace junction table rows (delete old, insert new)
+  await Promise.all([
+    supabase.from("project_experiences").delete().eq("project_id", id),
+    supabase.from("project_skills").delete().eq("project_id", id),
+    supabase.from("project_education").delete().eq("project_id", id),
+    supabase.from("project_certifications").delete().eq("project_id", id),
+  ])
+
+  if (experience_ids.length > 0) {
+    await supabase.from("project_experiences").insert(
+      experience_ids.map((experience_id) => ({
+        project_id: id,
+        experience_id,
+      })),
+    )
+  }
+
+  if (skill_ids.length > 0) {
+    await supabase.from("project_skills").insert(
+      skill_ids.map((skill_id) => ({
+        project_id: id,
+        skill_id,
+      })),
+    )
+  }
+
+  if (education_ids.length > 0) {
+    await supabase.from("project_education").insert(
+      education_ids.map((education_id) => ({
+        project_id: id,
+        education_id,
+      })),
+    )
+  }
+
+  if (certification_ids.length > 0) {
+    await supabase.from("project_certifications").insert(
+      certification_ids.map((certification_id) => ({
+        project_id: id,
+        certification_id,
+      })),
+    )
+  }
 
   revalidateTag("projects", "max")
   revalidatePath("/")
@@ -68,4 +155,36 @@ export async function updateProjectOrder(ids: string[]) {
 
   revalidateTag("projects", "max")
   return { success: true }
+}
+
+export async function syncSkillFromProject(name: string, category: string) {
+  await requireAuth()
+  const supabase = await createClient()
+
+  // Check if skill already exists (case-insensitive)
+  const { data: existing } = await supabase
+    .from("skills")
+    .select("id")
+    .ilike("name", name)
+    .limit(1)
+    .single()
+
+  if (existing) return { skill_id: existing.id }
+
+  // Create new skill
+  const { data: newSkill, error } = await supabase
+    .from("skills")
+    .insert({
+      name,
+      category,
+      published: true,
+      show_on_resume: false,
+    })
+    .select("id")
+    .single()
+
+  if (error) return { error: error.message }
+
+  revalidateTag("skills", "max")
+  return { skill_id: newSkill.id }
 }

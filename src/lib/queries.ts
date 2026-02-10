@@ -70,24 +70,137 @@ export async function getProjectsData() {
   const supabase = await createClient()
   const { data } = await supabase
     .from("projects")
-    .select("*")
+    .select(
+      `*,
+      project_experiences(experience_id, experience:experience(company, role)),
+      project_skills(skill_id, skill:skills(name)),
+      project_education(education_id, education:education(school, degree, field)),
+      project_certifications(certification_id, certification:certifications(name, issuer))`,
+    )
     .eq("published", true)
     .order("sort_order")
   if (!data) return []
 
-  return data.map((p) => ({
-    id: p.slug,
-    title: p.title,
-    description: p.short_description,
-    longDescription: p.long_description ?? "",
-    tags: p.tech_stack ?? [],
-    image: p.thumbnail_url ?? `/projects/${p.slug}.jpg`,
-    liveUrl: p.live_url ?? "",
-    githubUrl: p.github_url ?? "",
-    featured: p.featured,
-    year: p.year ?? "",
-    color: p.color ?? "#6366f1",
-  }))
+  return data.map((p) => {
+    // Use linked skills if available, fall back to tech_stack array
+    const skillNames =
+      (p.project_skills as { skill: { name: string } }[])?.map((ps) => ps.skill.name) ?? []
+    const tags = skillNames.length > 0 ? skillNames : (p.tech_stack ?? [])
+
+    const experiences =
+      (
+        p.project_experiences as {
+          experience: { company: string; role: string }
+        }[]
+      )?.map((pe) => ({
+        company: pe.experience.company,
+        role: pe.experience.role,
+      })) ?? []
+
+    const education =
+      (
+        p.project_education as {
+          education: { school: string; degree: string; field: string | null }
+        }[]
+      )?.map((pe) => ({
+        school: pe.education.school,
+        degree: pe.education.degree,
+        field: pe.education.field,
+      })) ?? []
+
+    const certifications =
+      (
+        p.project_certifications as {
+          certification: { name: string; issuer: string }
+        }[]
+      )?.map((pc) => ({
+        name: pc.certification.name,
+        issuer: pc.certification.issuer,
+      })) ?? []
+
+    return {
+      id: p.slug,
+      title: p.title,
+      description: p.short_description,
+      longDescription: p.long_description ?? "",
+      tags,
+      image: p.thumbnail_url ?? "",
+      images: p.images ?? [],
+      imageCaptions: (p.image_captions as Record<string, string>) ?? {},
+      architectureUrl: (p.architecture_url as string) ?? null,
+      liveUrl: p.live_url ?? "",
+      githubUrl: p.github_url ?? "",
+      featured: p.featured,
+      year: p.year ?? "",
+      color: p.color ?? "#6366f1",
+      status: (p.status as string) ?? "completed",
+      role: (p.project_role as string) ?? null,
+      highlights: (p.highlights as { metric: string; value: string }[]) ?? [],
+      experiences,
+      education,
+      certifications,
+    }
+  })
+}
+
+export async function getProjectByIdAdmin(id: string) {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("projects")
+    .select(
+      `*,
+      project_experiences(experience_id),
+      project_skills(skill_id),
+      project_education(education_id),
+      project_certifications(certification_id)`,
+    )
+    .eq("id", id)
+    .single()
+
+  if (!data) return null
+
+  return {
+    ...data,
+    highlights: (data.highlights as { metric: string; value: string }[]) ?? [],
+    image_captions: (data.image_captions as Record<string, string>) ?? {},
+    experience_ids:
+      (data.project_experiences as { experience_id: string }[])?.map((pe) => pe.experience_id) ??
+      [],
+    skill_ids: (data.project_skills as { skill_id: string }[])?.map((ps) => ps.skill_id) ?? [],
+    education_ids:
+      (data.project_education as { education_id: string }[])?.map((pe) => pe.education_id) ?? [],
+    certification_ids:
+      (data.project_certifications as { certification_id: string }[])?.map(
+        (pc) => pc.certification_id,
+      ) ?? [],
+  }
+}
+
+export async function getAllExperiences() {
+  const supabase = await createClient()
+  const { data } = await supabase.from("experience").select("id, company, role").order("sort_order")
+  return data ?? []
+}
+
+export async function getAllSkills() {
+  const supabase = await createClient()
+  const { data } = await supabase.from("skills").select("id, name, category").order("name")
+  return data ?? []
+}
+
+export async function getAllEducation() {
+  const supabase = await createClient()
+  const { data } = await supabase.from("education").select("id, school, degree").order("sort_order")
+  return data ?? []
+}
+
+export async function getAllCertifications() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("certifications")
+    .select("id, name, issuer")
+    .order("sort_order")
+  return data ?? []
 }
 
 export async function getSkillsData() {
@@ -322,6 +435,80 @@ export async function getResumeExperience() {
   })
 }
 
+export async function getResumeEducation() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("education")
+    .select("*")
+    .eq("published", true)
+    .eq("show_on_resume", true)
+    .order("sort_order")
+  if (!data) return []
+
+  return data.map((e) => ({
+    school: e.school,
+    degree: e.degree,
+    field: e.field,
+    year: e.year,
+    details: e.details,
+  }))
+}
+
+export async function getResumeCertifications() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("certifications")
+    .select("*")
+    .eq("published", true)
+    .eq("show_on_resume", true)
+    .order("sort_order")
+  if (!data) return []
+
+  return data.map((c) => ({
+    name: c.name,
+    issuer: c.issuer,
+    year: c.year,
+    url: c.url,
+  }))
+}
+
+export async function getEducationData() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("education")
+    .select("*")
+    .eq("published", true)
+    .order("sort_order")
+  if (!data) return []
+
+  return data.map((e) => ({
+    school: e.school,
+    degree: e.degree,
+    field: e.field as string | null,
+    year: e.year as string | null,
+    details: e.details as string | null,
+    logoUrl: e.logo_url as string | null,
+  }))
+}
+
+export async function getCertificationData() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("certifications")
+    .select("*")
+    .eq("published", true)
+    .order("sort_order")
+  if (!data) return []
+
+  return data.map((c) => ({
+    name: c.name,
+    issuer: c.issuer,
+    year: c.year as string | null,
+    url: c.url as string | null,
+    badgeUrl: c.badge_url as string | null,
+  }))
+}
+
 export async function getNavLinks() {
   // Navigation links are static — no need to fetch from DB
   return [
@@ -329,6 +516,7 @@ export async function getNavLinks() {
     { label: "Projects", href: "#projects" },
     { label: "Skills", href: "#skills" },
     { label: "Experience", href: "#experience" },
+    { label: "Credentials", href: "#credentials" },
     { label: "Blog", href: "#blog" },
     { label: "Resume", href: "/resume" },
     { label: "Contact", href: "#contact" },
