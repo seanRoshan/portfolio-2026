@@ -57,7 +57,7 @@ export function AboutForm({ data }: AboutFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormSection title="Content">
+        <FormSection id="content" title="Content">
           <FormField
             control={form.control}
             name="heading"
@@ -110,7 +110,7 @@ export function AboutForm({ data }: AboutFormProps) {
           />
         </FormSection>
 
-        <FormSection title="Portrait">
+        <FormSection id="portrait" title="Portrait">
           <FormField
             control={form.control}
             name="portrait_url"
@@ -130,7 +130,7 @@ export function AboutForm({ data }: AboutFormProps) {
           />
         </FormSection>
 
-        <FormSection title="Stats" description="Key metrics displayed in the about section">
+        <FormSection id="stats" title="Stats" description="Key metrics displayed in the about section">
           <FormField
             control={form.control}
             name="stats"
@@ -150,7 +150,7 @@ export function AboutForm({ data }: AboutFormProps) {
           />
         </FormSection>
 
-        <FormSection title="Tech Stack">
+        <FormSection id="tech-stack" title="Tech Stack">
           <FormField
             control={form.control}
             name="tech_stack"

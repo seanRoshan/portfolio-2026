@@ -22,6 +22,10 @@ export async function getSiteConfig() {
     location: "",
     availability: "Open to opportunities",
     socials: (settings.social_links as Record<string, string>) ?? {},
+    linkAnimations: (settings.link_animations as { header: string; footer: string }) ?? {
+      header: "underline-slide",
+      footer: "underline-slide",
+    },
   }
 }
 
@@ -241,6 +245,13 @@ export async function getSkillsData() {
   }
 }
 
+function formatDate(d: string) {
+  // Parse YYYY-MM-DD directly to avoid timezone shift (UTC midnight → local previous day)
+  const [year, month] = d.split("-").map(Number)
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  return `${months[month - 1]} ${year}`
+}
+
 export async function getExperienceData() {
   const supabase = await createClient()
   const { data } = await supabase
@@ -250,20 +261,59 @@ export async function getExperienceData() {
     .order("sort_order")
   if (!data) return []
 
-  return data.map((e) => {
-    const start = new Date(e.start_date)
-    const startYear = start.getFullYear()
-    const endStr = e.end_date ? new Date(e.end_date).getFullYear().toString() : "Present"
+  // Group entries by company name to create grouped cards
+  const grouped = new Map<
+    string,
+    {
+      company: string
+      companyUrl: string
+      companyLogoUrl: string | null
+      location: string | null
+      phases: {
+        role: string
+        period: string
+        employmentType: string
+        viaCompany: string | null
+        viaCompanyLogoUrl: string | null
+        description: string
+        achievements: string[]
+      }[]
+    }
+  >()
 
-    return {
+  for (const e of data) {
+    const startStr = formatDate(e.start_date)
+    const endStr = e.end_date ? formatDate(e.end_date) : "Present"
+
+    const phase = {
       role: e.role,
-      company: e.company,
-      companyUrl: e.company_url ?? "",
-      period: `${startYear} — ${endStr}`,
+      period: `${startStr} — ${endStr}`,
+      employmentType: e.employment_type ?? "direct",
+      viaCompany: e.via_company ?? null,
+      viaCompanyLogoUrl: e.via_company_logo_url ?? null,
       description: e.description ?? "",
       achievements: e.achievements ?? [],
     }
-  })
+
+    const existing = grouped.get(e.company)
+    if (existing) {
+      // Use the latest logo/url/location from any entry
+      if (e.company_logo_url) existing.companyLogoUrl = e.company_logo_url
+      if (e.company_url) existing.companyUrl = e.company_url
+      if (e.location) existing.location = e.location
+      existing.phases.push(phase)
+    } else {
+      grouped.set(e.company, {
+        company: e.company,
+        companyUrl: e.company_url ?? "",
+        companyLogoUrl: e.company_logo_url ?? null,
+        location: e.location ?? null,
+        phases: [phase],
+      })
+    }
+  }
+
+  return Array.from(grouped.values())
 }
 
 export async function getBlogData() {
@@ -509,10 +559,30 @@ export async function getCertificationData() {
   }))
 }
 
+export async function getVenturesData() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("ventures")
+    .select("*")
+    .eq("published", true)
+    .order("sort_order")
+  if (!data) return []
+
+  return data.map((v) => ({
+    name: v.name as string,
+    role: v.role as string,
+    url: v.url as string | null,
+    iconUrl: v.icon_url as string | null,
+    iconUrlDark: v.icon_url_dark as string | null,
+    foundedYear: v.founded_year as string | null,
+  }))
+}
+
 export async function getNavLinks() {
   // Navigation links are static — no need to fetch from DB
   return [
     { label: "About", href: "#about" },
+    { label: "Ventures", href: "#ventures" },
     { label: "Projects", href: "#projects" },
     { label: "Skills", href: "#skills" },
     { label: "Experience", href: "#experience" },

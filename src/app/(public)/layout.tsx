@@ -2,13 +2,14 @@ import { Navigation } from "@/components/Navigation"
 import { CustomCursor } from "@/components/CustomCursor"
 import { ScrollProgress } from "@/components/ScrollProgress"
 import { Footer } from "@/components/sections/Footer"
-import { getSiteConfig, getNavLinks } from "@/lib/queries"
+import { getSiteConfig, getNavLinks, getVenturesData } from "@/lib/queries"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const [siteConfig, navLinks, supabase] = await Promise.all([
+  const [siteConfig, navLinks, venturesData, supabase] = await Promise.all([
     getSiteConfig(),
     getNavLinks(),
+    getVenturesData(),
     createClient(),
   ])
 
@@ -22,7 +23,7 @@ export default async function PublicLayout({ children }: { children: React.React
       <ScrollProgress />
       <Navigation navLinks={navLinks} siteConfig={siteConfig} isAuthenticated={!!user} />
       {children}
-      <Footer siteConfig={siteConfig} navLinks={navLinks} />
+      <Footer siteConfig={siteConfig} navLinks={navLinks} venturesData={venturesData} />
     </div>
   )
 }

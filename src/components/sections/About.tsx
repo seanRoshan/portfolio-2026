@@ -8,14 +8,8 @@ import { useGSAP } from "@gsap/react"
 import { TextReveal } from "@/components/animations/TextReveal"
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll"
 import { StaggerChildren } from "@/components/animations/StaggerChildren"
-import { FloatingTechCloud } from "@/components/animations/FloatingTechCloud"
 
 gsap.registerPlugin(ScrollTrigger)
-
-interface SkillItem {
-  name: string
-  iconName: string | null
-}
 
 interface AboutProps {
   aboutData: {
@@ -25,7 +19,6 @@ interface AboutProps {
     stats: { label: string; value: number }[]
     techStack: { name: string; category: string }[]
   } | null
-  allSkills?: SkillItem[]
 }
 
 const defaultAboutData: NonNullable<AboutProps["aboutData"]> = {
@@ -72,7 +65,7 @@ function AnimatedCounter({ value, label }: { value: number; label: string }) {
   )
 }
 
-export function About({ aboutData: aboutDataProp, allSkills = [] }: AboutProps) {
+export function About({ aboutData: aboutDataProp }: AboutProps) {
   const aboutData = aboutDataProp ?? defaultAboutData
   return (
     <section id="about" className="section-padding relative">
@@ -133,21 +126,6 @@ export function About({ aboutData: aboutDataProp, allSkills = [] }: AboutProps) 
           </div>
         </div>
 
-        {/* Technologies — interactive floating cloud */}
-        {allSkills.length > 0 && (
-          <div className="mt-24">
-            <RevealOnScroll>
-              <h3 className="mb-2 text-center text-[length:var(--text-xl)] font-semibold">
-                Technologies I Work With
-              </h3>
-              <p className="text-muted-foreground mx-auto mb-8 max-w-md text-center text-sm">
-                Hover to explore — push them around
-              </p>
-            </RevealOnScroll>
-
-            <FloatingTechCloud items={allSkills} className="rounded-2xl" />
-          </div>
-        )}
       </div>
     </section>
   )

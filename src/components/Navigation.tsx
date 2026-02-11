@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "motion/react"
 import { LogIn, LayoutDashboard, LogOut } from "lucide-react"
+import { AnimatedLogo } from "./AnimatedLogo"
 import { ThemeToggle } from "./ThemeToggle"
 import { cn } from "@/lib/utils"
 import { logout } from "@/app/admin/actions"
@@ -21,6 +22,7 @@ interface NavigationProps {
     location: string
     availability: string
     socials: Record<string, string>
+    linkAnimations: { header: string; footer: string }
   } | null
 }
 
@@ -33,6 +35,7 @@ const defaultSiteConfig: NonNullable<NavigationProps["siteConfig"]> = {
   location: "",
   availability: "",
   socials: {},
+  linkAnimations: { header: "underline-slide", footer: "underline-slide" },
 }
 
 export function Navigation({
@@ -108,13 +111,7 @@ export function Navigation({
       >
         <nav className="container-wide flex items-center justify-between">
           {/* Logo */}
-          <Link
-            href="/"
-            className="hover:text-primary text-lg font-bold tracking-tight transition-colors"
-          >
-            {siteConfig.name.split(" ")[0]}
-            <span className="text-primary">.</span>
-          </Link>
+          <AnimatedLogo name={siteConfig.name} size="sm" />
 
           {/* Desktop nav */}
           <div className="hidden items-center gap-1 md:flex">
@@ -123,6 +120,10 @@ export function Navigation({
               const isAnchor = href.startsWith("#")
               const Tag = isAnchor ? "a" : Link
               const active = isLinkActive(link)
+              const animClass =
+                !active && siteConfig.linkAnimations.header !== "none"
+                  ? `link-hover-${siteConfig.linkAnimations.header}`
+                  : ""
               return (
                 <Tag
                   key={link.href}
@@ -130,6 +131,7 @@ export function Navigation({
                   className={cn(
                     "relative px-4 py-2 text-sm font-medium transition-colors",
                     active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                    animClass,
                   )}
                 >
                   {active && (

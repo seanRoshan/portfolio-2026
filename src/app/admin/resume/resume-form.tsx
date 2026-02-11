@@ -188,7 +188,7 @@ export function ResumeForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Personal Info */}
-            <FormSection title="Personal Information">
+            <FormSection id="personal-info" title="Personal Information">
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -315,7 +315,7 @@ export function ResumeForm({
             </FormSection>
 
             {/* Summary */}
-            <FormSection title="Professional Summary">
+            <FormSection id="summary" title="Professional Summary">
               <FormField
                 control={form.control}
                 name="summary"
@@ -339,7 +339,7 @@ export function ResumeForm({
             </FormSection>
 
             {/* Skills selector */}
-            <FormSection title="Skills" description="Select which skills to show on the resume">
+            <FormSection id="skills" title="Skills" description="Select which skills to show on the resume">
               {Array.from(skillsByCategory.entries()).map(([category, categorySkills]) => (
                 <div key={category}>
                   <p className="mb-2 text-sm font-medium">{categoryLabels[category] ?? category}</p>
@@ -368,6 +368,7 @@ export function ResumeForm({
 
             {/* Experience selector */}
             <FormSection
+              id="experience"
               title="Experience"
               description="Select which experiences to show on the resume"
             >
@@ -396,6 +397,7 @@ export function ResumeForm({
 
             {/* Education selector */}
             <FormSection
+              id="education"
               title="Education"
               description="Select which education entries to show on the resume"
             >
@@ -428,6 +430,7 @@ export function ResumeForm({
 
             {/* Certifications selector */}
             <FormSection
+              id="certifications"
               title="Certifications"
               description="Select which certifications to show on the resume"
             >
@@ -460,6 +463,7 @@ export function ResumeForm({
 
             {/* Additional Sections */}
             <FormSection
+              id="additional"
               title="Additional Sections"
               description="Add custom sections like Languages, Interests, etc."
             >

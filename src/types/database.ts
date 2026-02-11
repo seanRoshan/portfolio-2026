@@ -11,6 +11,7 @@ export interface SiteSettings {
   contact_email: string | null
   contact_form_enabled: boolean
   maintenance_mode: boolean
+  link_animations: { header: string; footer: string } | null
   created_at: string
   updated_at: string
 }
@@ -111,6 +112,9 @@ export interface Experience {
   achievements: string[]
   company_logo_url: string | null
   company_url: string | null
+  employment_type: string
+  via_company: string | null
+  via_company_logo_url: string | null
   sort_order: number
   published: boolean
   show_on_resume: boolean
@@ -176,6 +180,21 @@ export interface Certification {
   sort_order: number
   published: boolean
   show_on_resume: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface Venture {
+  id: string
+  name: string
+  role: string
+  url: string | null
+  icon_url: string | null
+  icon_url_dark: string | null
+  description: string | null
+  founded_year: string | null
+  sort_order: number
+  published: boolean
   created_at: string
   updated_at: string
 }

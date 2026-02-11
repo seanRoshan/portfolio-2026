@@ -587,7 +587,7 @@ export function Projects({ projectsData }: ProjectsProps) {
           type="words"
           className="mb-16 max-w-2xl text-[length:var(--text-4xl)] leading-tight font-bold"
         >
-          Projects that push boundaries
+          Projects I&apos;ve built and launched
         </TextReveal>
 
         {/* Projects grid */}

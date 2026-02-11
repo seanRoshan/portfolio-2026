@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form"
 import { FormSection } from "@/components/admin/form-section"
 import { ImageUpload } from "@/components/admin/image-upload"
+import { AnimationPicker } from "@/components/admin/animation-picker"
 import type { SiteSettings } from "@/types/database"
 
 interface SettingsFormProps {
@@ -38,6 +39,10 @@ export function SettingsForm({ data }: SettingsFormProps) {
       og_image_url: data.og_image_url ?? "",
       google_analytics_id: data.google_analytics_id ?? "",
       maintenance_mode: data.maintenance_mode,
+      link_animations: data.link_animations ?? {
+        header: "underline-slide",
+        footer: "underline-slide",
+      },
     },
   })
 
@@ -55,7 +60,7 @@ export function SettingsForm({ data }: SettingsFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormSection title="Site Metadata">
+        <FormSection id="site-metadata" title="Site Metadata">
           <FormField
             control={form.control}
             name="site_title"
@@ -100,7 +105,7 @@ export function SettingsForm({ data }: SettingsFormProps) {
           />
         </FormSection>
 
-        <FormSection title="Analytics & Advanced">
+        <FormSection id="analytics" title="Analytics & Advanced">
           <FormField
             control={form.control}
             name="google_analytics_id"
@@ -125,6 +130,39 @@ export function SettingsForm({ data }: SettingsFormProps) {
                 <FormControl>
                   <Switch checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
+              </FormItem>
+            )}
+          />
+        </FormSection>
+
+        <FormSection
+          id="link-animations"
+          title="Link Animations"
+          description="Choose hover effects for navigation links"
+        >
+          <FormField
+            control={form.control}
+            name="link_animations.header"
+            render={({ field }) => (
+              <FormItem>
+                <AnimationPicker
+                  value={field.value ?? "underline-slide"}
+                  onChange={field.onChange}
+                  label="Header navigation links"
+                />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="link_animations.footer"
+            render={({ field }) => (
+              <FormItem>
+                <AnimationPicker
+                  value={field.value ?? "underline-slide"}
+                  onChange={field.onChange}
+                  label="Footer links"
+                />
               </FormItem>
             )}
           />

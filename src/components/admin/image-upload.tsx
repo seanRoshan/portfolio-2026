@@ -15,7 +15,7 @@ interface ImageUploadProps {
 }
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"]
 
 export function ImageUpload({ value, onChange, bucket, path = "" }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false)
@@ -26,7 +26,7 @@ export function ImageUpload({ value, onChange, bucket, path = "" }: ImageUploadP
     if (!file) return
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      toast.error("Only JPEG, PNG, WebP, and GIF are allowed")
+      toast.error("Only JPEG, PNG, WebP, GIF, and SVG are allowed")
       return
     }
     if (file.size > MAX_SIZE) {

@@ -15,6 +15,9 @@ export const experienceSchema = z.object({
     .nullable()
     .or(z.literal(""))
     .transform((v) => v || null),
+  employment_type: z.enum(["direct", "contract"]).default("direct"),
+  via_company: z.string().nullable().default(null),
+  via_company_logo_url: z.string().nullable().default(null),
   published: z.boolean().default(true),
   show_on_resume: z.boolean().default(true),
 })

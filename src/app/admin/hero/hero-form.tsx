@@ -59,7 +59,7 @@ export function HeroForm({ data }: HeroFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormSection title="Identity">
+        <FormSection id="identity" title="Identity">
           <FormField
             control={form.control}
             name="greeting"
@@ -118,7 +118,7 @@ export function HeroForm({ data }: HeroFormProps) {
           />
         </FormSection>
 
-        <FormSection title="Call-to-Action Buttons">
+        <FormSection id="cta-buttons" title="Call-to-Action Buttons">
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
@@ -171,7 +171,7 @@ export function HeroForm({ data }: HeroFormProps) {
           </div>
         </FormSection>
 
-        <FormSection title="Media">
+        <FormSection id="media" title="Media">
           <FormField
             control={form.control}
             name="avatar_url"

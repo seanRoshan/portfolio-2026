@@ -17,6 +17,22 @@ export async function markMessageRead(id: string, read: boolean) {
   return { success: true }
 }
 
+export async function markAllMessagesRead() {
+  await requireAuth()
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("contact_submissions")
+    .update({ read: true })
+    .eq("read", false)
+
+  if (error) return { error: error.message }
+
+  revalidatePath("/admin/messages")
+  revalidatePath("/admin")
+  return { success: true }
+}
+
 export async function deleteMessage(id: string) {
   await requireAuth()
   const supabase = await createClient()

@@ -47,13 +47,17 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
       achievements: data?.achievements ?? [],
       company_logo_url: data?.company_logo_url ?? "",
       company_url: data?.company_url ?? "",
+      employment_type: (data?.employment_type as "direct" | "contract") ?? "direct",
+      via_company: data?.via_company ?? "",
+      via_company_logo_url: data?.via_company_logo_url ?? "",
       published: data?.published ?? true,
       show_on_resume: data?.show_on_resume ?? true,
     },
   })
 
   const endDate = useWatch({ control: form.control, name: "end_date" })
-  const isPresent = !endDate
+  const isPresent = endDate === null || endDate === undefined
+  const employmentType = useWatch({ control: form.control, name: "employment_type" })
 
   function onSubmit(values: ExperienceFormValues) {
     startTransition(async () => {
@@ -155,6 +159,78 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
               </FormItem>
             )}
           />
+        </FormSection>
+
+        <FormSection title="Employment Type">
+          <FormField
+            control={form.control}
+            name="employment_type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Type</FormLabel>
+                <FormControl>
+                  <div className="flex gap-2">
+                    {(["direct", "contract"] as const).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => {
+                          field.onChange(type)
+                          if (type === "direct") form.setValue("via_company", "")
+                        }}
+                        className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                          field.value === type
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground hover:border-primary/30"
+                        }`}
+                      >
+                        {type === "direct" ? "Direct Employee" : "Contract"}
+                      </button>
+                    ))}
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          {employmentType === "contract" && (
+            <>
+              <FormField
+                control={form.control}
+                name="via_company"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Via Company</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. LucidCo Inc."
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormDescription>The company you contracted through</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="via_company_logo_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Via Company Logo</FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        value={field.value || null}
+                        onChange={(url) => field.onChange(url ?? "")}
+                        bucket="projects"
+                        path="logos"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
         </FormSection>
 
         <FormSection title="Dates">

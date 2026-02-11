@@ -13,7 +13,7 @@ export default async function MessagesPage() {
   return (
     <>
       <AdminHeader title="Messages" />
-      <div className="max-w-4xl p-4 md:p-6">
+      <div className="max-w-3xl p-4 md:p-6">
         <MessagesList messages={(data as ContactSubmission[]) ?? []} />
       </div>
     </>

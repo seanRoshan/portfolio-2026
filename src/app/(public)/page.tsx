@@ -5,6 +5,7 @@ import { Projects } from "@/components/sections/Projects"
 import { Skills } from "@/components/sections/Skills"
 import { Experience } from "@/components/sections/Experience"
 import { Credentials } from "@/components/sections/Credentials"
+import { Ventures } from "@/components/sections/Ventures"
 import { Blog } from "@/components/sections/Blog"
 import { Contact } from "@/components/sections/Contact"
 import { JsonLd } from "@/components/JsonLd"
@@ -19,6 +20,7 @@ import {
   getExperienceData,
   getEducationData,
   getCertificationData,
+  getVenturesData,
   getBlogData,
 } from "@/lib/queries"
 
@@ -41,6 +43,7 @@ export default async function Home() {
     experienceData,
     educationData,
     certificationData,
+    venturesData,
     blogData,
     seoConfig,
   ] = await Promise.all([
@@ -52,6 +55,7 @@ export default async function Home() {
     getExperienceData(),
     getEducationData(),
     getCertificationData(),
+    getVenturesData(),
     getBlogData(),
     getCachedSiteConfig(),
   ])
@@ -60,14 +64,8 @@ export default async function Home() {
     <main>
       {seoConfig && <JsonLd data={personAndWebsiteJsonLd(seoConfig)} />}
       <Hero heroData={heroData} siteConfig={siteConfig} />
-      <About
-        aboutData={aboutData}
-        allSkills={
-          skillsData?.categories.flatMap((cat) =>
-            cat.skills.map((s) => ({ name: s.name, iconName: s.iconName })),
-          ) ?? []
-        }
-      />
+      <About aboutData={aboutData} />
+      <Ventures venturesData={venturesData} />
       <Projects projectsData={projectsData} />
       <Skills skillsData={skillsData} />
       <Experience experienceData={experienceData} />

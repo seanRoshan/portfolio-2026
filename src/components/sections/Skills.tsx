@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "motion/react"
 import { TextReveal } from "@/components/animations/TextReveal"
 import { RevealOnScroll } from "@/components/animations/RevealOnScroll"
 import { getTechIcon } from "@/lib/tech-icons"
+import { FloatingTechCloud } from "@/components/animations/FloatingTechCloud"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(ScrollTrigger)
@@ -123,6 +124,7 @@ export function Skills({ skillsData: skillsDataProp }: SkillsProps) {
 
   const currentCategory = skillsData.categories[activeCategory]
   const totalSkills = skillsData.categories.reduce((sum, cat) => sum + cat.skills.length, 0)
+  const allSkills = skillsData.categories.flatMap((cat) => cat.skills)
 
   return (
     <section id="skills" className="section-padding relative overflow-hidden">
@@ -151,7 +153,7 @@ export function Skills({ skillsData: skillsDataProp }: SkillsProps) {
           type="words"
           className="mb-6 max-w-2xl text-[length:var(--text-4xl)] leading-tight font-bold"
         >
-          Technologies I work with
+          What I build with
         </TextReveal>
 
         <RevealOnScroll>
@@ -207,6 +209,18 @@ export function Skills({ skillsData: skillsDataProp }: SkillsProps) {
             </motion.div>
           </AnimatePresence>
         </div>
+
+        {/* Interactive floating tech cloud */}
+        {allSkills.length > 0 && (
+          <div className="mt-20">
+            <RevealOnScroll>
+              <p className="text-muted-foreground mx-auto mb-8 max-w-md text-center text-sm">
+                Hover to explore — push them around
+              </p>
+            </RevealOnScroll>
+            <FloatingTechCloud items={allSkills} className="rounded-2xl" />
+          </div>
+        )}
       </div>
     </section>
   )

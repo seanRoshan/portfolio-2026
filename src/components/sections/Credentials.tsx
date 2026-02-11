@@ -248,7 +248,7 @@ export function Credentials({ educationData, certificationData }: CredentialsPro
 
         <RevealOnScroll>
           <p className="text-muted-foreground mb-14 max-w-xl text-[length:var(--text-base)]">
-            Academic foundations and professional certifications that back my expertise.
+            The foundations behind the work
           </p>
         </RevealOnScroll>
 
