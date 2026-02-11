@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTransition } from "react"
@@ -115,8 +115,25 @@ interface AdminSidebarProps {
 export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
   const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+  const [manuallyExpanded, setManuallyExpanded] = useState<Set<string>>(new Set())
   const [activeHash, setActiveHash] = useState("")
+
+  // Derive auto-expanded section from pathname
+  const autoExpandedHref = useMemo(() => {
+    for (const item of navItems) {
+      if (item.children && pathname.startsWith(item.href) && item.href !== "/admin") {
+        return item.href
+      }
+    }
+    return null
+  }, [pathname])
+
+  // Merge auto-expanded + manually toggled
+  const expandedItems = useMemo(() => {
+    const set = new Set(manuallyExpanded)
+    if (autoExpandedHref) set.add(autoExpandedHref)
+    return set
+  }, [manuallyExpanded, autoExpandedHref])
 
   // Track the current hash for sub-item highlighting
   useEffect(() => {
@@ -128,16 +145,6 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
     return () => window.removeEventListener("hashchange", onHashChange)
   }, [])
 
-  // Auto-expand the active page's section on navigation
-  useEffect(() => {
-    for (const item of navItems) {
-      if (item.children && pathname.startsWith(item.href) && item.href !== "/admin") {
-        setExpandedItems((prev) => new Set(prev).add(item.href))
-        break
-      }
-    }
-  }, [pathname])
-
   const isPageActive = useCallback(
     (href: string) => {
       if (href === "/admin") return pathname === "/admin"
@@ -147,9 +154,9 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
   )
 
   function toggleExpand(href: string) {
-    setExpandedItems((prev) => {
+    setManuallyExpanded((prev) => {
       const next = new Set(prev)
-      if (next.has(href)) next.delete(href)
+      if (expandedItems.has(href)) next.delete(href)
       else next.add(href)
       return next
     })
@@ -201,7 +208,7 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
                       if (hasChildren && active) {
                         toggleExpand(item.href)
                       } else if (hasChildren) {
-                        setExpandedItems((prev) => new Set(prev).add(item.href))
+                        setManuallyExpanded((prev) => new Set(prev).add(item.href))
                       }
                     }}
                   >
