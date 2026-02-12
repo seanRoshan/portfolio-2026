@@ -23,12 +23,24 @@ export async function proxy(request: NextRequest) {
     },
   )
 
+  // Intercept auth code at root — Supabase PKCE sends ?code= to the site URL
+  const { pathname, searchParams } = request.nextUrl
+  const code = searchParams.get("code")
+  if (pathname === "/" && code) {
+    const callbackUrl = request.nextUrl.clone()
+    callbackUrl.pathname = "/api/auth/callback"
+    callbackUrl.searchParams.set("code", code)
+    callbackUrl.searchParams.set("next", "/reset-password")
+    return NextResponse.redirect(callbackUrl)
+  }
+
+  // Homepage without code — no auth check needed, pass through
+  if (pathname === "/") return supabaseResponse
+
   // Refresh session — MUST call getUser() to validate the token
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  const { pathname } = request.nextUrl
 
   // Protect /admin/* — redirect to /login if not authenticated
   if (pathname.startsWith("/admin") && !user) {
@@ -55,5 +67,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login", "/reset-password"],
+  matcher: ["/", "/admin/:path*", "/login", "/reset-password"],
 }
