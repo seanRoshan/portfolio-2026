@@ -110,6 +110,7 @@ export interface Experience {
   end_date: string | null
   description: string | null
   achievements: string[]
+  resume_achievements: string[] | null
   company_logo_url: string | null
   company_url: string | null
   employment_type: string

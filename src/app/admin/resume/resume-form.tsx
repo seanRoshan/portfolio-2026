@@ -10,6 +10,7 @@ import {
   updateResume,
   toggleSkillResume,
   toggleExperienceResume,
+  updateExperienceResumeAchievements,
   toggleEducationResume,
   toggleCertificationResume,
   generateAndUploadPdf,
@@ -127,7 +128,7 @@ export function ResumeForm({
         role: e.role,
         location: e.location,
         period: `${startStr} – ${endStr}`,
-        achievements: e.achievements ?? [],
+        achievements: e.resume_achievements ?? e.achievements ?? [],
       }
     })
 
@@ -163,6 +164,22 @@ export function ResumeForm({
   function handleToggleExperience(id: string, current: boolean) {
     startTransition(async () => {
       const result = await toggleExperienceResume(id, !current)
+      if (result?.error) toast.error(result.error)
+    })
+  }
+
+  function handleToggleAchievement(exp: Experience, achievement: string, checked: boolean) {
+    const all = exp.achievements ?? []
+    const current = exp.resume_achievements ?? all
+    const updated = checked
+      ? [...current, achievement]
+      : current.filter((a) => a !== achievement)
+
+    // If all are selected, store null (show-all shorthand)
+    const value = updated.length === all.length ? null : updated
+
+    startTransition(async () => {
+      const result = await updateExperienceResumeAchievements(exp.id, value)
       if (result?.error) toast.error(result.error)
     })
   }
@@ -372,22 +389,52 @@ export function ResumeForm({
               title="Experience"
               description="Select which experiences to show on the resume"
             >
-              {experience.map((exp) => (
-                <label
-                  key={exp.id}
-                  className="hover:bg-accent/50 flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors"
-                >
-                  <Checkbox
-                    checked={exp.show_on_resume}
-                    onCheckedChange={() => handleToggleExperience(exp.id, exp.show_on_resume)}
-                    className="mt-0.5"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{exp.role}</p>
-                    <p className="text-muted-foreground text-sm">{exp.company}</p>
+              {experience.map((exp) => {
+                const allAch = exp.achievements ?? []
+                const selectedAch = exp.resume_achievements ?? allAch
+
+                return (
+                  <div key={exp.id} className="rounded-lg border transition-colors">
+                    <label className="hover:bg-accent/50 flex cursor-pointer items-start gap-3 p-3">
+                      <Checkbox
+                        checked={exp.show_on_resume}
+                        onCheckedChange={() =>
+                          handleToggleExperience(exp.id, exp.show_on_resume)
+                        }
+                        className="mt-0.5"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">{exp.role}</p>
+                        <p className="text-muted-foreground text-sm">{exp.company}</p>
+                      </div>
+                    </label>
+                    {exp.show_on_resume && allAch.length > 0 && (
+                      <div className="border-t px-3 py-2 pl-10">
+                        <p className="text-muted-foreground mb-1.5 text-xs font-medium">
+                          Bullet points ({selectedAch.length}/{allAch.length})
+                        </p>
+                        <div className="space-y-1">
+                          {allAch.map((ach, j) => (
+                            <label
+                              key={j}
+                              className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 text-xs hover:bg-accent/50"
+                            >
+                              <Checkbox
+                                checked={selectedAch.includes(ach)}
+                                onCheckedChange={(checked) =>
+                                  handleToggleAchievement(exp, ach, !!checked)
+                                }
+                                className="mt-0.5 h-3.5 w-3.5"
+                              />
+                              <span className="text-muted-foreground leading-snug">{ach}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </label>
-              ))}
+                )
+              })}
               {experience.length === 0 && (
                 <p className="text-muted-foreground text-sm">
                   No published experiences found. Add experiences in the Experience section first.
