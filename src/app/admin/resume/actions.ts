@@ -43,7 +43,29 @@ export async function toggleExperienceResume(id: string, show: boolean) {
   await requireAuth()
   const supabase = await createClient()
 
-  const { error } = await supabase.from("experience").update({ show_on_resume: show }).eq("id", id)
+  // When toggling off, reset resume_achievements to null (show-all default)
+  const update: Record<string, unknown> = { show_on_resume: show }
+  if (!show) update.resume_achievements = null
+
+  const { error } = await supabase.from("experience").update(update).eq("id", id)
+  if (error) return { error: error.message }
+
+  revalidateTag("resume", "max")
+  revalidateTag("experience", "max")
+  return { success: true }
+}
+
+export async function updateExperienceResumeAchievements(
+  id: string,
+  achievements: string[] | null,
+) {
+  await requireAuth()
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("experience")
+    .update({ resume_achievements: achievements })
+    .eq("id", id)
   if (error) return { error: error.message }
 
   revalidateTag("resume", "max")
@@ -152,7 +174,7 @@ export async function generateAndUploadPdf() {
       location: e.location as string | null,
       period: `${startStr} – ${endStr}`,
       description: e.description as string | null,
-      achievements: (e.achievements ?? []) as string[],
+      achievements: (e.resume_achievements ?? e.achievements ?? []) as string[],
     }
   })
 

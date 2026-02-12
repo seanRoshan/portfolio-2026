@@ -479,7 +479,7 @@ export async function getResumeExperience() {
       location: e.location,
       period: `${startStr} – ${endStr}`,
       description: e.description,
-      achievements: e.achievements ?? [],
+      achievements: e.resume_achievements ?? e.achievements ?? [],
       company_url: e.company_url,
     }
   })

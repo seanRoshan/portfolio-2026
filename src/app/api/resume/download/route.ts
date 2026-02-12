@@ -64,7 +64,7 @@ export async function GET() {
       location: e.location as string | null,
       period: `${startStr} – ${endStr}`,
       description: e.description as string | null,
-      achievements: (e.achievements ?? []) as string[],
+      achievements: ((e.resume_achievements ?? e.achievements ?? []) as string[]),
     }
   })
 
