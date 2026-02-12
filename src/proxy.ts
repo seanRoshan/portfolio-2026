@@ -37,6 +37,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
+  // Protect /reset-password — redirect to /login if no recovery session
+  if (pathname === "/reset-password" && !user) {
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = "/login"
+    return NextResponse.redirect(loginUrl)
+  }
+
   // Redirect /login to /admin if already authenticated
   if (pathname === "/login" && user) {
     const adminUrl = request.nextUrl.clone()
@@ -48,5 +55,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: ["/admin/:path*", "/login", "/reset-password"],
 }
