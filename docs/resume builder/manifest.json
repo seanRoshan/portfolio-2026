@@ -1,0 +1,301 @@
+{
+  "course": "tech-resume",
+  "base_url": "https://bytebytego.com/courses/tech-resume",
+  "scraped_at": "2026-02-12T05:56:40.986Z",
+  "total_chapters": 19,
+  "total_images": 110,
+  "chapters": [
+    {
+      "order": 0,
+      "title": "Acknowledgements",
+      "slug": "p0-c1-acknowledgements",
+      "file": "00-p0-c1-acknowledgements.md",
+      "word_count": 268,
+      "image_count": 0,
+      "images": []
+    },
+    {
+      "order": 1,
+      "title": "Introduction",
+      "slug": "p0-c2-introduction",
+      "file": "01-p0-c2-introduction.md",
+      "word_count": 964,
+      "image_count": 0,
+      "images": []
+    },
+    {
+      "order": 2,
+      "title": "PART 1: RESUMES AND THE HIRING PROCESS",
+      "slug": "p1-c0-resumes-and-the-hiring-process",
+      "file": "02-p1-c0-resumes-and-the-hiring-process.md",
+      "word_count": 249,
+      "image_count": 0,
+      "images": []
+    },
+    {
+      "order": 3,
+      "title": "Chapter 1: Why Resumes and CVs are Important",
+      "slug": "p1-c1-why-resumes-and-cvs-are-important",
+      "file": "03-p1-c1-why-resumes-and-cvs-are-important.md",
+      "word_count": 2950,
+      "image_count": 0,
+      "images": []
+    },
+    {
+      "order": 4,
+      "title": "Chapter 2: The Hiring Pipeline",
+      "slug": "p1-c2-the-hiring-pipeline",
+      "file": "04-p1-c2-the-hiring-pipeline.md",
+      "word_count": 10413,
+      "image_count": 9,
+      "images": [
+        "./images/p1-c2-the-hiring-pipeline_0_01-5UZNA2QQ.png",
+        "./images/p1-c2-the-hiring-pipeline_1_02-SNJZPTBD.png",
+        "./images/p1-c2-the-hiring-pipeline_2_03-THFH6P7U.png",
+        "./images/p1-c2-the-hiring-pipeline_3_04-MR6ECK4N.png",
+        "./images/p1-c2-the-hiring-pipeline_4_05-N5FGWOXZ.png",
+        "./images/p1-c2-the-hiring-pipeline_5_06-CBNIZIEV.png",
+        "./images/p1-c2-the-hiring-pipeline_6_07-REK5UWOR.png",
+        "./images/p1-c2-the-hiring-pipeline_7_08-HSVEQGBG.png",
+        "./images/p1-c2-the-hiring-pipeline_8_09-VLR55POU.png"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "PART 2: WRITING THE RESUME",
+      "slug": "p2-c0-writing-the-resume",
+      "file": "05-p2-c0-writing-the-resume.md",
+      "word_count": 383,
+      "image_count": 0,
+      "images": []
+    },
+    {
+      "order": 6,
+      "title": "Chapter 3: Tech Resume Basics",
+      "slug": "p2-c1-tech-resume-basics",
+      "file": "06-p2-c1-tech-resume-basics.md",
+      "word_count": 3368,
+      "image_count": 3,
+      "images": [
+        "./images/p2-c1-tech-resume-basics_0_10-7TFVF7VT.png",
+        "./images/p2-c1-tech-resume-basics_1_11-7OTNYKOE.png",
+        "./images/p2-c1-tech-resume-basics_2_12-U7I3UDF6.png"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Chapter 4: Resume Structure",
+      "slug": "p2-c2-resume-structure",
+      "file": "07-p2-c2-resume-structure.md",
+      "word_count": 8090,
+      "image_count": 10,
+      "images": [
+        "./images/p2-c2-resume-structure_0_13-7NDDYY2O.png",
+        "./images/p2-c2-resume-structure_1_before_after_01_v1-XOWTVLUJ.png",
+        "./images/p2-c2-resume-structure_2_before_after_01_v2-NDLI4IZ7.png",
+        "./images/p2-c2-resume-structure_3_before_after_01_v3-DGYRVVYT.png",
+        "./images/p2-c2-resume-structure_4_14-64W7Y44J.png",
+        "./images/p2-c2-resume-structure_5_14_5-DIXXU7VO.png",
+        "./images/p2-c2-resume-structure_6_15-6VSK6DFE.png",
+        "./images/p2-c2-resume-structure_7_16-7RSAXTJ2.png",
+        "./images/p2-c2-resume-structure_8_17-PTYV3AKJ.png",
+        "./images/p2-c2-resume-structure_9_18-HIY3SOGK.png"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Chapter 5: Standing Out",
+      "slug": "p2-c3-standing-out",
+      "file": "08-p2-c3-standing-out.md",
+      "word_count": 8205,
+      "image_count": 13,
+      "images": [
+        "./images/p2-c3-standing-out_0_before_after_02_v1-WVEDNRLZ.png",
+        "./images/p2-c3-standing-out_1_before_after_02_v2-LLYJY7Z2.png",
+        "./images/p2-c3-standing-out_2_before_after_02_v3-LIUDMYUS.png",
+        "./images/p2-c3-standing-out_3_before_after_03_v1-JPMIMBP5.png",
+        "./images/p2-c3-standing-out_4_before_after_03_v2-UIRLMKIY.png",
+        "./images/p2-c3-standing-out_5_before_after_03_v3-E6LMH2KV.png",
+        "./images/p2-c3-standing-out_6_20-YZVD43BI.png",
+        "./images/p2-c3-standing-out_7_before_after_04_v1-CY3UNXNZ.png",
+        "./images/p2-c3-standing-out_8_before_after_04_v2-EJMZ6SMN.png",
+        "./images/p2-c3-standing-out_9_21-LA2UJWUS.png",
+        "./images/p2-c3-standing-out_10_22-DO44VASE.png",
+        "./images/p2-c3-standing-out_11_before_after_05_v1-NLY7BSDF.png",
+        "./images/p2-c3-standing-out_12_before_after_05_v2-IXIIS3DK.png"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Chapter 6: Common Mistakes",
+      "slug": "p2-c4-common-mistakes",
+      "file": "09-p2-c4-common-mistakes.md",
+      "word_count": 3846,
+      "image_count": 7,
+      "images": [
+        "./images/p2-c4-common-mistakes_0_23-RSMN2DXW.png",
+        "./images/p2-c4-common-mistakes_1_24-CK25BTUU.png",
+        "./images/p2-c4-common-mistakes_2_25-4LEGP3ZX.png",
+        "./images/p2-c4-common-mistakes_3_26-DA743YZA.png",
+        "./images/p2-c4-common-mistakes_4_27-3RQCU4UW.png",
+        "./images/p2-c4-common-mistakes_5_28-CPQNJ7UZ.png",
+        "./images/p2-c4-common-mistakes_6_29-FOB7OZS7.png"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Chapter 7: Different Experience Levels, Different Career Paths",
+      "slug": "p2-c5-different-experience-levels-different-career-paths",
+      "file": "10-p2-c5-different-experience-levels-different-career-paths.md",
+      "word_count": 5956,
+      "image_count": 7,
+      "images": [
+        "./images/p2-c5-different-experience-levels-different-career-paths_0_before_after_06_v1-KNWRHPWN.png",
+        "./images/p2-c5-different-experience-levels-different-career-paths_1_before_after_06_v2-OBIM5CPV.png",
+        "./images/p2-c5-different-experience-levels-different-career-paths_2_30-V5KSIX5I.png",
+        "./images/p2-c5-different-experience-levels-different-career-paths_3_31-BNEVC5CV.png",
+        "./images/p2-c5-different-experience-levels-different-career-paths_4_32-A6EZLEWF.png",
+        "./images/p2-c5-different-experience-levels-different-career-paths_5_before_after_08_v1-WQUQAZX7.png",
+        "./images/p2-c5-different-experience-levels-different-career-paths_6_before_after_08_v2-3GDYCKOL.png"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "Chapter 8: Exercises to Polish Your Resume",
+      "slug": "p2-c6-exercises-to-polish-your-resume",
+      "file": "11-p2-c6-exercises-to-polish-your-resume.md",
+      "word_count": 1689,
+      "image_count": 2,
+      "images": [
+        "./images/p2-c6-exercises-to-polish-your-resume_0_33-LKP2NT7M.png",
+        "./images/p2-c6-exercises-to-polish-your-resume_1_34-XAACG2XH.png"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Chapter 9: Beyond the Resume",
+      "slug": "p2-c7-beyond-the-resume",
+      "file": "12-p2-c7-beyond-the-resume.md",
+      "word_count": 5565,
+      "image_count": 9,
+      "images": [
+        "./images/p2-c7-beyond-the-resume_0_35-5E43GNUF.png",
+        "./images/p2-c7-beyond-the-resume_1_36-PDIBN6CD.png",
+        "./images/p2-c7-beyond-the-resume_2_37-OZMSY645.png",
+        "./images/p2-c7-beyond-the-resume_3_38-TOE2CVLO.png",
+        "./images/p2-c7-beyond-the-resume_4_39-VFZBQPSE.png",
+        "./images/p2-c7-beyond-the-resume_5_before_after_07_v1-YKNCECCZ.png",
+        "./images/p2-c7-beyond-the-resume_6_before_after_07_v2-LJU3V36Q.png",
+        "./images/p2-c7-beyond-the-resume_7_40-3DQUGHFH.png",
+        "./images/p2-c7-beyond-the-resume_8_41-EGSZGPSW.png"
+      ]
+    },
+    {
+      "order": 13,
+      "title": "PART 3: EXAMPLES AND INSPIRATION",
+      "slug": "p3-c0-examples-and-inspiration",
+      "file": "13-p3-c0-examples-and-inspiration.md",
+      "word_count": 266,
+      "image_count": 0,
+      "images": []
+    },
+    {
+      "order": 14,
+      "title": "Chapter 10: Good Resume Template Principles",
+      "slug": "p3-c1-good-resume-template-principles",
+      "file": "14-p3-c1-good-resume-template-principles.md",
+      "word_count": 4647,
+      "image_count": 12,
+      "images": [
+        "./images/p3-c1-good-resume-template-principles_0_42-IN6YHX7C.png",
+        "./images/p3-c1-good-resume-template-principles_1_43-FEOVMBP5.png",
+        "./images/p3-c1-good-resume-template-principles_2_44-RQRYC2MG.png",
+        "./images/p3-c1-good-resume-template-principles_3_45-LXIHKHC5.png",
+        "./images/p3-c1-good-resume-template-principles_4_46-5LAYSQZQ.png",
+        "./images/p3-c1-good-resume-template-principles_5_47-DJHYZYEH.png",
+        "./images/p3-c1-good-resume-template-principles_6_48-OUVXQ4J2.png",
+        "./images/p3-c1-good-resume-template-principles_7_49-DI2UN7EY.png",
+        "./images/p3-c1-good-resume-template-principles_8_50-R5B4FK35.png",
+        "./images/p3-c1-good-resume-template-principles_9_51-L5Y7SMYG.png",
+        "./images/p3-c1-good-resume-template-principles_10_52-CC3JC2FU.png",
+        "./images/p3-c1-good-resume-template-principles_11_53-DQSEQAZC.png"
+      ]
+    },
+    {
+      "order": 15,
+      "title": "Chapter 11: Resume Templates",
+      "slug": "p3-c2-resume-templates",
+      "file": "15-p3-c2-resume-templates.md",
+      "word_count": 10289,
+      "image_count": 20,
+      "images": [
+        "./images/p3-c2-resume-templates_0_54-5MPPCO5W.png",
+        "./images/p3-c2-resume-templates_1_55-HA5J4OQI.png",
+        "./images/p3-c2-resume-templates_2_56-QN2P5ZCO.png",
+        "./images/p3-c2-resume-templates_3_57-GYLZGKE3.png",
+        "./images/p3-c2-resume-templates_4_resume_template_pragmatic-CSEPJWSE.png",
+        "./images/p3-c2-resume-templates_5_resume_template_parker-JLXDP3GA.png",
+        "./images/p3-c2-resume-templates_6_resume_template_mono-NAYFCZ3A.png",
+        "./images/p3-c2-resume-templates_7_resume_template_smarkdown-QO5TQ2C7.png",
+        "./images/p3-c2-resume-templates_8_resume_template_experienced-L7TVALO3.png",
+        "./images/p3-c2-resume-templates_9_resume_template_vendables-6OC4TZQZ.png",
+        "./images/p3-c2-resume-templates_10_resume_template_careercup-SZ7BDPDX.png",
+        "./images/p3-c2-resume-templates_11_resume_template_serif-ZDJ7HEQA.png",
+        "./images/p3-c2-resume-templates_12_resume_template_swiss-O6SZKDF4.png",
+        "./images/p3-c2-resume-templates_13_resume_template_canva-SCCNC6WE.png",
+        "./images/p3-c2-resume-templates_14_resume_template_resumeio-BLNPNNMM.png",
+        "./images/p3-c2-resume-templates_15_resume_template_resumeio_web-IEDC3VFN.png",
+        "./images/p3-c2-resume-templates_16_resume_template_skills-5JHIYUSO.png",
+        "./images/p3-c2-resume-templates_17_resume_template_visualcv-S7NP57B2.png",
+        "./images/p3-c2-resume-templates_18_resume_template_enhancv-HS7UXHJ5.png",
+        "./images/p3-c2-resume-templates_19_resume_template_europass-2UQWHPJS.png"
+      ]
+    },
+    {
+      "order": 16,
+      "title": "Chapter 12: Resume Improvement Examples",
+      "slug": "p3-c3-resume-improvement-examples",
+      "file": "16-p3-c3-resume-improvement-examples.md",
+      "word_count": 7615,
+      "image_count": 18,
+      "images": [
+        "./images/p3-c3-resume-improvement-examples_0_resume_1_before_1-DG4ROJUE.png",
+        "./images/p3-c3-resume-improvement-examples_1_resume_1_before_2-TFIXLBYV.png",
+        "./images/p3-c3-resume-improvement-examples_2_resume_1_after_1-RHGAI432.png",
+        "./images/p3-c3-resume-improvement-examples_3_resume_1_after_2-J22STCTE.png",
+        "./images/p3-c3-resume-improvement-examples_4_resume_2_before_1-BPK634VO.png",
+        "./images/p3-c3-resume-improvement-examples_5_resume_2_before_2-2GRQBI4S.png",
+        "./images/p3-c3-resume-improvement-examples_6_resume_2_before_3-2PMQEPBS.png",
+        "./images/p3-c3-resume-improvement-examples_7_resume_2_after_1-U4POAJXV.png",
+        "./images/p3-c3-resume-improvement-examples_8_resume_3_before_1-2JSC3MWT.png",
+        "./images/p3-c3-resume-improvement-examples_9_resume_3_after_1-LXZY7FQ2.png",
+        "./images/p3-c3-resume-improvement-examples_10_resume_4_before_1-7UX3RFHY.png",
+        "./images/p3-c3-resume-improvement-examples_11_resume_4_before_2-PBAHGA6U.png",
+        "./images/p3-c3-resume-improvement-examples_12_resume_4_after_1-CWDNOTBY.png",
+        "./images/p3-c3-resume-improvement-examples_13_resume_4_after_2-MJOIXGNU.png",
+        "./images/p3-c3-resume-improvement-examples_14_resume_5_before_1-5URWP34X.png",
+        "./images/p3-c3-resume-improvement-examples_15_resume_5_before_2-XQWPUEC5.png",
+        "./images/p3-c3-resume-improvement-examples_16_resume_5_after_1-PRXO5W5U.png",
+        "./images/p3-c3-resume-improvement-examples_17_resume_5_after_2-XKYOA5NV.png"
+      ]
+    },
+    {
+      "order": 17,
+      "title": "Chapter 13: Advice for Hiring Managers on Running a Good Screening Process",
+      "slug": "p3-c4-advice-for-hiring-managers-on-running-a-good-screening-process",
+      "file": "17-p3-c4-advice-for-hiring-managers-on-running-a-good-screening-process.md",
+      "word_count": 3395,
+      "image_count": 0,
+      "images": []
+    },
+    {
+      "order": 18,
+      "title": "Conclusion",
+      "slug": "p4-c0-conclusion",
+      "file": "18-p4-c0-conclusion.md",
+      "word_count": 139,
+      "image_count": 0,
+      "images": []
+    }
+  ]
+}
