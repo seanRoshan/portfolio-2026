@@ -22,6 +22,10 @@ import {
   ExternalLink,
   LogOut,
   ChevronRight,
+  FileEdit,
+  Target,
+  Search,
+  Bot,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -85,6 +89,30 @@ const navItems: NavItem[] = [
       { hash: "certifications", label: "Certifications" },
       { hash: "additional", label: "Additional" },
     ],
+  },
+  {
+    href: "/admin/resume-builder",
+    label: "Resume Builder",
+    icon: FileEdit,
+    children: [
+      { hash: "resumes", label: "My Resumes" },
+      { hash: "templates", label: "Templates" },
+    ],
+  },
+  {
+    href: "/admin/resume-builder/applications",
+    label: "Applications",
+    icon: Target,
+  },
+  {
+    href: "/admin/resume-builder/jd-analyzer",
+    label: "JD Analyzer",
+    icon: Search,
+  },
+  {
+    href: "/admin/resume-builder/career-coach",
+    label: "Career Coach",
+    icon: Bot,
   },
   {
     href: "/admin/contact",
