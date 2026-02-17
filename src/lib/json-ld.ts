@@ -10,8 +10,18 @@ export function personAndWebsiteJsonLd(config: SiteConfig) {
     {
       "@context": "https://schema.org",
       "@type": "Person",
+      "@id": `${config.siteUrl}/#person`,
       name: config.name,
+      alternateName: "Shahriyar Valielahiroshan",
       url: config.siteUrl,
+      jobTitle: "Software Engineer",
+      knowsAbout: [
+        "Software Engineering",
+        "Web Development",
+        "TypeScript",
+        "React",
+        "Next.js",
+      ],
       ...(config.avatarUrl && { image: config.avatarUrl }),
       ...(config.siteDescription && { description: config.siteDescription }),
       ...(sameAs.length > 0 && { sameAs }),
@@ -19,6 +29,7 @@ export function personAndWebsiteJsonLd(config: SiteConfig) {
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": `${config.siteUrl}/#website`,
       name: config.siteTitle,
       url: config.siteUrl,
       ...(config.siteDescription && { description: config.siteDescription }),
