@@ -108,3 +108,31 @@ export function profilePageJsonLd(config: SiteConfig) {
     },
   }
 }
+
+/**
+ * BreadcrumbList schema for site hierarchy.
+ * "Home" is always position 1, followed by the provided items.
+ */
+export function breadcrumbJsonLd(
+  siteUrl: string,
+  items: { name: string; path: string }[],
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      ...items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 2,
+        name: item.name,
+        item: `${siteUrl}${item.path}`,
+      })),
+    ],
+  }
+}

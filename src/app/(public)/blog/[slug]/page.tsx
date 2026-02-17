@@ -6,7 +6,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getBlogPost, getAdjacentPosts } from "@/lib/queries"
 import { getCachedSiteConfig } from "@/lib/seo"
-import { articleJsonLd } from "@/lib/json-ld"
+import { articleJsonLd, breadcrumbJsonLd } from "@/lib/json-ld"
 import { JsonLd } from "@/components/JsonLd"
 import { Badge } from "@/components/ui/badge"
 import { BlogRenderer } from "@/components/blog/blog-renderer"
@@ -78,7 +78,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   return (
     <main className="min-h-screen pt-24 pb-16">
       {config && (
-        <JsonLd data={articleJsonLd(post, { name: config.name, siteUrl: config.siteUrl })} />
+        <JsonLd
+          data={[
+            articleJsonLd(post, { name: config.name, siteUrl: config.siteUrl }),
+            breadcrumbJsonLd(config.siteUrl, [
+              { name: "Blog", path: "/blog" },
+              { name: post.title, path: `/blog/${post.slug}` },
+            ]),
+          ]}
+        />
       )}
       {/* Cover image */}
       {post.cover_image_url && (

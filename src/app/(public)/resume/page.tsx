@@ -8,7 +8,7 @@ import {
   getResumeCertifications,
 } from "@/lib/queries"
 import { getCachedSiteConfig } from "@/lib/seo"
-import { profilePageJsonLd } from "@/lib/json-ld"
+import { profilePageJsonLd, breadcrumbJsonLd } from "@/lib/json-ld"
 import { JsonLd } from "@/components/JsonLd"
 import { ResumePublicView } from "@/components/resume/ResumePublicView"
 
@@ -43,7 +43,14 @@ export default async function ResumePage() {
 
   return (
     <main className="min-h-screen pt-24 pb-16">
-      {config && <JsonLd data={profilePageJsonLd(config)} />}
+      {config && (
+        <JsonLd
+          data={[
+            profilePageJsonLd(config),
+            breadcrumbJsonLd(config.siteUrl, [{ name: "Resume", path: "/resume" }]),
+          ]}
+        />
+      )}
       <div className="container-wide">
         <ResumePublicView
           data={resume}
