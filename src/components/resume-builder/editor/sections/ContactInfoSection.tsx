@@ -59,7 +59,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="full_name">Full Name *</Label>
             <Input
               id="full_name"
@@ -72,7 +72,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               </p>
             )}
           </div>
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
             <div className="relative">
               <Mail className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
@@ -92,7 +92,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>
             <div className="relative">
               <Phone className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
@@ -105,7 +105,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="city">City *</Label>
               <div className="relative">
                 <MapPin className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
@@ -117,7 +117,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
                 />
               </div>
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="country">Country *</Label>
               <Input
                 id="country"
@@ -129,7 +129,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="linkedin_url">LinkedIn</Label>
             <div className="relative">
               <Linkedin className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
@@ -146,7 +146,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               </p>
             )}
           </div>
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="github_url">GitHub</Label>
             <div className="relative">
               <Github className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
@@ -166,7 +166,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="portfolio_url">Portfolio</Label>
             <div className="relative">
               <Globe className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
@@ -178,7 +178,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               />
             </div>
           </div>
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="blog_url">Blog</Label>
             <div className="relative">
               <BookOpen className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />

@@ -187,7 +187,7 @@ function ExperienceCard({
       {isExpanded && (
         <div className="space-y-4 border-t p-3">
           <div className="grid gap-3 sm:grid-cols-2">
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Job Title *</Label>
               <Input
                 defaultValue={experience.job_title}
@@ -195,7 +195,7 @@ function ExperienceCard({
                 placeholder="Senior Software Engineer"
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Company *</Label>
               <Input
                 defaultValue={experience.company}
@@ -206,7 +206,7 @@ function ExperienceCard({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Location</Label>
               <Input
                 defaultValue={experience.location ?? ''}
@@ -214,7 +214,7 @@ function ExperienceCard({
                 placeholder="San Francisco, CA"
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Start Date</Label>
               <Input
                 type="month"
@@ -227,7 +227,7 @@ function ExperienceCard({
                 }
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">End Date</Label>
               <Input
                 type="month"

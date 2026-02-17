@@ -125,32 +125,32 @@ function EducationCard({
       {isExpanded && (
         <div className="space-y-3 border-t p-3">
           <div className="grid gap-3 sm:grid-cols-2">
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Degree *</Label>
               <Input defaultValue={entry.degree} onBlur={(e) => handleUpdate('degree', e.target.value)} placeholder="B.S. Computer Science" />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Institution *</Label>
               <Input defaultValue={entry.institution} onBlur={(e) => handleUpdate('institution', e.target.value)} placeholder="Stanford University" />
             </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Field of Study</Label>
               <Input defaultValue={entry.field_of_study ?? ''} onBlur={(e) => handleUpdate('field_of_study', e.target.value || null)} placeholder="Computer Science" />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Graduation Date</Label>
               <Input type="month" defaultValue={entry.graduation_date?.slice(0, 7) ?? ''} onBlur={(e) => handleUpdate('graduation_date', e.target.value ? `${e.target.value}-01` : null)} />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">GPA (if &gt; 3.5)</Label>
               <Input type="number" step="0.01" min="0" max="4.0" defaultValue={entry.gpa ?? ''} onBlur={(e) => handleUpdate('gpa', e.target.value ? parseFloat(e.target.value) : null)} placeholder="3.8" />
             </div>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label className="text-xs">Honors</Label>
             <Input defaultValue={entry.honors ?? ''} onBlur={(e) => handleUpdate('honors', e.target.value || null)} placeholder="magna cum laude, Dean's List" />
           </div>

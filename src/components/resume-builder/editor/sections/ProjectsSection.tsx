@@ -141,23 +141,23 @@ function ProjectCard({
 
       {isExpanded && (
         <div className="space-y-3 border-t p-3">
-          <div>
+          <div className="space-y-2">
             <Label className="text-xs">Project Name *</Label>
             <Input defaultValue={project.name} onBlur={(e) => handleUpdate('name', e.target.value)} placeholder="My Awesome Project" />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Live URL</Label>
               <Input defaultValue={project.project_url ?? ''} onBlur={(e) => handleUpdate('project_url', e.target.value || null)} placeholder="https://myproject.com" />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label className="text-xs">Source Code</Label>
               <Input defaultValue={project.source_url ?? ''} onBlur={(e) => handleUpdate('source_url', e.target.value || null)} placeholder="https://github.com/..." />
             </div>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label className="text-xs">Description</Label>
             <Textarea defaultValue={project.description ?? ''} onBlur={(e) => handleUpdate('description', e.target.value)} placeholder="Brief description of the project..." rows={2} className="resize-none text-sm" />
           </div>
