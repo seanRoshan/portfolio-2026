@@ -22,7 +22,7 @@ export function personAndWebsiteJsonLd(config: SiteConfig) {
         "React",
         "Next.js",
       ],
-      ...(config.avatarUrl && { image: config.avatarUrl }),
+      image: `${config.siteUrl}/images/profile-1000x1333.jpg`,
       ...(config.siteDescription && { description: config.siteDescription }),
       ...(sameAs.length > 0 && { sameAs }),
     },
