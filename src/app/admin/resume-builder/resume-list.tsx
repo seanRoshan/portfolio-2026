@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Plus,
@@ -11,6 +12,7 @@ import {
   Crown,
   Clock,
   Target,
+  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -29,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -38,7 +41,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { createResume, deleteResume, cloneResume } from './actions'
+import { createResume, deleteResume, cloneResume, generateTailoredResume } from './actions'
 import type { Resume, ResumeTemplate, ExperienceLevel } from '@/types/resume-builder'
 
 const experienceLevels: { value: ExperienceLevel; label: string }[] = [
@@ -59,6 +62,7 @@ interface ResumeListProps {
 }
 
 export function ResumeList({ resumes, templates }: ResumeListProps) {
+  const router = useRouter()
   const [showCreate, setShowCreate] = useState(false)
   const [showClone, setShowClone] = useState<string | null>(null)
   const [showDelete, setShowDelete] = useState<string | null>(null)
@@ -67,19 +71,45 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   const [level, setLevel] = useState<ExperienceLevel>('mid')
   const [targetRole, setTargetRole] = useState('')
   const [cloneTitle, setCloneTitle] = useState('')
+  const [mode, setMode] = useState<'choose' | 'tailor' | 'scratch'>('choose')
+  const [jobDescription, setJobDescription] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
 
   function handleCreate() {
     startTransition(async () => {
       try {
-        await createResume({
+        const resumeId = await createResume({
           title: title || 'Untitled Resume',
           experience_level: level,
           target_role: targetRole || undefined,
           is_master: resumes.length === 0,
         })
         toast.success('Resume created')
+        router.push(`/admin/resume-builder/${resumeId}/edit`)
       } catch {
         toast.error('Failed to create resume')
+      }
+    })
+  }
+
+  function handleGenerate() {
+    if (!jobDescription.trim()) {
+      toast.error('Please paste a job description')
+      return
+    }
+    setIsGenerating(true)
+    startTransition(async () => {
+      try {
+        const resumeId = await generateTailoredResume({
+          experience_level: level,
+          job_description: jobDescription,
+        })
+        toast.success('Resume generated!')
+        router.push(`/admin/resume-builder/${resumeId}/edit`)
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Failed to generate resume')
+      } finally {
+        setIsGenerating(false)
       }
     })
   }
@@ -99,8 +129,9 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   function handleClone(id: string) {
     startTransition(async () => {
       try {
-        await cloneResume(id, cloneTitle || 'Cloned Resume')
+        const resumeId = await cloneResume(id, cloneTitle || 'Cloned Resume')
         toast.success('Resume cloned')
+        router.push(`/admin/resume-builder/${resumeId}/edit`)
       } catch {
         toast.error('Failed to clone resume')
       }
@@ -234,59 +265,192 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
       )}
 
       {/* Create Resume Dialog */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
+      <Dialog open={showCreate} onOpenChange={(open) => {
+        setShowCreate(open)
+        if (!open) {
+          setMode('choose')
+          setJobDescription('')
+          setTitle('')
+          setTargetRole('')
+          setIsGenerating(false)
+        }
+      }}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Resume</DialogTitle>
-            <DialogDescription>
-              Set up your resume profile. You can change these settings later.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Resume Title</Label>
-              <Input
-                id="title"
-                placeholder="e.g., Senior Backend Engineer - Google"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="level">Experience Level</Label>
-              <Select
-                value={level}
-                onValueChange={(v) => setLevel(v as ExperienceLevel)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {experienceLevels.map((l) => (
-                    <SelectItem key={l.value} value={l.value}>
-                      {l.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="role">Target Role (optional)</Label>
-              <Input
-                id="role"
-                placeholder="e.g., Frontend, Backend, Full Stack"
-                value={targetRole}
-                onChange={(e) => setTargetRole(e.target.value)}
-              />
-            </div>
-            <Button
-              onClick={handleCreate}
-              disabled={isPending}
-              className="w-full"
-            >
-              {isPending ? 'Creating...' : 'Create Resume'}
-            </Button>
-          </div>
+          {mode === 'choose' && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Create New Resume</DialogTitle>
+                <DialogDescription>
+                  Choose how to start your resume.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-3">
+                <button
+                  type="button"
+                  onClick={() => setMode('tailor')}
+                  className="flex items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-accent"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="font-semibold">Tailor for a Job</div>
+                    <p className="text-muted-foreground text-sm">
+                      Paste a job description and AI will draft a tailored resume using your portfolio data.
+                    </p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('scratch')}
+                  className="flex items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-accent"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <div className="font-semibold">Start from Scratch</div>
+                    <p className="text-muted-foreground text-sm">
+                      Create an empty resume and fill in each section manually.
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </>
+          )}
+
+          {mode === 'tailor' && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Tailor for a Job</DialogTitle>
+                <DialogDescription>
+                  Paste the job description and AI will craft a tailored resume from your portfolio data.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="level-tailor">Experience Level</Label>
+                  <Select
+                    value={level}
+                    onValueChange={(v) => setLevel(v as ExperienceLevel)}
+                  >
+                    <SelectTrigger id="level-tailor">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {experienceLevels.map((l) => (
+                        <SelectItem key={l.value} value={l.value}>
+                          {l.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="jd">Job Description</Label>
+                  <Textarea
+                    id="jd"
+                    placeholder="Paste the full job description here..."
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    className="min-h-[200px] resize-y"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setMode('choose')}
+                    disabled={isGenerating}
+                    className="flex-1"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleGenerate}
+                    disabled={isGenerating || isPending}
+                    className="flex-1"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Generate Resume
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {mode === 'scratch' && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Start from Scratch</DialogTitle>
+                <DialogDescription>
+                  Set up your resume profile. You can change these settings later.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Resume Title</Label>
+                  <Input
+                    id="title"
+                    placeholder="e.g., Senior Backend Engineer - Google"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="level-scratch">Experience Level</Label>
+                  <Select
+                    value={level}
+                    onValueChange={(v) => setLevel(v as ExperienceLevel)}
+                  >
+                    <SelectTrigger id="level-scratch">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {experienceLevels.map((l) => (
+                        <SelectItem key={l.value} value={l.value}>
+                          {l.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Target Role (optional)</Label>
+                  <Input
+                    id="role"
+                    placeholder="e.g., Frontend, Backend, Full Stack"
+                    value={targetRole}
+                    onChange={(e) => setTargetRole(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setMode('choose')}
+                    className="flex-1"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleCreate}
+                    disabled={isPending}
+                    className="flex-1"
+                  >
+                    {isPending ? 'Creating...' : 'Create Resume'}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -303,7 +467,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="clone-title">New Title</Label>
               <Input
                 id="clone-title"
