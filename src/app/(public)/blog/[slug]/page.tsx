@@ -25,7 +25,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const post = await getBlogPost(slug)
+  const [post, config] = await Promise.all([getBlogPost(slug), getCachedSiteConfig()])
   if (!post) return {}
 
   const title = post.meta_title || post.title
@@ -48,6 +48,9 @@ export async function generateMetadata({
       title,
       description,
       ...(ogImage && { images: [ogImage] }),
+    },
+    alternates: {
+      canonical: config ? `${config.siteUrl}/blog/${slug}` : undefined,
     },
   }
 }

@@ -25,6 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: config ? `Resume — ${config.name}` : "Resume",
       description,
     },
+    alternates: { canonical: config ? `${config.siteUrl}/resume` : undefined },
   }
 }
 
