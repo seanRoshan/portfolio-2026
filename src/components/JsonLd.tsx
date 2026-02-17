@@ -2,9 +2,10 @@
  * Generic JSON-LD renderer — server component.
  * Renders structured data inline so crawlers see it immediately.
  *
- * Safe to use dangerouslySetInnerHTML here because JSON.stringify()
- * output cannot contain unescaped HTML — script[type=application/ld+json]
- * is not parsed as HTML by the browser.
+ * Uses dangerouslySetInnerHTML with XSS sanitization: all `<` characters
+ * are replaced with the unicode escape `\u003c` to prevent injection of
+ * closing </script> tags. This follows the Next.js recommended pattern.
+ * @see https://nextjs.org/docs/app/guides/json-ld
  */
 export function JsonLd({ data }: { data: Record<string, unknown> | Record<string, unknown>[] }) {
   const items = Array.isArray(data) ? data : [data]
@@ -15,7 +16,7 @@ export function JsonLd({ data }: { data: Record<string, unknown> | Record<string
         <script
           key={i}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(item).replace(/</g, '\\u003c') }}
         />
       ))}
     </>
