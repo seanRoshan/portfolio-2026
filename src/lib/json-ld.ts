@@ -64,6 +64,7 @@ export function articleJsonLd(
     ...(post.tags && post.tags.length > 0 && { keywords: post.tags.join(", ") }),
     author: {
       "@type": "Person",
+      "@id": `${author.siteUrl}/#person`,
       name: author.name,
       url: author.siteUrl,
     },
@@ -101,8 +102,10 @@ export function profilePageJsonLd(config: SiteConfig) {
     url: `${config.siteUrl}/resume`,
     mainEntity: {
       "@type": "Person",
+      "@id": `${config.siteUrl}/#person`,
       name: config.name,
       url: config.siteUrl,
+      ...(config.avatarUrl && { image: config.avatarUrl }),
       ...(config.siteDescription && { description: config.siteDescription }),
       ...(sameAs.length > 0 && { sameAs }),
     },
