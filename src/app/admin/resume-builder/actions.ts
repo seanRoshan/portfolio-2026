@@ -40,6 +40,9 @@ export async function createResume(formData: {
   target_role?: string
   is_master?: boolean
   template_id?: string
+  company_name?: string
+  job_location?: string
+  work_mode?: string
 }) {
   const supabase = await createClient()
   const {
@@ -58,6 +61,9 @@ export async function createResume(formData: {
       template_id: templateId,
       experience_level: formData.experience_level,
       target_role: formData.target_role || null,
+      company_name: formData.company_name || null,
+      job_location: formData.job_location || null,
+      work_mode: formData.work_mode || null,
       is_master: formData.is_master ?? false,
       short_id: generateShortId(),
     })
@@ -72,10 +78,14 @@ export async function createResume(formData: {
   // Create default related records
   const results = await Promise.all([
     (async () => {
+      // Fetch global profile for defaults
       const { data: settings } = await supabase
         .from('site_settings')
-        .select('full_name, contact_email, phone, city, state, country, linkedin_url, github_url, portfolio_url, blog_url')
+        .select('full_name, contact_email, phone, city, state, country, social_links')
         .single()
+
+      // Derive URLs from social_links JSONB
+      const socials = (settings?.social_links as Record<string, string>) ?? {}
 
       return supabase
         .from('resume_contact_info')
@@ -87,10 +97,10 @@ export async function createResume(formData: {
           city: settings?.city ?? null,
           state: settings?.state ?? null,
           country: settings?.country ?? null,
-          linkedin_url: settings?.linkedin_url ?? null,
-          github_url: settings?.github_url ?? null,
-          portfolio_url: settings?.portfolio_url ?? null,
-          blog_url: settings?.blog_url ?? null,
+          linkedin_url: socials.linkedin ?? null,
+          github_url: socials.github ?? null,
+          portfolio_url: socials.website ?? socials.portfolio ?? null,
+          blog_url: socials.blog ?? socials.medium ?? null,
         })
     })(),
     supabase
@@ -167,6 +177,9 @@ export async function generateTailoredResume(formData: {
       template_id: templateId,
       experience_level: formData.experience_level,
       target_role: targetRole,
+      company_name: jdAnalysis.company || null,
+      job_location: jdAnalysis.location || null,
+      work_mode: jdAnalysis.work_mode || null,
       is_master: false,
       short_id: generateShortId(),
     })
@@ -427,6 +440,9 @@ export async function cloneResume(id: string, newTitle: string) {
       template_id: original.template_id,
       experience_level: original.experience_level,
       target_role: original.target_role,
+      company_name: original.company_name,
+      job_location: original.job_location,
+      work_mode: original.work_mode,
       is_master: false,
       parent_resume_id: original.is_master ? original.id : original.parent_resume_id,
       short_id: generateShortId(),
@@ -1015,6 +1031,27 @@ export async function updateResumeTitle(resumeId: string, title: string) {
 
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/resume-builder/${resumeId}/edit`)
+}
+
+export async function updateResumeMetadata(
+  resumeId: string,
+  data: {
+    title?: string
+    target_role?: string | null
+    company_name?: string | null
+    job_location?: string | null
+    work_mode?: string | null
+  }
+) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('resumes')
+    .update(data)
+    .eq('id', resumeId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/resume-builder/${resumeId}/edit`)
+  revalidatePath('/admin/resume-builder')
 }
 
 // ===== Resume Prompt Overrides =====

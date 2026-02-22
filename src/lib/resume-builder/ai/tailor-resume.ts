@@ -10,7 +10,7 @@ import type { PortfolioData } from './portfolio-data'
 
 // ===== Constants =====
 
-const MODEL = 'claude-sonnet-4-5-20250929'
+const MODEL = 'claude-sonnet-4-6'
 
 // Valid section names matching the editor's sectionMap keys
 const VALID_SECTIONS = [
@@ -34,6 +34,8 @@ export interface JDAnalysis {
   key_requirements: string[]
   years_experience: string | null
   domain: string
+  location: string | null
+  work_mode: string | null
 }
 
 export interface SkillMatchResult {
@@ -143,13 +145,17 @@ Return ONLY valid JSON with this exact structure (no markdown fences):
   "preferred_skills": ["nice-to-have skill1"],
   "key_requirements": ["requirement1", "requirement2"],
   "years_experience": "e.g. 5+ years or null",
-  "domain": "e.g. fintech, healthcare, SaaS"
+  "domain": "e.g. fintech, healthcare, SaaS",
+  "location": "city, state/country from JD or null if not specified",
+  "work_mode": "remote, hybrid, or onsite based on JD text, null if unclear"
 }
 
 Rules:
 - required_skills: Technical skills explicitly required (languages, frameworks, tools, platforms)
 - preferred_skills: Nice-to-have or preferred skills
 - key_requirements: Non-skill requirements (leadership, communication, certifications, domain experience)
+- location: The office/work location mentioned in the JD (city, state or city, country). null if not specified
+- work_mode: "remote" if fully remote, "hybrid" if hybrid/flexible, "onsite" if in-office. null if unclear
 - Be specific with skills: "React" not "frontend", "PostgreSQL" not "databases"
 - Extract ALL mentioned technical skills, don't summarize`
 
@@ -159,7 +165,7 @@ async function analyzeJD(
 ): Promise<{ analysis: JDAnalysis; usage: AIUsageInfo }> {
   const response = await client.messages.create({
     model: MODEL,
-    max_tokens: 1024,
+    max_tokens: 2048,
     system: JD_ANALYSIS_PROMPT,
     messages: [{ role: 'user', content: jobDescription.slice(0, 8000) }],
   })
@@ -633,6 +639,83 @@ Create the tailored resume JSON now. Remember: EVERY section must be populated w
 
   // Sanitize section_order to fix common AI mistakes
   parsed.section_order = sanitizeSectionOrder(parsed.section_order)
+
+  // Sanitize work experiences — AI may use alternate key names or return nulls.
+  // Cross-reference portfolio data to fill in any fields the AI dropped.
+  parsed.work_experiences = (parsed.work_experiences ?? []).map((exp: Record<string, unknown>) => {
+    const jobTitle = ((exp.job_title ?? exp.title ?? exp.role ?? '') as string).trim()
+    const company = ((exp.company ?? exp.organization ?? '') as string).trim()
+
+    // If the AI dropped job_title or company, look it up from the portfolio
+    let resolvedTitle = jobTitle
+    let resolvedCompany = company
+    if (!resolvedTitle || !resolvedCompany) {
+      const match = portfolio.experiences.find((pe) =>
+        (resolvedCompany && pe.company.toLowerCase() === resolvedCompany.toLowerCase()) ||
+        (resolvedTitle && pe.role.toLowerCase() === resolvedTitle.toLowerCase())
+      )
+      if (match) {
+        resolvedTitle = resolvedTitle || match.role
+        resolvedCompany = resolvedCompany || match.company
+      }
+    }
+
+    return {
+      job_title: resolvedTitle,
+      company: resolvedCompany,
+      location: ((exp.location ?? '') as string).trim(),
+      start_date: (exp.start_date ?? '') as string,
+      end_date: (exp.end_date ?? null) as string | null,
+      achievements: (Array.isArray(exp.achievements) ? exp.achievements.filter(Boolean) : []) as string[],
+    }
+  }).filter((exp) => exp.job_title || exp.company) // Drop entries with no identifiable data
+
+  // Sanitize projects — cross-reference portfolio for missing fields
+  parsed.projects = (parsed.projects ?? []).map((proj: Record<string, unknown>) => {
+    const name = ((proj.name ?? proj.title ?? '') as string).trim()
+
+    // If the AI dropped the project name, look it up from the portfolio
+    let resolvedName = name
+    if (!resolvedName) {
+      const desc = ((proj.description ?? '') as string).toLowerCase()
+      const match = portfolio.projects.find((pp) =>
+        desc && (pp.short_description?.toLowerCase().includes(desc.slice(0, 30)) ||
+        pp.title.toLowerCase().includes(desc.slice(0, 30)))
+      )
+      if (match) resolvedName = match.title
+    }
+
+    return {
+      name: resolvedName,
+      description: ((proj.description ?? '') as string).trim(),
+      url: (proj.url ?? proj.live_url ?? null) as string | null,
+      source_url: (proj.source_url ?? proj.github_url ?? null) as string | null,
+      achievements: (Array.isArray(proj.achievements) ? proj.achievements.filter(Boolean) : []) as string[],
+    }
+  }).filter((proj) => proj.name)
+
+  // Sanitize contact_info — merge portfolio data for any missing fields
+  const locationParts = (portfolio.location ?? '').split(',').map((s) => s.trim())
+  const portfolioCity = locationParts[0] || null
+  const portfolioCountry = locationParts.length > 1 ? locationParts.slice(1).join(', ').trim() : null
+  const ci = parsed.contact_info ?? {} as Record<string, string>
+  parsed.contact_info = {
+    full_name: ci.full_name || portfolio.name || '',
+    email: ci.email || portfolio.email || '',
+    phone: ci.phone || portfolio.phone || '',
+    city: ci.city || portfolioCity || '',
+    country: ci.country || portfolioCountry || '',
+    linkedin_url: ci.linkedin_url || portfolio.linkedin || '',
+    github_url: ci.github_url || portfolio.github || '',
+    portfolio_url: ci.portfolio_url || portfolio.website || '',
+    blog_url: ci.blog_url || portfolio.blog || '',
+  }
+
+  // Ensure suggested_title comes from the JD analysis if the AI missed it
+  if (!parsed.suggested_title && jdAnalysis) {
+    const company = jdAnalysis.company || 'target company'
+    parsed.suggested_title = `${jdAnalysis.role_title} — ${company}`
+  }
 
   // Validate AI output completeness — log warnings for missing data
   const expectedExps = portfolio.experiences.length
