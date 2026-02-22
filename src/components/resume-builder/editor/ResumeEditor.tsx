@@ -3,10 +3,29 @@
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
   ArrowLeft,
   Download,
   Eye,
   EyeOff,
+  GripVertical,
   Settings2,
   Palette,
 } from 'lucide-react'
@@ -22,7 +41,7 @@ import {
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { toast } from 'sonner'
-import { updateResumeTemplate } from '@/app/admin/resume-builder/actions'
+import { updateResumeTemplate, updateResumeSettings } from '@/app/admin/resume-builder/actions'
 import { ContactInfoSection } from './sections/ContactInfoSection'
 import { SummarySection } from './sections/SummarySection'
 import { WorkExperienceSection } from './sections/WorkExperienceSection'
@@ -36,6 +55,26 @@ import { ResumePreviewPane } from '../templates/ResumePreviewPane'
 import { validateResume } from '@/lib/resume-builder/validation/rules'
 import { scoreResume } from '@/lib/resume-builder/ai/services'
 import type { ResumeWithRelations, ResumeTemplate } from '@/types/resume-builder'
+
+function SortableSection({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div className="flex items-start gap-1">
+        <button
+          {...attributes}
+          {...listeners}
+          className="mt-3 shrink-0 cursor-grab text-muted-foreground hover:text-foreground active:cursor-grabbing"
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    </div>
+  )
+}
 
 interface ResumeEditorProps {
   resume: ResumeWithRelations
@@ -100,6 +139,35 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
     }
   }, [resume.id, resume.contact_info?.full_name, criticalCount, validationResults])
 
+  const sectionOrder = resume.settings?.section_order ?? [
+    'contact', 'summary', 'experience', 'education',
+    'skills', 'projects', 'certifications', 'extracurriculars',
+  ]
+  const hiddenSections = new Set(resume.settings?.hidden_sections ?? [])
+  const [currentOrder, setCurrentOrder] = useState<string[]>(sectionOrder)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = currentOrder.indexOf(active.id as string)
+    const newIndex = currentOrder.indexOf(over.id as string)
+    const newOrder = arrayMove(currentOrder, oldIndex, newIndex)
+    setCurrentOrder(newOrder)
+
+    try {
+      await updateResumeSettings(resume.id, { section_order: newOrder })
+    } catch {
+      toast.error('Failed to save section order')
+      setCurrentOrder(sectionOrder) // revert
+    }
+  }, [currentOrder, resume.id, sectionOrder])
+
   const sectionMap: Record<string, React.ReactNode> = {
     contact: (
       <ContactInfoSection
@@ -159,8 +227,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
     ),
   }
 
-  const sectionOrder = resume.settings?.section_order ?? Object.keys(sectionMap)
-  const hiddenSections = new Set(resume.settings?.hidden_sections ?? [])
+  const visibleSections = currentOrder.filter((s) => !hiddenSections.has(s))
 
   return (
     <div className="flex h-screen flex-col">
@@ -263,9 +330,20 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
         {/* Editor Panel */}
         <ScrollArea className={showPreview ? 'w-1/2 border-r' : 'w-full'}>
           <div className="max-w-2xl space-y-6 p-4 md:p-6">
-            {sectionOrder
-              .filter((s) => !hiddenSections.has(s))
-              .map((sectionId) => sectionMap[sectionId])}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              modifiers={[restrictToVerticalAxis]}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={visibleSections} strategy={verticalListSortingStrategy}>
+                {visibleSections.map((sectionId) => (
+                  <SortableSection key={sectionId} id={sectionId}>
+                    {sectionMap[sectionId]}
+                  </SortableSection>
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
         </ScrollArea>
 
