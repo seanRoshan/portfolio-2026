@@ -44,8 +44,23 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   const df = resume.settings?.date_format ?? 'month_year'
   const templateId = resume.template_id ?? ''
   const fontFamily = FONT_MAP[resume.settings?.font_family ?? 'inter'] ?? FONT_MAP.inter
-  const density = DENSITY_MAP[resume.settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
+  const baseDensity = DENSITY_MAP[resume.settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
   const accentColor = resume.settings?.accent_color ?? '#000000'
+
+  // Scale density if font_size_base is set
+  const fontSizeBase = resume.settings?.font_size_base
+  let density = baseDensity
+  if (fontSizeBase != null) {
+    const defaultBody = parseFloat(baseDensity.body)
+    const scale = fontSizeBase / defaultBody
+    density = {
+      body: `${fontSizeBase}px`,
+      heading: `${Math.round(parseFloat(baseDensity.heading) * scale * 10) / 10}px`,
+      section: `${Math.round(parseFloat(baseDensity.section) * scale * 10) / 10}px`,
+      lineHeight: baseDensity.lineHeight,
+      sectionGap: baseDensity.sectionGap,
+    }
+  }
 
   const hiddenSections = new Set(resume.settings?.hidden_sections ?? [])
   const sectionOrder = (resume.settings?.section_order ?? [
@@ -167,8 +182,10 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   * { margin: 0; padding: 0; box-sizing: border-box; }
   @page { size: Letter; margin: 0; }
   body { font-family: ${bodyFont}; font-size: ${density.body}; line-height: ${density.lineHeight}; color: #111827; }
-  .resume-section { page-break-inside: avoid; }
-  .experience-entry { page-break-inside: avoid; }
+  .experience-entry { page-break-inside: avoid; break-inside: avoid; }
+  h2 { page-break-after: avoid; break-after: avoid; }
+  li { page-break-inside: avoid; break-inside: avoid; }
+  ul { orphans: 2; widows: 2; }
 </style>
 </head>
 <body>
@@ -200,8 +217,10 @@ function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations
   * { margin: 0; padding: 0; box-sizing: border-box; }
   @page { size: Letter; margin: 0; }
   body { font-family: ${fontFamily}; font-size: ${density.body}; line-height: ${density.lineHeight}; }
-  .resume-section { page-break-inside: avoid; }
-  .experience-entry { page-break-inside: avoid; }
+  .experience-entry { page-break-inside: avoid; break-inside: avoid; }
+  h2 { page-break-after: avoid; break-after: avoid; }
+  li { page-break-inside: avoid; break-inside: avoid; }
+  ul { orphans: 2; widows: 2; }
 </style>
 </head>
 <body>
@@ -252,8 +271,10 @@ function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRela
   * { margin: 0; padding: 0; box-sizing: border-box; }
   @page { size: Letter; margin: 0; }
   body { font-family: ${fontFamily}; font-size: ${density.body}; line-height: ${density.lineHeight}; color: #111827; }
-  .resume-section { page-break-inside: avoid; }
-  .experience-entry { page-break-inside: avoid; }
+  .experience-entry { page-break-inside: avoid; break-inside: avoid; }
+  h2 { page-break-after: avoid; break-after: avoid; }
+  li { page-break-inside: avoid; break-inside: avoid; }
+  ul { orphans: 2; widows: 2; }
 </style>
 </head>
 <body>

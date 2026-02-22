@@ -63,9 +63,25 @@ export const DENSITY_MAP: Record<string, { body: string; heading: string; sectio
   spacious:    { body: '11px', heading: '13px', section: '15px', lineHeight: '1.5', sectionGap: '16px' },
 }
 
-export function getTemplateStyles(settings: { accent_color?: string; font_family?: string; font_size_preset?: string } | null | undefined) {
+export function getTemplateStyles(settings: { accent_color?: string; font_family?: string; font_size_preset?: string; font_size_base?: number } | null | undefined) {
   const accent = settings?.accent_color || '#000000'
   const font = FONT_MAP[settings?.font_family ?? 'inter'] ?? FONT_MAP.inter
-  const density = DENSITY_MAP[settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
-  return { accent, font, density }
+  const baseDensity = DENSITY_MAP[settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
+
+  // If font_size_base is set, scale all sizes proportionally from the density preset
+  const fontSizeBase = settings?.font_size_base
+  if (fontSizeBase != null) {
+    const defaultBody = parseFloat(baseDensity.body)
+    const scale = fontSizeBase / defaultBody
+    const density = {
+      body: `${fontSizeBase}px`,
+      heading: `${Math.round(parseFloat(baseDensity.heading) * scale * 10) / 10}px`,
+      section: `${Math.round(parseFloat(baseDensity.section) * scale * 10) / 10}px`,
+      lineHeight: baseDensity.lineHeight,
+      sectionGap: baseDensity.sectionGap,
+    }
+    return { accent, font, density }
+  }
+
+  return { accent, font, density: baseDensity }
 }
