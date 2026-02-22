@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useMemo, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -187,6 +187,10 @@ export function ApplicationDetail({
   const [showDelete, setShowDelete] = useState(false)
   const [notes, setNotes] = useState(application.notes ?? '')
   const [notesSaved, setNotesSaved] = useState(true)
+  const daysSinceApplied = useMemo(() => {
+    if (!application.applied_date) return null
+    return Math.floor((Date.now() - new Date(application.applied_date).getTime()) / (1000 * 60 * 60 * 24))
+  }, [application.applied_date])
 
   // Edit form state
   const [editData, setEditData] = useState({
@@ -556,13 +560,7 @@ export function ApplicationDetail({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Days since applied</span>
                 <span className="font-medium">
-                  {application.applied_date
-                    ? Math.floor(
-                        (Date.now() -
-                          new Date(application.applied_date).getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      )
-                    : '--'}
+                  {daysSinceApplied ?? '--'}
                 </span>
               </div>
               <Separator />

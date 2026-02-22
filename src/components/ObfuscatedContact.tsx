@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useSyncExternalStore } from "react"
 
 /**
  * Renders email/phone only on the client side with fragment obfuscation.
@@ -12,6 +12,14 @@ import { useState, useEffect } from "react"
  */
 
 const ZWJ = "\u200D" // zero-width joiner — invisible in rendering
+
+const subscribe = () => () => {}
+const getSnapshot = () => true
+const getServerSnapshot = () => false
+
+function useIsMounted() {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+}
 
 function FragmentedText({ text }: { text: string }) {
   // Split into 2-3 char chunks with ZWJ between spans
@@ -32,8 +40,7 @@ function FragmentedText({ text }: { text: string }) {
 }
 
 export function ObfuscatedEmail({ email, className }: { email: string; className?: string }) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  const mounted = useIsMounted()
 
   if (!mounted || !email) return null
 
@@ -45,8 +52,7 @@ export function ObfuscatedEmail({ email, className }: { email: string; className
 }
 
 export function ObfuscatedPhone({ phone, className }: { phone: string; className?: string }) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  const mounted = useIsMounted()
 
   if (!mounted || !phone) return null
 

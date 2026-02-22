@@ -568,7 +568,7 @@ export async function tailorResume(
     throw new Error('AI not available — ANTHROPIC_API_KEY is not configured')
   }
 
-  let totalUsage: AIUsageInfo = { model: MODEL, input_tokens: 0, output_tokens: 0 }
+  const totalUsage: AIUsageInfo = { model: MODEL, input_tokens: 0, output_tokens: 0 }
 
   // --- Step 1: Analyze JD ---
   let jdAnalysis: JDAnalysis
