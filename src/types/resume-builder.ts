@@ -220,7 +220,7 @@ export interface ResumeSettings {
   section_order: string[]
   hidden_sections: string[]
   page_limit: 1 | 2 | 3
-  font_size_base: number
+  font_size_base?: number
 }
 
 // ===== Full Resume (with all relations) =====

@@ -51,7 +51,7 @@ import { ProjectsSection } from './sections/ProjectsSection'
 import { CertificationsSection } from './sections/CertificationsSection'
 import { ExtracurricularsSection } from './sections/ExtracurricularsSection'
 import { SettingsPanel } from './SettingsPanel'
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels'
 import { ResumePreviewPane } from '../templates/ResumePreviewPane'
 import { ScorePanel } from './ScorePanel'
 import { OptimizeDialog } from './OptimizeDialog'
@@ -315,9 +315,9 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
 
       {/* Editor + Preview */}
       <div className="min-h-0 flex-1">
-        <PanelGroup direction="horizontal" autoSaveId="resume-editor-layout">
+        <PanelGroup orientation="horizontal" id="resume-editor-layout">
           {/* Editor Panel */}
-          <Panel defaultSize={50} minSize={30}>
+          <Panel defaultSize="50%" minSize="30%">
             <ScrollArea className="h-full border-r">
               <div className="max-w-2xl space-y-6 p-4 md:p-6">
                 <DndContext
@@ -345,7 +345,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
                 <div className="bg-border h-8 w-0.5 rounded-full" />
               </PanelResizeHandle>
 
-              <Panel defaultSize={50} minSize={25}>
+              <Panel defaultSize="50%" minSize="25%">
                 <div className="hidden h-full bg-gray-100 dark:bg-gray-900 md:block">
                   <ResumePreviewPane resume={resume} />
                 </div>
