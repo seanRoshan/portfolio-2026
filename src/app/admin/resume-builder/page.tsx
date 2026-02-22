@@ -1,5 +1,4 @@
-import { getResumes } from '@/lib/resume-builder/queries'
-import { getTemplates } from '@/lib/resume-builder/queries'
+import { getResumes, getTemplates } from '@/lib/resume-builder/queries'
 import { ResumeList } from './resume-list'
 
 export default async function ResumeBuilderPage() {

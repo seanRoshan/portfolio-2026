@@ -92,7 +92,9 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   const [showCreate, setShowCreate] = useState(false)
   const [showClone, setShowClone] = useState<string | null>(null)
   const [showDelete, setShowDelete] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
+  const [isCreating, startCreateTransition] = useTransition()
+  const [isCloning, startCloneTransition] = useTransition()
+  const [isDeleting, startDeleteTransition] = useTransition()
   const [title, setTitle] = useState('')
   const [level, setLevel] = useState<ExperienceLevel>('mid')
   const [targetRole, setTargetRole] = useState('')
@@ -114,7 +116,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   })
 
   function handleCreate() {
-    startTransition(async () => {
+    startCreateTransition(async () => {
       try {
         const resumeId = await createResume({
           title: title || 'Untitled Resume',
@@ -136,7 +138,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
       return
     }
     setIsGenerating(true)
-    startTransition(async () => {
+    startCreateTransition(async () => {
       try {
         const resumeId = await generateTailoredResume({
           experience_level: level,
@@ -153,7 +155,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   }
 
   function handleDelete(id: string) {
-    startTransition(async () => {
+    startDeleteTransition(async () => {
       try {
         await deleteResume(id)
         setShowDelete(null)
@@ -165,7 +167,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   }
 
   function handleClone(id: string) {
-    startTransition(async () => {
+    startCloneTransition(async () => {
       try {
         const resumeId = await cloneResume(id, cloneTitle || 'Cloned Resume')
         toast.success('Resume cloned')
@@ -282,10 +284,14 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                 {masterResume.short_id && (
                   <Button
                     variant="outline"
-                    onClick={() => {
+                    onClick={async () => {
                       const url = `${window.location.origin}/r/${masterResume.short_id}`
-                      navigator.clipboard.writeText(url)
-                      toast.success('Share link copied to clipboard')
+                      try {
+                        await navigator.clipboard.writeText(url)
+                        toast.success('Share link copied to clipboard')
+                      } catch {
+                        toast.error('Failed to copy link')
+                      }
                     }}
                   >
                     <Share2 className="mr-2 h-4 w-4" />
@@ -412,7 +418,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                             size="icon"
                             aria-label="Resume actions"
                             className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-                            onClick={(e) => e.preventDefault()}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
@@ -421,6 +427,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.preventDefault()
+                              e.stopPropagation()
                               setCloneTitle(`${resume.title} (Copy)`)
                               setShowClone(resume.id)
                             }}
@@ -432,6 +439,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                             className="text-destructive"
                             onClick={(e) => {
                               e.preventDefault()
+                              e.stopPropagation()
                               setShowDelete(resume.id)
                             }}
                           >
@@ -467,6 +475,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                         className="h-7 gap-1 px-2 text-xs opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                         onClick={(e) => {
                           e.preventDefault()
+                          e.stopPropagation()
                           router.push(`/admin/resume-builder/${resume.id}/edit`)
                         }}
                       >
@@ -588,7 +597,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                   </Button>
                   <Button
                     onClick={handleGenerate}
-                    disabled={isGenerating || isPending}
+                    disabled={isGenerating || isCreating}
                     className="flex-1"
                   >
                     {isGenerating ? (
@@ -663,10 +672,10 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                   </Button>
                   <Button
                     onClick={handleCreate}
-                    disabled={isPending}
+                    disabled={isCreating}
                     className="flex-1"
                   >
-                    {isPending ? 'Creating...' : 'Create Resume'}
+                    {isCreating ? 'Creating...' : 'Create Resume'}
                   </Button>
                 </div>
               </div>
@@ -678,7 +687,10 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
       {/* Clone Dialog */}
       <Dialog
         open={!!showClone}
-        onOpenChange={() => setShowClone(null)}
+        onOpenChange={(open) => {
+          if (!open && isCloning) return
+          if (!open) setShowClone(null)
+        }}
       >
         <DialogContent>
           <DialogHeader>
@@ -698,10 +710,10 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
             </div>
             <Button
               onClick={() => showClone && handleClone(showClone)}
-              disabled={isPending}
+              disabled={isCloning}
               className="w-full"
             >
-              {isPending ? 'Cloning...' : 'Clone Resume'}
+              {isCloning ? 'Cloning...' : 'Clone Resume'}
             </Button>
           </div>
         </DialogContent>
@@ -710,7 +722,10 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
       {/* Delete Confirmation */}
       <Dialog
         open={!!showDelete}
-        onOpenChange={() => setShowDelete(null)}
+        onOpenChange={(open) => {
+          if (!open && isDeleting) return
+          if (!open) setShowDelete(null)
+        }}
       >
         <DialogContent>
           <DialogHeader>
@@ -731,10 +746,10 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
             <Button
               variant="destructive"
               onClick={() => showDelete && handleDelete(showDelete)}
-              disabled={isPending}
+              disabled={isDeleting}
               className="flex-1"
             >
-              {isPending ? 'Deleting...' : 'Delete'}
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </Button>
           </div>
         </DialogContent>
