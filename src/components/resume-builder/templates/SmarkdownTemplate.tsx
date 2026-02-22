@@ -1,5 +1,5 @@
 import type { ResumeWithRelations } from '@/types/resume-builder'
-import { getDateRange, getVisibleSections, getContactLinks, getTemplateStyles } from './shared'
+import { getDateRange, getVisibleSections, getContactLinks, getTemplateStyles, visibleExperiences, TEMPLATE_IDS } from './shared'
 
 interface Props {
   resume: ResumeWithRelations
@@ -10,22 +10,23 @@ export function SmarkdownTemplate({ resume }: Props) {
   const dateFormat = resume.settings?.date_format ?? 'month_year'
   const sections = getVisibleSections(resume)
   const links = getContactLinks(resume)
-  const { accent, font, density } = getTemplateStyles(resume.settings)
+  const { accent, font, density, margin, nameSize, uppercase } = getTemplateStyles(resume.settings, TEMPLATE_IDS.smarkdown)
 
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     contact: () => null,
     summary: () =>
       resume.summary?.is_visible && resume.summary?.text ? (
-        <Section title="Summary" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="Summary" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           <p style={{ lineHeight: density.lineHeight, color: '#333', margin: 0, fontSize: density.body }}>
             {resume.summary.text}
           </p>
         </Section>
       ) : null,
-    experience: () =>
-      resume.work_experiences.length > 0 ? (
-        <Section title="Experience" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
-          {resume.work_experiences.map((exp) => (
+    experience: () => {
+      const exps = visibleExperiences(resume)
+      return exps.length > 0 ? (
+        <Section title="Experience" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
+          {exps.map((exp) => (
             <div key={exp.id} style={{ marginBottom: density.sectionGap }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <div>
@@ -51,10 +52,11 @@ export function SmarkdownTemplate({ resume }: Props) {
             </div>
           ))}
         </Section>
-      ) : null,
+      ) : null
+    },
     education: () =>
       resume.education.length > 0 ? (
-        <Section title="Education" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="Education" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.education.map((edu) => (
             <div key={edu.id} style={{ marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -75,7 +77,7 @@ export function SmarkdownTemplate({ resume }: Props) {
       ) : null,
     skills: () =>
       resume.skill_categories.length > 0 ? (
-        <Section title="Skills" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="Skills" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.skill_categories.map((cat) => (
             <div key={cat.id} style={{ marginBottom: '4px', fontSize: density.body }}>
               <span style={{ fontWeight: 700 }}>{cat.name}: </span>
@@ -86,7 +88,7 @@ export function SmarkdownTemplate({ resume }: Props) {
       ) : null,
     projects: () =>
       resume.projects.length > 0 ? (
-        <Section title="Projects" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="Projects" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.projects.map((proj) => (
             <div key={proj.id} style={{ marginBottom: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
@@ -115,7 +117,7 @@ export function SmarkdownTemplate({ resume }: Props) {
       ) : null,
     certifications: () =>
       resume.certifications.length > 0 ? (
-        <Section title="Certifications" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="Certifications" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.certifications.map((cert) => (
             <div key={cert.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: density.body }}>
               <span>
@@ -133,7 +135,7 @@ export function SmarkdownTemplate({ resume }: Props) {
       ) : null,
     extracurriculars: () =>
       resume.extracurriculars.length > 0 ? (
-        <Section title="Activities" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="Activities" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.extracurriculars.map((item) => (
             <div key={item.id} style={{ marginBottom: '4px', fontSize: density.body }}>
               <span style={{ fontWeight: 700 }}>{item.title}</span>
@@ -149,7 +151,7 @@ export function SmarkdownTemplate({ resume }: Props) {
       style={{
         fontFamily: font,
         color: '#222',
-        padding: '1in',
+        padding: margin,
         fontSize: density.body,
         lineHeight: density.lineHeight,
         background: '#fff',
@@ -158,7 +160,7 @@ export function SmarkdownTemplate({ resume }: Props) {
       {/* Header */}
       <div style={{ marginBottom: density.sectionGap }}>
         <h1 style={{
-          fontSize: '28px',
+          fontSize: `${nameSize}px`,
           fontWeight: 700,
           margin: 0,
           paddingBottom: '6px',
@@ -172,7 +174,7 @@ export function SmarkdownTemplate({ resume }: Props) {
             <a href={`mailto:${ci.email}`} style={{ color: accent, textDecoration: 'none' }}>{ci.email}</a>
           )}
           {ci?.phone && <span>| {ci.phone}</span>}
-          {(ci?.city || ci?.country) && <span>| {[ci?.city, ci?.country].filter(Boolean).join(', ')}</span>}
+          {(ci?.city || ci?.state || ci?.country) && <span>| {[ci?.city, ci?.state, ci?.country].filter(Boolean).join(', ')}</span>}
           {links.map((link, i) => (
             <span key={i}>
               | <a href={link.url} style={{ color: accent, textDecoration: 'none' }}>
@@ -192,7 +194,7 @@ export function SmarkdownTemplate({ resume }: Props) {
   )
 }
 
-function Section({ title, accent, sectionSize, sectionGap, children }: { title: string; accent: string; sectionSize: string; sectionGap: string; children: React.ReactNode }) {
+function Section({ title, accent, sectionSize, sectionGap, uppercase, children }: { title: string; accent: string; sectionSize: string; sectionGap: string; uppercase: boolean; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: sectionGap }}>
       <h2 style={{
@@ -204,7 +206,7 @@ function Section({ title, accent, sectionSize, sectionGap, children }: { title: 
         borderBottom: '1px solid #d1d5db',
       }}>
         <span style={{ color: accent, fontWeight: 400, marginRight: '4px' }}>##</span>
-        {title}
+        <span style={{ textTransform: uppercase ? 'uppercase' : 'none' }}>{title}</span>
       </h2>
       {children}
     </div>

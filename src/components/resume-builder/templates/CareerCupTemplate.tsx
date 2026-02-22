@@ -1,5 +1,5 @@
 import type { ResumeWithRelations } from '@/types/resume-builder'
-import { getDateRange, getVisibleSections, getContactLinks, getTemplateStyles } from './shared'
+import { getDateRange, getVisibleSections, getContactLinks, getTemplateStyles, visibleExperiences, TEMPLATE_IDS } from './shared'
 
 interface Props {
   resume: ResumeWithRelations
@@ -10,22 +10,23 @@ export function CareerCupTemplate({ resume }: Props) {
   const dateFormat = resume.settings?.date_format ?? 'month_year'
   const sections = getVisibleSections(resume)
   const links = getContactLinks(resume)
-  const { accent, font, density } = getTemplateStyles(resume.settings)
+  const { accent, font, density, margin, nameSize, uppercase } = getTemplateStyles(resume.settings, TEMPLATE_IDS.careercup)
 
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     contact: () => null,
     summary: () =>
       resume.summary?.is_visible && resume.summary?.text ? (
-        <Section title="SUMMARY" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="SUMMARY" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           <p style={{ lineHeight: density.lineHeight, color: '#222', margin: 0, fontSize: density.body }}>
             {resume.summary.text}
           </p>
         </Section>
       ) : null,
-    experience: () =>
-      resume.work_experiences.length > 0 ? (
-        <Section title="EXPERIENCE" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
-          {resume.work_experiences.map((exp) => (
+    experience: () => {
+      const exps = visibleExperiences(resume)
+      return exps.length > 0 ? (
+        <Section title="EXPERIENCE" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
+          {exps.map((exp) => (
             <div key={exp.id} style={{ marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <span style={{ fontWeight: 700, fontSize: density.heading }}>{exp.company}</span>
@@ -51,10 +52,11 @@ export function CareerCupTemplate({ resume }: Props) {
             </div>
           ))}
         </Section>
-      ) : null,
+      ) : null
+    },
     education: () =>
       resume.education.length > 0 ? (
-        <Section title="EDUCATION" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="EDUCATION" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.education.map((edu) => (
             <div key={edu.id} style={{ marginBottom: '6px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -74,7 +76,7 @@ export function CareerCupTemplate({ resume }: Props) {
       ) : null,
     skills: () =>
       resume.skill_categories.length > 0 ? (
-        <Section title="TECHNICAL SKILLS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="TECHNICAL SKILLS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.skill_categories.map((cat) => (
             <div key={cat.id} style={{ marginBottom: '2px', fontSize: density.body }}>
               <span style={{ fontWeight: 700 }}>{cat.name}: </span>
@@ -85,7 +87,7 @@ export function CareerCupTemplate({ resume }: Props) {
       ) : null,
     projects: () =>
       resume.projects.length > 0 ? (
-        <Section title="PROJECTS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="PROJECTS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.projects.map((proj) => (
             <div key={proj.id} style={{ marginBottom: '6px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -116,7 +118,7 @@ export function CareerCupTemplate({ resume }: Props) {
       ) : null,
     certifications: () =>
       resume.certifications.length > 0 ? (
-        <Section title="CERTIFICATIONS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="CERTIFICATIONS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.certifications.map((cert) => (
             <div key={cert.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px', fontSize: density.body }}>
               <span>
@@ -134,7 +136,7 @@ export function CareerCupTemplate({ resume }: Props) {
       ) : null,
     extracurriculars: () =>
       resume.extracurriculars.length > 0 ? (
-        <Section title="ACTIVITIES & LEADERSHIP" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="ACTIVITIES & LEADERSHIP" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.extracurriculars.map((item) => (
             <div key={item.id} style={{ marginBottom: '2px', fontSize: density.body }}>
               <span style={{ fontWeight: 700 }}>{item.title}</span>
@@ -150,7 +152,7 @@ export function CareerCupTemplate({ resume }: Props) {
       style={{
         fontFamily: font,
         color: '#000',
-        padding: '0.6in',
+        padding: margin,
         fontSize: density.body,
         lineHeight: density.lineHeight,
         background: '#fff',
@@ -158,14 +160,14 @@ export function CareerCupTemplate({ resume }: Props) {
     >
       {/* Header - Centered */}
       <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '2px' }}>
+        <h1 style={{ fontSize: `${nameSize}px`, fontWeight: 700, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '2px' }}>
           {ci?.full_name || 'Your Name'}
         </h1>
         <div style={{ fontSize: density.body, color: '#333' }}>
           {[
             ci?.email,
             ci?.phone,
-            (ci?.city || ci?.country) ? [ci?.city, ci?.country].filter(Boolean).join(', ') : null,
+            (ci?.city || ci?.state || ci?.country) ? [ci?.city, ci?.state, ci?.country].filter(Boolean).join(', ') : null,
             ...links.map((l) => l.url.replace(/https?:\/\/(www\.)?/, '').replace(/\/$/, '')),
           ]
             .filter(Boolean)
@@ -183,13 +185,13 @@ export function CareerCupTemplate({ resume }: Props) {
   )
 }
 
-function Section({ title, accent, sectionSize, sectionGap, children }: { title: string; accent: string; sectionSize: string; sectionGap: string; children: React.ReactNode }) {
+function Section({ title, accent, sectionSize, sectionGap, uppercase, children }: { title: string; accent: string; sectionSize: string; sectionGap: string; uppercase: boolean; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: sectionGap }}>
       <h2 style={{
         fontSize: sectionSize,
         fontWeight: 700,
-        textTransform: 'uppercase',
+        textTransform: uppercase ? 'uppercase' : 'none',
         letterSpacing: '1px',
         marginBottom: '4px',
         color: '#000',

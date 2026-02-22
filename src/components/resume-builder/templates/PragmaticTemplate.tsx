@@ -1,5 +1,5 @@
 import type { ResumeWithRelations } from '@/types/resume-builder'
-import { getDateRange, getVisibleSections, getContactLinks, getTemplateStyles } from './shared'
+import { getDateRange, getVisibleSections, getContactLinks, getTemplateStyles, visibleExperiences, TEMPLATE_IDS } from './shared'
 
 interface Props {
   resume: ResumeWithRelations
@@ -10,22 +10,23 @@ export function PragmaticTemplate({ resume }: Props) {
   const dateFormat = resume.settings?.date_format ?? 'month_year'
   const sections = getVisibleSections(resume)
   const links = getContactLinks(resume)
-  const { accent, font, density } = getTemplateStyles(resume.settings)
+  const { accent, font, density, margin, nameSize, uppercase } = getTemplateStyles(resume.settings, TEMPLATE_IDS.pragmatic)
 
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     contact: () => null, // Rendered in header
     summary: () =>
       resume.summary?.is_visible && resume.summary?.text ? (
-        <Section title="SUMMARY" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="SUMMARY" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           <p style={{ lineHeight: density.lineHeight, color: '#374151', fontSize: density.body }}>
             {resume.summary.text}
           </p>
         </Section>
       ) : null,
-    experience: () =>
-      resume.work_experiences.length > 0 ? (
-        <Section title="EXPERIENCE" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
-          {resume.work_experiences.map((exp) => (
+    experience: () => {
+      const exps = visibleExperiences(resume)
+      return exps.length > 0 ? (
+        <Section title="EXPERIENCE" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
+          {exps.map((exp) => (
             <div key={exp.id} style={{ marginBottom: density.sectionGap }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <div>
@@ -51,10 +52,11 @@ export function PragmaticTemplate({ resume }: Props) {
             </div>
           ))}
         </Section>
-      ) : null,
+      ) : null
+    },
     education: () =>
       resume.education.length > 0 ? (
-        <Section title="EDUCATION" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="EDUCATION" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.education.map((edu) => (
             <div key={edu.id} style={{ marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -75,7 +77,7 @@ export function PragmaticTemplate({ resume }: Props) {
       ) : null,
     skills: () =>
       resume.skill_categories.length > 0 ? (
-        <Section title="SKILLS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="SKILLS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.skill_categories.map((cat) => (
             <div key={cat.id} style={{ marginBottom: '4px', fontSize: density.body }}>
               <span style={{ fontWeight: 600 }}>{cat.name}: </span>
@@ -86,7 +88,7 @@ export function PragmaticTemplate({ resume }: Props) {
       ) : null,
     projects: () =>
       resume.projects.length > 0 ? (
-        <Section title="PROJECTS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="PROJECTS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.projects.map((proj) => (
             <div key={proj.id} style={{ marginBottom: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
@@ -115,7 +117,7 @@ export function PragmaticTemplate({ resume }: Props) {
       ) : null,
     certifications: () =>
       resume.certifications.length > 0 ? (
-        <Section title="CERTIFICATIONS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="CERTIFICATIONS" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.certifications.map((cert) => (
             <div key={cert.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: density.body }}>
               <span>
@@ -133,7 +135,7 @@ export function PragmaticTemplate({ resume }: Props) {
       ) : null,
     extracurriculars: () =>
       resume.extracurriculars.length > 0 ? (
-        <Section title="ACTIVITIES" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap}>
+        <Section title="ACTIVITIES" accent={accent} sectionSize={density.section} sectionGap={density.sectionGap} uppercase={uppercase}>
           {resume.extracurriculars.map((item) => (
             <div key={item.id} style={{ marginBottom: '4px', fontSize: density.body }}>
               <span style={{ fontWeight: 600 }}>{item.title}</span>
@@ -149,20 +151,20 @@ export function PragmaticTemplate({ resume }: Props) {
       style={{
         fontFamily: font,
         color: '#111827',
-        padding: '1in',
+        padding: margin,
         fontSize: density.body,
         lineHeight: density.lineHeight,
       }}
     >
       {/* Header */}
       <div style={{ marginBottom: density.sectionGap }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 700, margin: 0, letterSpacing: '-0.5px' }}>
+        <h1 style={{ fontSize: `${nameSize}px`, fontWeight: 700, margin: 0, letterSpacing: '-0.5px' }}>
           {ci?.full_name || 'Your Name'}
         </h1>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px', fontSize: density.body, color: '#6b7280' }}>
           {ci?.email && <span>{ci.email}</span>}
           {ci?.phone && <span>· {ci.phone}</span>}
-          {(ci?.city || ci?.country) && <span>· {[ci?.city, ci?.country].filter(Boolean).join(', ')}</span>}
+          {(ci?.city || ci?.state || ci?.country) && <span>· {[ci?.city, ci?.state, ci?.country].filter(Boolean).join(', ')}</span>}
           {links.map((link, i) => (
             <span key={i}>
               · <a href={link.url} style={{ color: accent, textDecoration: 'none' }}>
@@ -183,13 +185,13 @@ export function PragmaticTemplate({ resume }: Props) {
   )
 }
 
-function Section({ title, accent, sectionSize, sectionGap, children }: { title: string; accent: string; sectionSize: string; sectionGap: string; children: React.ReactNode }) {
+function Section({ title, accent, sectionSize, sectionGap, uppercase, children }: { title: string; accent: string; sectionSize: string; sectionGap: string; uppercase: boolean; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: sectionGap }}>
       <h2 style={{
         fontSize: sectionSize,
         fontWeight: 700,
-        textTransform: 'uppercase',
+        textTransform: uppercase ? 'uppercase' : 'none',
         letterSpacing: '1px',
         marginBottom: '8px',
         color: accent,
