@@ -300,6 +300,22 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
             </SheetContent>
           </Sheet>
 
+          {/* Mobile preview button */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="h-8 w-8 md:hidden">
+                <Eye className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[90vh] p-0">
+              <SheetTitle className="sr-only">Resume Preview</SheetTitle>
+              <div className="h-full overflow-auto bg-gray-100 p-4 dark:bg-gray-900">
+                <ResumePreviewPane resume={resume} />
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          {/* Desktop preview toggle */}
           <Button
             variant="outline"
             size="icon"
