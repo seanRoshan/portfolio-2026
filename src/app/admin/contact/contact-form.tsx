@@ -3,7 +3,16 @@
 import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { Plus, Trash2, GripVertical } from "lucide-react"
+import {
+  Plus,
+  Trash2,
+  GripVertical,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Loader2,
+} from "lucide-react"
 import {
   DndContext,
   closestCenter,
@@ -24,6 +33,7 @@ import { CSS } from "@dnd-kit/utilities"
 import { updateContactInfo, type ContactInfoFormValues } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import {
   Form,
@@ -128,6 +138,49 @@ function SortableSocialRow({
   )
 }
 
+/* ── helper components ─────────────────────────── */
+
+function GroupCard({
+  label,
+  icon: Icon,
+  children,
+}: {
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+  children: React.ReactNode
+}) {
+  return (
+    <div className="bg-muted/30 rounded-lg p-4 space-y-4">
+      <div className="flex items-center gap-1.5">
+        <Icon className="h-3 w-3 text-muted-foreground/50" />
+        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60 select-none">
+          {label}
+        </p>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function IconInput({
+  icon: Icon,
+  id,
+  className = "",
+  ...rest
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  id: string
+} & React.ComponentProps<typeof Input>) {
+  return (
+    <div className="relative">
+      <Icon className="text-muted-foreground/40 pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" />
+      <Input id={id} className={`h-9 pl-9 text-sm ${className}`} {...rest} />
+    </div>
+  )
+}
+
+/* ── main component ────────────────────────────── */
+
 interface ContactInfoFormProps {
   data: SiteSettings
 }
@@ -154,9 +207,22 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
 
   const form = useForm<ContactInfoFormValues>({
     defaultValues: {
+      full_name: data.full_name ?? "",
       contact_email: data.contact_email ?? "",
+      phone: data.phone ?? "",
+      city: data.city ?? "",
+      state: data.state ?? "",
+      country: data.country ?? "",
       contact_form_enabled: data.contact_form_enabled,
       social_links: data.social_links ?? {},
+      landing_show_email: data.landing_show_email ?? true,
+      landing_show_phone: data.landing_show_phone ?? false,
+      landing_show_location: data.landing_show_location ?? true,
+      landing_show_linkedin: data.landing_show_linkedin ?? true,
+      landing_show_github: data.landing_show_github ?? true,
+      landing_show_portfolio: data.landing_show_portfolio ?? true,
+      availability_text: data.availability_text ?? "Open to opportunities",
+      landing_show_availability: data.landing_show_availability ?? false,
     },
   })
 
@@ -209,43 +275,88 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* ── Section 1: Contact Details ──────────── */}
         <FormSection id="contact-details" title="Contact Details">
-          <FormField
-            control={form.control}
-            name="contact_email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Contact Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="you@example.com"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="contact_form_enabled"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                <div>
-                  <FormLabel>Contact Form</FormLabel>
-                  <FormDescription>
-                    Allow visitors to send messages via the contact form
-                  </FormDescription>
-                </div>
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          <GroupCard label="Identity" icon={User}>
+            <div className="space-y-1.5">
+              <Label htmlFor="full_name" className="text-xs font-medium">
+                Full Name
+              </Label>
+              <Input
+                id="full_name"
+                {...form.register("full_name")}
+                placeholder="Jane Doe"
+                className="h-10 font-medium"
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="contact_email" className="text-xs font-medium">
+                  Email
+                </Label>
+                <IconInput
+                  icon={Mail}
+                  id="contact_email"
+                  {...form.register("contact_email")}
+                  placeholder="jane@example.com"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="phone" className="text-xs font-medium">
+                  Phone
+                </Label>
+                <IconInput
+                  icon={Phone}
+                  id="phone"
+                  {...form.register("phone")}
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+            </div>
+          </GroupCard>
+
+          <GroupCard label="Location" icon={MapPin}>
+            <div className="grid grid-cols-[2fr_1fr_1fr] gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="city" className="text-xs font-medium">
+                  City
+                </Label>
+                <Input
+                  id="city"
+                  {...form.register("city")}
+                  placeholder="San Francisco"
+                  className="h-9 text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="state" className="text-xs font-medium">
+                  State
+                </Label>
+                <Input
+                  id="state"
+                  {...form.register("state")}
+                  placeholder="CA"
+                  className="h-9 text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="country" className="text-xs font-medium">
+                  Country
+                </Label>
+                <Input
+                  id="country"
+                  {...form.register("country")}
+                  placeholder="USA"
+                  className="h-9 text-sm"
+                />
+              </div>
+            </div>
+          </GroupCard>
+
         </FormSection>
 
+        {/* ── Section 2: Social Links ────────────── */}
         <FormSection id="social-links" title="Social Links" description="Select platform and enter URL">
           <div className="space-y-2">
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -269,8 +380,144 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
           </Button>
         </FormSection>
 
+        {/* ── Section 3: Landing Page Visibility ─── */}
+        <FormSection
+          id="landing-visibility"
+          title="Landing Page Visibility"
+          description="Control which contact details appear on your public landing page"
+        >
+          <div className="space-y-2">
+            <FormField
+              control={form.control}
+              name="landing_show_email"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <FormLabel className="font-normal">Email Address</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="landing_show_phone"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <FormLabel className="font-normal">Phone Number</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="landing_show_location"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <FormLabel className="font-normal">Location</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="landing_show_linkedin"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <FormLabel className="font-normal">LinkedIn</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="landing_show_github"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <FormLabel className="font-normal">GitHub</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="landing_show_portfolio"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <FormLabel className="font-normal">Portfolio</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="landing_show_availability"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <FormLabel className="font-normal">Availability Status</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {form.watch("landing_show_availability") && (
+            <div className="space-y-1.5">
+              <Label htmlFor="availability_text" className="text-xs font-medium">
+                Status Text
+              </Label>
+              <Input
+                id="availability_text"
+                {...form.register("availability_text")}
+                placeholder="Open to opportunities"
+                className="h-9 text-sm"
+              />
+            </div>
+          )}
+        </FormSection>
+
+        {/* ── Section 4: Contact Form ────────────── */}
+        <FormSection id="contact-form" title="Contact Form">
+          <FormField
+            control={form.control}
+            name="contact_form_enabled"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                <div>
+                  <FormLabel>Contact Form</FormLabel>
+                  <FormDescription>
+                    Allow visitors to send messages via the contact form
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </FormSection>
+
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : "Save Changes"}
+          {isPending ? (
+            <>
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save Changes"
+          )}
         </Button>
       </form>
     </Form>

@@ -30,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: { absolute: config.siteTitle },
+    alternates: { canonical: config.siteUrl || undefined },
   }
 }
 

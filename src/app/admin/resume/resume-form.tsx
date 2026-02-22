@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/form"
 import { FormSection } from "@/components/admin/form-section"
 import { DynamicList } from "@/components/admin/dynamic-list"
-import { ResumePreview } from "@/components/resume/ResumePreview"
+import { MasterResumePreview } from "@/components/resume/MasterResumePreview"
 import type {
   Resume,
   Skill,
@@ -128,6 +128,8 @@ export function ResumeForm({
         role: e.role,
         location: e.location,
         period: `${startStr} – ${endStr}`,
+        start_date: e.start_date,
+        end_date: e.end_date ?? null,
         achievements: e.resume_achievements ?? e.achievements ?? [],
       }
     })
@@ -595,30 +597,27 @@ export function ResumeForm({
       </div>
 
       {/* Preview — right column (hidden on mobile) */}
-      <div className="sticky top-20 hidden w-[380px] shrink-0 lg:block">
-        <p className="text-muted-foreground mb-2 text-sm font-medium">Preview</p>
-        <div className="max-h-[calc(100vh-120px)] overflow-y-auto rounded-lg border">
-          <ResumePreview
-            data={{
-              full_name: watched.full_name ?? "",
-              title: watched.title ?? "",
-              email: watched.email ?? null,
-              phone: watched.phone ?? null,
-              location: watched.location ?? null,
-              website: watched.website ?? null,
-              linkedin: watched.linkedin ?? null,
-              github: watched.github ?? null,
-              summary: watched.summary ?? null,
-              additional_sections: (watched.additional_sections ?? []).filter(
-                (s) => s?.title,
-              ) as AdditionalSectionEntry[],
-            }}
-            skills={resumeSkillsForPreview}
-            experience={experienceForPreview}
-            education={educationEntries.filter((e) => e.show_on_resume)}
-            certifications={certificationEntries.filter((c) => c.show_on_resume)}
-          />
-        </div>
+      <div className="sticky top-20 hidden w-[460px] shrink-0 lg:block">
+        <MasterResumePreview
+          data={{
+            full_name: watched.full_name ?? "",
+            title: watched.title ?? "",
+            email: watched.email ?? null,
+            phone: watched.phone ?? null,
+            location: watched.location ?? null,
+            website: watched.website ?? null,
+            linkedin: watched.linkedin ?? null,
+            github: watched.github ?? null,
+            summary: watched.summary ?? null,
+            additional_sections: (watched.additional_sections ?? []).filter(
+              (s) => s?.title,
+            ) as AdditionalSectionEntry[],
+          }}
+          skills={resumeSkillsForPreview}
+          experience={experienceForPreview}
+          education={educationEntries.filter((e) => e.show_on_resume)}
+          certifications={certificationEntries.filter((c) => c.show_on_resume)}
+        />
       </div>
     </div>
   )

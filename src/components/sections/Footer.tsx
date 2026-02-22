@@ -16,9 +16,21 @@ interface FooterProps {
     description: string
     url: string
     email: string
+    phone: string
     location: string
     availability: string
     socials: Record<string, string>
+    linkedinUrl: string
+    githubUrl: string
+    portfolioUrl: string
+    visibility: {
+      email: boolean
+      phone: boolean
+      location: boolean
+      linkedin: boolean
+      github: boolean
+      portfolio: boolean
+    }
     linkAnimations: { header: string; footer: string }
   } | null
   navLinks: { label: string; href: string }[]
@@ -31,9 +43,14 @@ const defaultSiteConfig: NonNullable<FooterProps["siteConfig"]> = {
   description: "",
   url: "",
   email: "",
+  phone: "",
   location: "",
   availability: "",
   socials: {},
+  linkedinUrl: "",
+  githubUrl: "",
+  portfolioUrl: "",
+  visibility: { email: true, phone: false, location: true, linkedin: true, github: true, portfolio: true },
   linkAnimations: { header: "underline-slide", footer: "underline-slide" },
 }
 
@@ -69,8 +86,20 @@ export function Footer({ siteConfig: siteConfigProp, navLinks, venturesData = []
   const siteConfig = siteConfigProp ?? defaultSiteConfig
   const currentYear = new Date().getFullYear()
 
+  // Map social platform keys to visibility flags
+  const socialVisibility: Record<string, keyof typeof siteConfig.visibility> = {
+    linkedin: "linkedin",
+    github: "github",
+    website: "portfolio",
+    portfolio: "portfolio",
+  }
+
   const socials = Object.entries(siteConfig.socials)
-    .filter(([, url]) => url?.trim())
+    .filter(([key, url]) => {
+      if (!url?.trim()) return false
+      const visKey = socialVisibility[key]
+      return visKey ? siteConfig.visibility[visKey] : true
+    })
     .map(([key, url]) => ({ name: formatSocialName(key), url }))
 
   return (

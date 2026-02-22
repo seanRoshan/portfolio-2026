@@ -10,15 +10,26 @@ export function personAndWebsiteJsonLd(config: SiteConfig) {
     {
       "@context": "https://schema.org",
       "@type": "Person",
+      "@id": `${config.siteUrl}/#person`,
       name: config.name,
+      alternateName: "Shahriyar Valielahiroshan",
       url: config.siteUrl,
-      ...(config.avatarUrl && { image: config.avatarUrl }),
+      jobTitle: "Software Engineer",
+      knowsAbout: [
+        "Software Engineering",
+        "Web Development",
+        "TypeScript",
+        "React",
+        "Next.js",
+      ],
+      image: `${config.siteUrl}/images/profile-1000x1333.jpg`,
       ...(config.siteDescription && { description: config.siteDescription }),
       ...(sameAs.length > 0 && { sameAs }),
     },
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": `${config.siteUrl}/#website`,
       name: config.siteTitle,
       url: config.siteUrl,
       ...(config.siteDescription && { description: config.siteDescription }),
@@ -53,6 +64,7 @@ export function articleJsonLd(
     ...(post.tags && post.tags.length > 0 && { keywords: post.tags.join(", ") }),
     author: {
       "@type": "Person",
+      "@id": `${author.siteUrl}/#person`,
       name: author.name,
       url: author.siteUrl,
     },
@@ -90,10 +102,40 @@ export function profilePageJsonLd(config: SiteConfig) {
     url: `${config.siteUrl}/resume`,
     mainEntity: {
       "@type": "Person",
+      "@id": `${config.siteUrl}/#person`,
       name: config.name,
       url: config.siteUrl,
+      ...(config.avatarUrl && { image: config.avatarUrl }),
       ...(config.siteDescription && { description: config.siteDescription }),
       ...(sameAs.length > 0 && { sameAs }),
     },
+  }
+}
+
+/**
+ * BreadcrumbList schema for site hierarchy.
+ * "Home" is always position 1, followed by the provided items.
+ */
+export function breadcrumbJsonLd(
+  siteUrl: string,
+  items: { name: string; path: string }[],
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      ...items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 2,
+        name: item.name,
+        item: `${siteUrl}${item.path}`,
+      })),
+    ],
   }
 }

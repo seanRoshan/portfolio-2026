@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { getBlogPosts, getAllBlogTags } from "@/lib/queries"
 import { getCachedSiteConfig } from "@/lib/seo"
-import { collectionPageJsonLd } from "@/lib/json-ld"
+import { collectionPageJsonLd, breadcrumbJsonLd } from "@/lib/json-ld"
 import { JsonLd } from "@/components/JsonLd"
 import { BlogListing } from "./blog-listing"
 
@@ -18,6 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: config ? `Blog — ${config.name}` : "Blog",
       description,
     },
+    alternates: { canonical: config ? `${config.siteUrl}/blog` : undefined },
   }
 }
 
@@ -37,7 +38,14 @@ export default async function BlogPage({
 
   return (
     <main className="min-h-screen pt-24 pb-16">
-      {config && <JsonLd data={collectionPageJsonLd(config)} />}
+      {config && (
+        <JsonLd
+          data={[
+            collectionPageJsonLd(config),
+            breadcrumbJsonLd(config.siteUrl, [{ name: "Blog", path: "/blog" }]),
+          ]}
+        />
+      )}
       <div className="container-wide">
         <div className="mb-12">
           <h1 className="mb-3 text-[length:var(--text-4xl)] font-bold">Blog</h1>

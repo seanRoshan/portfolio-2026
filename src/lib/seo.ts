@@ -94,6 +94,7 @@ export async function buildRootMetadata(): Promise<Metadata> {
       },
     },
     alternates: {
+      canonical: siteUrl || undefined,
       types: {
         "application/rss+xml": "/blog/feed.xml",
       },

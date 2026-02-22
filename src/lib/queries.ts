@@ -13,18 +13,38 @@ export async function getSiteConfig() {
 
   if (!settings || !hero) return null
 
+  // Build location string from parts
+  const locationParts = [settings.city, settings.state, settings.country].filter(Boolean)
+  const location = locationParts.join(", ")
+
+  const socials = (settings.social_links as Record<string, string>) ?? {}
+
   return {
-    name: hero.name,
+    name: settings.full_name || hero.name,
     title: settings.site_title?.split("—")[1]?.trim() ?? "Developer",
     description: settings.site_description ?? "",
     url: process.env.NEXT_PUBLIC_SITE_URL ?? "",
     email: settings.contact_email ?? "",
-    location: "",
-    availability: "Open to opportunities",
-    socials: (settings.social_links as Record<string, string>) ?? {},
+    phone: settings.phone ?? "",
+    location,
+    availability: settings.availability_text || "Open to opportunities",
+    showAvailability: settings.landing_show_availability ?? false,
+    socials,
+    // Derive specific URLs from social_links JSONB
+    linkedinUrl: socials.linkedin ?? "",
+    githubUrl: socials.github ?? "",
+    portfolioUrl: socials.website ?? socials.portfolio ?? "",
     linkAnimations: (settings.link_animations as { header: string; footer: string }) ?? {
       header: "underline-slide",
       footer: "underline-slide",
+    },
+    visibility: {
+      email: settings.landing_show_email,
+      phone: settings.landing_show_phone,
+      location: settings.landing_show_location,
+      linkedin: settings.landing_show_linkedin,
+      github: settings.landing_show_github,
+      portfolio: settings.landing_show_portfolio,
     },
   }
 }
