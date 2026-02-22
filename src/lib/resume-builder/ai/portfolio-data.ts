@@ -24,6 +24,7 @@ export interface PortfolioData {
     achievements: string[]
     employment_type: string
     via_company: string | null
+    resume_achievements: string[] | null
   }>
   skills: Array<{ name: string; category: string }>
   education: Array<{
@@ -45,6 +46,8 @@ export interface PortfolioData {
     live_url: string | null
     github_url: string | null
     highlights: { metric: string; value: string }[]
+    long_description: string | null
+    project_role: string | null
   }>
   ventures: Array<{
     name: string
@@ -64,32 +67,22 @@ export interface PortfolioData {
 export async function fetchPortfolioData(): Promise<PortfolioData> {
   const supabase = await createClient()
 
-  const [
-    { data: hero },
-    { data: about },
-    { data: settings },
-    { data: resume },
-    { data: experience },
-    { data: skills },
-    { data: education },
-    { data: certifications },
-    { data: projects },
-    { data: ventures },
-  ] = await Promise.all([
+  // Use Promise.allSettled so one table failure doesn't kill the entire fetch
+  const results = await Promise.allSettled([
     supabase.from('hero_section').select('name').single(),
     supabase.from('about_section').select('bio').single(),
     supabase.from('site_settings').select('contact_email, social_links').single(),
     supabase
       .from('resume')
       .select('full_name, email, phone, location, website, linkedin, github')
-      .single(),
+      .maybeSingle(),
     supabase
       .from('experience')
       .select(
-        'company, role, location, start_date, end_date, achievements, employment_type, via_company'
+        'company, role, location, start_date, end_date, achievements, employment_type, via_company, resume_achievements'
       )
       .eq('published', true)
-      .order('sort_order'),
+      .order('start_date', { ascending: false }),
     supabase
       .from('skills')
       .select('name, category')
@@ -107,7 +100,7 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
       .order('sort_order'),
     supabase
       .from('projects')
-      .select('title, short_description, tech_stack, live_url, github_url, highlights')
+      .select('title, short_description, tech_stack, live_url, github_url, highlights, project_role, long_description')
       .eq('published', true)
       .order('sort_order'),
     supabase
@@ -117,15 +110,32 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
       .order('sort_order'),
   ])
 
+  // Extract data safely from settled results
+  const getData = <T>(idx: number): T | null => {
+    const r = results[idx]
+    if (r.status === 'fulfilled') return (r.value as { data: T }).data
+    return null
+  }
+  const hero = getData<{ name: string }>(0)
+  const about = getData<{ bio: string }>(1)
+  const settings = getData<{ contact_email: string; social_links: Record<string, string> }>(2)
+  const resume = getData<{ full_name: string; email: string; phone: string; location: string; website: string; linkedin: string; github: string }>(3)
+  const experience = getData<Array<Record<string, unknown>>>(4) ?? []
+  const skills = getData<Array<Record<string, unknown>>>(5) ?? []
+  const education = getData<Array<Record<string, unknown>>>(6) ?? []
+  const certifications = getData<Array<Record<string, unknown>>>(7) ?? []
+  const projects = getData<Array<Record<string, unknown>>>(8) ?? []
+  const ventures = getData<Array<Record<string, unknown>>>(9) ?? []
+
   const socialLinks = (settings?.social_links ?? {}) as Record<string, string>
 
   // Prefer resume table data, fall back to hero/settings
   const name = resume?.full_name ?? hero?.name ?? ''
-  const email = resume?.email ?? settings?.contact_email ?? null
+  const emailAddr = resume?.email ?? settings?.contact_email ?? null
 
   return {
     name,
-    email,
+    email: emailAddr,
     phone: resume?.phone ?? null,
     location: resume?.location ?? null,
     linkedin: resume?.linkedin ?? socialLinks.linkedin ?? null,
@@ -133,7 +143,7 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
     website: resume?.website ?? socialLinks.website ?? null,
     blog: socialLinks.blog ?? null,
     bio: about?.bio ?? null,
-    experiences: (experience ?? []).map((e) => ({
+    experiences: experience.map((e) => ({
       company: e.company as string,
       role: e.role as string,
       location: (e.location as string | null) ?? null,
@@ -142,32 +152,35 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
       achievements: (e.achievements as string[]) ?? [],
       employment_type: (e.employment_type as string) ?? 'direct',
       via_company: (e.via_company as string | null) ?? null,
+      resume_achievements: (e.resume_achievements as string[] | null) ?? null,
     })),
-    skills: (skills ?? []).map((s) => ({
+    skills: skills.map((s) => ({
       name: s.name as string,
       category: s.category as string,
     })),
-    education: (education ?? []).map((e) => ({
+    education: education.map((e) => ({
       school: e.school as string,
       degree: e.degree as string,
       field: (e.field as string | null) ?? null,
       year: (e.year as string | null) ?? null,
       details: (e.details as string | null) ?? null,
     })),
-    certifications: (certifications ?? []).map((c) => ({
+    certifications: certifications.map((c) => ({
       name: c.name as string,
       issuer: c.issuer as string,
       year: (c.year as string | null) ?? null,
     })),
-    projects: (projects ?? []).map((p) => ({
+    projects: projects.map((p) => ({
       title: p.title as string,
       short_description: p.short_description as string,
       tech_stack: (p.tech_stack as string[]) ?? [],
       live_url: (p.live_url as string | null) ?? null,
       github_url: (p.github_url as string | null) ?? null,
       highlights: (p.highlights as { metric: string; value: string }[]) ?? [],
+      long_description: (p.long_description as string | null) ?? null,
+      project_role: (p.project_role as string | null) ?? null,
     })),
-    ventures: (ventures ?? []).map((v) => ({
+    ventures: ventures.map((v) => ({
       name: v.name as string,
       role: v.role as string,
       description: (v.description as string | null) ?? null,
