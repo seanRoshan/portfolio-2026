@@ -47,3 +47,25 @@ export function getContactLinks(resume: ResumeWithRelations) {
   if (ci.blog_url) links.push({ label: 'Blog', url: ci.blog_url })
   return links
 }
+
+export const FONT_MAP: Record<string, string> = {
+  inter: '"Inter", system-ui, sans-serif',
+  source_sans: '"Source Sans 3", sans-serif',
+  lato: '"Lato", sans-serif',
+  georgia: '"Georgia", serif',
+  garamond: '"EB Garamond", serif',
+  source_code: '"Source Code Pro", monospace',
+}
+
+export const DENSITY_MAP: Record<string, { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }> = {
+  compact:     { body: '9px',  heading: '11px', section: '13px', lineHeight: '1.3', sectionGap: '8px' },
+  comfortable: { body: '10px', heading: '12px', section: '14px', lineHeight: '1.4', sectionGap: '12px' },
+  spacious:    { body: '11px', heading: '13px', section: '15px', lineHeight: '1.5', sectionGap: '16px' },
+}
+
+export function getTemplateStyles(settings: { accent_color?: string; font_family?: string; font_size_preset?: string } | null | undefined) {
+  const accent = settings?.accent_color || '#000000'
+  const font = FONT_MAP[settings?.font_family ?? 'inter'] ?? FONT_MAP.inter
+  const density = DENSITY_MAP[settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
+  return { accent, font, density }
+}
