@@ -34,6 +34,7 @@ import { ExtracurricularsSection } from './sections/ExtracurricularsSection'
 import { SettingsPanel } from './SettingsPanel'
 import { ResumePreviewPane } from '../templates/ResumePreviewPane'
 import { validateResume } from '@/lib/resume-builder/validation/rules'
+import { scoreResume } from '@/lib/resume-builder/ai/services'
 import type { ResumeWithRelations, ResumeTemplate } from '@/types/resume-builder'
 
 interface ResumeEditorProps {
@@ -67,10 +68,21 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
   )
 
   const handleDownloadPdf = useCallback(async () => {
+    if (criticalCount > 0) {
+      toast.warning('Resume has issues — PDF may have missing data', {
+        description: validationResults
+          .filter((r) => r.severity === 'critical')
+          .map((r) => r.message)
+          .join(', '),
+      })
+    }
     setIsGeneratingPdf(true)
     try {
       const res = await fetch(`/api/resume-builder/pdf?resumeId=${resume.id}`)
-      if (!res.ok) throw new Error('PDF generation failed')
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null)
+        throw new Error(errData?.error || `PDF generation failed (${res.status})`)
+      }
 
       const blob = await res.blob()
       const name = resume.contact_info?.full_name?.replace(/\s+/g, '_') || 'Resume'
@@ -81,12 +93,12 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
       a.click()
       URL.revokeObjectURL(url)
       toast.success('PDF downloaded')
-    } catch {
-      toast.error('Failed to generate PDF')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to generate PDF')
     } finally {
       setIsGeneratingPdf(false)
     }
-  }, [resume.id, resume.contact_info?.full_name])
+  }, [resume.id, resume.contact_info?.full_name, criticalCount, validationResults])
 
   const sectionMap: Record<string, React.ReactNode> = {
     contact: (
@@ -175,6 +187,15 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
               {warningCount} warnings
             </Badge>
           )}
+          {(() => {
+            const score = scoreResume(resume)
+            const variant = score.grade === 'A' || score.grade === 'B' ? 'secondary' : 'destructive'
+            return (
+              <Badge variant={variant} className="text-xs">
+                {score.grade} &middot; {score.overall}
+              </Badge>
+            )
+          })()}
         </div>
 
         <div className="ml-auto flex items-center gap-2">
@@ -202,7 +223,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
                 <Settings2 className="h-4 w-4" />
               </Button>
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent className="overflow-y-auto px-5">
               <SheetTitle>Resume Settings</SheetTitle>
               <SettingsPanel
                 resumeId={resume.id}
@@ -229,7 +250,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
             size="sm"
             className="h-8"
             onClick={handleDownloadPdf}
-            disabled={isGeneratingPdf || criticalCount > 0}
+            disabled={isGeneratingPdf}
           >
             <Download className="mr-1.5 h-3.5 w-3.5" />
             {isGeneratingPdf ? 'Generating...' : 'PDF'}

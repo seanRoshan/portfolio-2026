@@ -337,16 +337,18 @@ export interface AIRewriteResponse {
   improvements: string[]
 }
 
+export interface ResumeScoreDimension {
+  name: string
+  score: number
+  weight: number
+  feedback: string
+  suggestions: string[]
+}
+
 export interface ResumeScore {
   overall: number
-  dimensions: {
-    metricCoverage: { score: number; weight: number; details: string }
-    activeLanguage: { score: number; weight: number; details: string }
-    formattingConsistency: { score: number; weight: number; details: string }
-    sectionCompleteness: { score: number; weight: number; details: string }
-    keywordRelevance: { score: number; weight: number; details: string }
-    conciseness: { score: number; weight: number; details: string }
-  }
+  dimensions: ResumeScoreDimension[]
+  grade: 'A' | 'B' | 'C' | 'D' | 'F'
 }
 
 export interface JDMatchResult {

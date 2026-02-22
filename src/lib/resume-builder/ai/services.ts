@@ -2,6 +2,7 @@ import { getAnthropicClient } from './client'
 import type {
   AIRewriteResponse,
   ResumeScore,
+  ResumeScoreDimension,
   JDMatchResult,
   ResumeWithRelations,
 } from '@/types/resume-builder'
@@ -130,96 +131,303 @@ Respond with ONLY the summary text, no quotes or formatting.`
 }
 
 // ===== Resume Scorer =====
-export async function scoreResume(
+
+const BUZZWORDS = [
+  'team player', 'fast learner', 'self-starter', 'think outside the box',
+  'go-getter', 'hit the ground running', 'synergy', 'leverage', 'leveraged',
+  'paradigm shift', 'proactive', 'detail-oriented', 'results-driven',
+  'excellent communication', 'passionate', 'passionate about', 'hard worker',
+  'dynamic', 'guru', 'ninja', 'rockstar', 'visionary', 'world-class',
+]
+
+const STRONG_ACTION_VERBS = new Set([
+  'led', 'directed', 'managed', 'coordinated', 'spearheaded', 'championed',
+  'built', 'designed', 'architected', 'developed', 'implemented', 'created', 'launched',
+  'improved', 'optimized', 'enhanced', 'streamlined', 'accelerated', 'reduced',
+  'analyzed', 'evaluated', 'assessed', 'investigated', 'diagnosed',
+  'presented', 'documented', 'authored', 'published', 'mentored', 'trained',
+  'migrated', 'automated', 'deployed', 'configured', 'integrated', 'refactored',
+  'scaled', 'delivered', 'established', 'introduced', 'drove', 'enabled',
+  'pioneered', 'transformed', 'restructured', 'negotiated', 'secured',
+  'increased', 'decreased',
+])
+
+function computeGrade(score: number): 'A' | 'B' | 'C' | 'D' | 'F' {
+  if (score >= 85) return 'A'
+  if (score >= 70) return 'B'
+  if (score >= 55) return 'C'
+  if (score >= 40) return 'D'
+  return 'F'
+}
+
+export function scoreResume(
   resume: ResumeWithRelations
-): Promise<ResumeScore> {
-  // Calculate scores locally for speed (AI would be too slow for real-time)
+): ResumeScore {
   const allBullets = [
     ...resume.work_experiences.flatMap((e) => e.achievements ?? []),
     ...resume.projects.flatMap((p) => p.achievements ?? []),
   ]
-
   const totalBullets = allBullets.length
-  const bulletsWithMetrics = allBullets.filter((b) => /\d+/.test(b.text)).length
+  const dimensions: ResumeScoreDimension[] = []
 
-  const strongVerbs = new Set([
-    'led', 'built', 'designed', 'implemented', 'improved', 'optimized',
-    'developed', 'created', 'launched', 'architected', 'managed', 'reduced',
-    'increased', 'automated', 'streamlined', 'delivered', 'deployed',
-    'migrated', 'scaled', 'drove', 'spearheaded', 'championed',
-  ])
-  const bulletsWithVerbs = allBullets.filter((b) => {
-    const firstWord = b.text.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '')
-    return strongVerbs.has(firstWord ?? '')
-  }).length
+  // === 1. Content Completeness (20%) ===
+  const allSections = [
+    { name: 'Contact', filled: !!resume.contact_info?.full_name },
+    { name: 'Summary', filled: !!(resume.summary?.text && resume.summary.text.length > 0) },
+    { name: 'Experience', filled: resume.work_experiences.length > 0 },
+    { name: 'Education', filled: resume.education.length > 0 },
+    { name: 'Skills', filled: resume.skill_categories.length > 0 },
+    { name: 'Projects', filled: resume.projects.length > 0 },
+    { name: 'Certifications', filled: resume.certifications.length > 0 },
+    { name: 'Extracurriculars', filled: resume.extracurriculars.length > 0 },
+  ]
+  const filledCount = allSections.filter((s) => s.filled).length
+  const totalSections = allSections.length
 
-  const metricScore = totalBullets > 0 ? Math.round((bulletsWithMetrics / totalBullets) * 100) : 0
-  const verbScore = totalBullets > 0 ? Math.round((bulletsWithVerbs / totalBullets) * 100) : 0
+  const experiencesWithFewBullets = resume.work_experiences.filter(
+    (e) => (e.achievements?.length ?? 0) < 3
+  )
+  const hasSummary = !!(resume.summary?.text && resume.summary.text.length >= 20)
 
-  // Section completeness
-  const requiredSections = ['contact', 'experience', 'skills']
-  const filledSections = [
-    resume.contact_info?.full_name ? 'contact' : null,
-    resume.work_experiences.length > 0 ? 'experience' : null,
-    resume.skill_categories.length > 0 ? 'skills' : null,
-    resume.education.length > 0 ? 'education' : null,
-    resume.summary?.text ? 'summary' : null,
-  ].filter(Boolean)
+  const completenessDeductions: string[] = []
+  if (!hasSummary) completenessDeductions.push('Summary is missing or too short')
+  if (experiencesWithFewBullets.length > 0) {
+    completenessDeductions.push(
+      `${experiencesWithFewBullets.length} experience${experiencesWithFewBullets.length > 1 ? 's' : ''} ha${experiencesWithFewBullets.length > 1 ? 've' : 's'} fewer than 3 bullets`
+    )
+  }
+
   const completenessScore = Math.round(
-    (filledSections.length / Math.max(requiredSections.length + 2, 1)) * 100
+    (filledCount / totalSections) * 70 +
+    (hasSummary ? 15 : 0) +
+    (experiencesWithFewBullets.length === 0 && resume.work_experiences.length > 0 ? 15 : 0)
   )
 
-  // Conciseness (page estimate)
-  const totalChars = allBullets.reduce((sum, b) => sum + b.text.length, 0) +
-    (resume.summary?.text?.length ?? 0)
-  const concisenessScore = totalChars < 3000 ? 100 : totalChars < 5000 ? 75 : 50
+  dimensions.push({
+    name: 'Content Completeness',
+    score: Math.min(completenessScore, 100),
+    weight: 0.20,
+    feedback: `${filledCount} of ${totalSections} sections populated`,
+    suggestions: completenessDeductions,
+  })
 
+  // === 2. Metric Coverage (20%) ===
+  const bulletsWithMetrics = allBullets.filter((b) =>
+    /\d+[%+]?|\$[\d,]+/.test(b.text)
+  ).length
+  const metricScore = totalBullets > 0
+    ? Math.round((bulletsWithMetrics / totalBullets) * 100)
+    : 0
+
+  const metricSuggestions: string[] = []
+  if (totalBullets > 0 && bulletsWithMetrics < totalBullets) {
+    const missing = totalBullets - bulletsWithMetrics
+    metricSuggestions.push(
+      `Add quantifiable metrics to ${missing} more bullet${missing > 1 ? 's' : ''}`
+    )
+  }
+  if (totalBullets === 0) {
+    metricSuggestions.push('Add achievement bullets to your experiences and projects')
+  }
+
+  dimensions.push({
+    name: 'Metric Coverage',
+    score: metricScore,
+    weight: 0.20,
+    feedback: `${bulletsWithMetrics} of ${totalBullets} bullets include quantifiable metrics`,
+    suggestions: metricSuggestions,
+  })
+
+  // === 3. Action Verb Quality (15%) ===
+  const bulletsWithStrongVerbs = allBullets.filter((b) => {
+    const firstWord = b.text.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '')
+    return STRONG_ACTION_VERBS.has(firstWord ?? '')
+  }).length
+  const verbScore = totalBullets > 0
+    ? Math.round((bulletsWithStrongVerbs / totalBullets) * 100)
+    : 0
+
+  const verbSuggestions: string[] = []
+  if (totalBullets > 0 && bulletsWithStrongVerbs < totalBullets) {
+    const weak = totalBullets - bulletsWithStrongVerbs
+    verbSuggestions.push(
+      `${weak} bullet${weak > 1 ? 's' : ''} could start with stronger action verbs (Led, Built, Improved, etc.)`
+    )
+  }
+
+  dimensions.push({
+    name: 'Action Verb Quality',
+    score: verbScore,
+    weight: 0.15,
+    feedback: `${bulletsWithStrongVerbs} of ${totalBullets} bullets start with strong action verbs`,
+    suggestions: verbSuggestions,
+  })
+
+  // === 4. Buzzword-Free (15%) ===
+  const allText = [
+    resume.summary?.text ?? '',
+    ...allBullets.map((b) => b.text),
+  ].join(' ').toLowerCase()
+
+  const foundBuzzwords = BUZZWORDS.filter((bw) => allText.includes(bw))
+  const buzzwordScore = foundBuzzwords.length === 0
+    ? 100
+    : Math.max(0, 100 - foundBuzzwords.length * 20)
+
+  const buzzSuggestions: string[] = []
+  if (foundBuzzwords.length > 0) {
+    buzzSuggestions.push(
+      `Replace buzzwords with specific, measurable descriptions`
+    )
+  }
+
+  dimensions.push({
+    name: 'Buzzword-Free',
+    score: buzzwordScore,
+    weight: 0.15,
+    feedback: foundBuzzwords.length === 0
+      ? 'No buzzwords detected'
+      : `Found ${foundBuzzwords.length} buzzword${foundBuzzwords.length > 1 ? 's' : ''}: ${foundBuzzwords.map((b) => "'" + b + "'").join(', ')}`,
+    suggestions: buzzSuggestions,
+  })
+
+  // === 5. Length Appropriateness (10%) ===
+  const totalChars = allBullets.reduce((sum, b) => sum + b.text.length, 0) +
+    (resume.summary?.text?.length ?? 0) +
+    resume.skill_categories.reduce((sum, c) => sum + c.skills.join(', ').length, 0) +
+    resume.education.reduce((sum, e) => sum + (e.degree?.length ?? 0) + (e.institution?.length ?? 0), 0)
+
+  const pageLimit = resume.settings?.page_limit ?? 1
+  // Rough estimate: ~2500 chars per page of a resume
+  const expectedMaxChars = pageLimit * 2500
+  const expectedMinChars = pageLimit * 800
+
+  let lengthScore: number
+  let lengthFeedback: string
+  const lengthSuggestions: string[] = []
+
+  if (totalChars < expectedMinChars) {
+    lengthScore = Math.round((totalChars / expectedMinChars) * 60)
+    lengthFeedback = `Content is thin for a ${pageLimit}-page resume`
+    lengthSuggestions.push('Add more detail to experiences and projects to fill the page')
+  } else if (totalChars > expectedMaxChars * 1.3) {
+    lengthScore = Math.max(30, 100 - Math.round(((totalChars - expectedMaxChars) / expectedMaxChars) * 100))
+    lengthFeedback = `Content may overflow a ${pageLimit}-page resume`
+    lengthSuggestions.push('Trim bullet points or increase page limit to fit content')
+  } else {
+    lengthScore = 100
+    lengthFeedback = `Content length appropriate for ${pageLimit}-page resume`
+  }
+
+  dimensions.push({
+    name: 'Length Appropriateness',
+    score: Math.min(lengthScore, 100),
+    weight: 0.10,
+    feedback: lengthFeedback,
+    suggestions: lengthSuggestions,
+  })
+
+  // === 6. Section Balance (10%) ===
+  const sectionCharCounts: Record<string, number> = {
+    Experience: resume.work_experiences.reduce(
+      (sum, e) => sum + (e.achievements ?? []).reduce((s, a) => s + a.text.length, 0), 0
+    ),
+    Projects: resume.projects.reduce(
+      (sum, p) => sum + (p.description?.length ?? 0) + (p.achievements ?? []).reduce((s, a) => s + a.text.length, 0), 0
+    ),
+    Skills: resume.skill_categories.reduce((sum, c) => sum + c.skills.join(', ').length, 0),
+    Education: resume.education.reduce(
+      (sum, e) => sum + (e.degree?.length ?? 0) + (e.institution?.length ?? 0) + (e.honors?.length ?? 0), 0
+    ),
+    Summary: resume.summary?.text?.length ?? 0,
+  }
+
+  const totalContentChars = Object.values(sectionCharCounts).reduce((a, b) => a + b, 0)
+  let balanceScore = 100
+  const balanceSuggestions: string[] = []
+  let balanceFeedback = 'Section content is well balanced'
+
+  if (totalContentChars > 0) {
+    for (const [section, chars] of Object.entries(sectionCharCounts)) {
+      const pct = Math.round((chars / totalContentChars) * 100)
+      if (pct > 75) {
+        balanceScore = Math.max(30, 100 - (pct - 60))
+        balanceFeedback = `${section} section has ${pct}% of content — consider balancing`
+        balanceSuggestions.push(`Expand other sections or trim ${section} content`)
+        break
+      }
+    }
+  }
+
+  dimensions.push({
+    name: 'Section Balance',
+    score: balanceScore,
+    weight: 0.10,
+    feedback: balanceFeedback,
+    suggestions: balanceSuggestions,
+  })
+
+  // === 7. Formatting (10%) ===
+  const dates = resume.work_experiences
+    .flatMap((e) => [e.start_date, e.end_date])
+    .filter(Boolean) as string[]
+
+  let formattingScore = 100
+  let formattingFeedback = 'All dates use consistent format'
+  const formattingSuggestions: string[] = []
+
+  // Check for empty visible sections
+  const hiddenSet = new Set(resume.settings?.hidden_sections ?? [])
+  const sectionOrder = resume.settings?.section_order ?? []
+  const emptyVisibleSections: string[] = []
+
+  for (const section of sectionOrder) {
+    if (hiddenSet.has(section)) continue
+    const isEmpty =
+      (section === 'experience' && resume.work_experiences.length === 0) ||
+      (section === 'skills' && resume.skill_categories.length === 0) ||
+      (section === 'education' && resume.education.length === 0) ||
+      (section === 'projects' && resume.projects.length === 0) ||
+      (section === 'certifications' && resume.certifications.length === 0) ||
+      (section === 'extracurriculars' && resume.extracurriculars.length === 0) ||
+      (section === 'summary' && !resume.summary?.text)
+    if (isEmpty) emptyVisibleSections.push(section)
+  }
+
+  if (emptyVisibleSections.length > 0) {
+    formattingScore -= emptyVisibleSections.length * 15
+    formattingSuggestions.push(
+      `${emptyVisibleSections.length} visible section${emptyVisibleSections.length > 1 ? 's are' : ' is'} empty: ${emptyVisibleSections.join(', ')}`
+    )
+  }
+
+  // Check date consistency (all should parse as valid dates)
+  const invalidDates = dates.filter((d) => isNaN(new Date(d).getTime()))
+  if (invalidDates.length > 0) {
+    formattingScore -= 20
+    formattingFeedback = `${invalidDates.length} date${invalidDates.length > 1 ? 's' : ''} may have formatting issues`
+    formattingSuggestions.push('Review date formatting for consistency')
+  }
+
+  dimensions.push({
+    name: 'Formatting',
+    score: Math.max(0, Math.min(formattingScore, 100)),
+    weight: 0.10,
+    feedback: formattingFeedback,
+    suggestions: formattingSuggestions,
+  })
+
+  // === Calculate Overall Score ===
   const overall = Math.round(
-    metricScore * 0.25 +
-    verbScore * 0.20 +
-    100 * 0.15 + // formatting always 100 (we enforce it)
-    completenessScore * 0.15 +
-    75 * 0.15 + // keyword relevance placeholder
-    concisenessScore * 0.10
+    dimensions.reduce((sum, d) => sum + d.score * d.weight, 0)
   )
 
   return {
     overall,
-    dimensions: {
-      metricCoverage: {
-        score: metricScore,
-        weight: 0.25,
-        details: `${bulletsWithMetrics}/${totalBullets} bullets have metrics`,
-      },
-      activeLanguage: {
-        score: verbScore,
-        weight: 0.20,
-        details: `${bulletsWithVerbs}/${totalBullets} bullets start with strong verbs`,
-      },
-      formattingConsistency: {
-        score: 100,
-        weight: 0.15,
-        details: 'Template enforces consistent formatting',
-      },
-      sectionCompleteness: {
-        score: completenessScore,
-        weight: 0.15,
-        details: `${filledSections.length}/5 sections filled`,
-      },
-      keywordRelevance: {
-        score: 75,
-        weight: 0.15,
-        details: 'Add a job description to calculate keyword match',
-      },
-      conciseness: {
-        score: concisenessScore,
-        weight: 0.10,
-        details: `${totalChars} characters total`,
-      },
-    },
+    dimensions,
+    grade: computeGrade(overall),
   }
 }
-
 // ===== Job Description Matcher =====
 export async function matchJobDescription(
   resume: ResumeWithRelations,
