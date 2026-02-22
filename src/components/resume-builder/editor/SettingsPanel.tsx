@@ -14,6 +14,9 @@ import {
   RotateCcw,
   Check,
   ChevronsUpDown,
+  Maximize,
+  Heading1,
+  CaseSensitive,
 } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -50,10 +53,26 @@ const dateFormatOptions = [
   { value: 'year_only', label: '2024' },
 ]
 
+const marginOptions = [
+  { value: 'compact', label: 'Compact' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'wide', label: 'Wide' },
+]
+
+const TEMPLATES_WITH_BACKGROUND = new Set([
+  'a1b2c3d4-0005-4000-8000-000000000005', // Parker
+  'a1b2c3d4-0006-4000-8000-000000000006', // Experienced
+])
+
+const TEMPLATES_WITH_RIGHT_PANEL = new Set([
+  'a1b2c3d4-0005-4000-8000-000000000005', // Parker
+])
+
 interface Props {
   resumeId: string
   settings: ResumeSettings | null
   sectionOrder: string[]
+  templateId: string | null
 }
 
 function SettingRow({
@@ -145,7 +164,7 @@ function FontFamilyPicker({ value, onSelect, disabled }: { value: string; onSele
   )
 }
 
-export function SettingsPanel({ resumeId, settings, sectionOrder }: Props) {
+export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: Props) {
   const [isPending, startTransition] = useTransition()
 
   function handleUpdate(field: string, value: unknown) {
@@ -161,9 +180,11 @@ export function SettingsPanel({ resumeId, settings, sectionOrder }: Props) {
 
   const accentColor = settings?.accent_color ?? '#000000'
   const hiddenSet = new Set(settings?.hidden_sections ?? [])
+  const showBackground = TEMPLATES_WITH_BACKGROUND.has(templateId ?? '')
+  const showRightPanel = TEMPLATES_WITH_RIGHT_PANEL.has(templateId ?? '')
 
   return (
-    <div className="space-y-5 pt-4">
+    <div className="space-y-4 pt-4">
       {/* Appearance Section */}
       <SectionHeader title="Appearance" />
 
@@ -196,34 +217,67 @@ export function SettingsPanel({ resumeId, settings, sectionOrder }: Props) {
         </div>
       </SettingRow>
 
-      <SettingRow icon={Palette} label="Background Color" description="Sidebar or header background (Parker, Experienced)">
-        <div className="flex items-center gap-2">
-          <div className="relative">
+      {showBackground && (
+        <SettingRow icon={Palette} label="Background Color" description="Sidebar or header background (Parker, Experienced)">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Input
+                type="color"
+                defaultValue={settings?.background_color ?? '#374151'}
+                onChange={(e) => handleUpdate('background_color', e.target.value)}
+                className="h-9 w-12 cursor-pointer border-2 p-0.5"
+              />
+            </div>
             <Input
-              type="color"
+              key={settings?.background_color ?? '#374151'}
               defaultValue={settings?.background_color ?? '#374151'}
-              onChange={(e) => handleUpdate('background_color', e.target.value)}
-              className="h-9 w-12 cursor-pointer border-2 p-0.5"
+              onBlur={(e) => {
+                const val = e.target.value.trim()
+                if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                  handleUpdate('background_color', val)
+                }
+              }}
+              className="h-9 w-24 font-mono text-xs uppercase"
+              placeholder="#374151"
+            />
+            <div
+              className="h-9 w-9 shrink-0 rounded-md border"
+              style={{ backgroundColor: settings?.background_color ?? '#374151' }}
             />
           </div>
-          <Input
-            key={settings?.background_color ?? '#374151'}
-            defaultValue={settings?.background_color ?? '#374151'}
-            onBlur={(e) => {
-              const val = e.target.value.trim()
-              if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-                handleUpdate('background_color', val)
-              }
-            }}
-            className="h-9 w-24 font-mono text-xs uppercase"
-            placeholder="#374151"
-          />
-          <div
-            className="h-9 w-9 shrink-0 rounded-md border"
-            style={{ backgroundColor: settings?.background_color ?? '#374151' }}
-          />
-        </div>
-      </SettingRow>
+        </SettingRow>
+      )}
+
+      {showRightPanel && (
+        <SettingRow icon={Palette} label="Panel Color" description="Main content area background (Parker)">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Input
+                type="color"
+                defaultValue={settings?.right_panel_color ?? '#f9fafb'}
+                onChange={(e) => handleUpdate('right_panel_color', e.target.value)}
+                className="h-9 w-12 cursor-pointer border-2 p-0.5"
+              />
+            </div>
+            <Input
+              key={settings?.right_panel_color ?? '#f9fafb'}
+              defaultValue={settings?.right_panel_color ?? '#f9fafb'}
+              onBlur={(e) => {
+                const val = e.target.value.trim()
+                if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                  handleUpdate('right_panel_color', val)
+                }
+              }}
+              className="h-9 w-24 font-mono text-xs uppercase"
+              placeholder="#f9fafb"
+            />
+            <div
+              className="h-9 w-9 shrink-0 rounded-md border"
+              style={{ backgroundColor: settings?.right_panel_color ?? '#f9fafb' }}
+            />
+          </div>
+        </SettingRow>
+      )}
 
       <SettingRow icon={Type} label="Font Family" description="Typography used throughout the resume">
         <FontFamilyPicker
@@ -304,6 +358,48 @@ export function SettingsPanel({ resumeId, settings, sectionOrder }: Props) {
             <SelectItem value="3">3 Pages</SelectItem>
           </SelectContent>
         </Select>
+      </SettingRow>
+
+      <SettingRow icon={Maximize} label="Page Margins" description="Controls padding around the page edges">
+        <Select
+          defaultValue={settings?.page_margin ?? 'normal'}
+          onValueChange={(v) => handleUpdate('page_margin', v)}
+          disabled={isPending}
+        >
+          <SelectTrigger className="h-9">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {marginOptions.map((m) => (
+              <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </SettingRow>
+
+      <SettingRow icon={Heading1} label="Name Size" description="Font size for your name in the header (18-36px)">
+        <div className="flex items-center gap-3">
+          <Slider
+            defaultValue={[settings?.name_font_size ?? 28]}
+            min={18}
+            max={36}
+            step={1}
+            onValueCommit={([v]) => handleUpdate('name_font_size', v)}
+            disabled={isPending}
+            className="flex-1"
+          />
+          <span className="text-muted-foreground w-10 text-right text-xs tabular-nums">
+            {settings?.name_font_size ?? 28}px
+          </span>
+        </div>
+      </SettingRow>
+
+      <SettingRow icon={CaseSensitive} label="Uppercase Titles" description="Force section titles to ALL CAPS">
+        <Switch
+          checked={settings?.section_title_uppercase ?? true}
+          onCheckedChange={(v) => handleUpdate('section_title_uppercase', v)}
+          disabled={isPending}
+        />
       </SettingRow>
 
       {/* Sections */}

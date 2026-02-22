@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useTransition } from 'react'
+import { useState, useCallback, useTransition, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import {
   DndContext,
@@ -34,6 +34,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -42,8 +43,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+// ScrollArea removed — using native overflow for ref-based scroll tracking
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 import { updateResumeTemplate, updateResumeSettings, updateResumeMetadata } from '@/app/admin/resume-builder/actions'
 import { ContactInfoSection } from './sections/ContactInfoSection'
 import { SummarySection } from './sections/SummarySection'
@@ -60,30 +63,124 @@ import { ScorePanel } from './ScorePanel'
 import { OptimizeDialog } from './OptimizeDialog'
 import type { ResumeWithRelations, ResumeTemplate } from '@/types/resume-builder'
 
+const sectionNames: Record<string, string> = {
+  contact: 'Contact Info',
+  summary: 'Summary',
+  experience: 'Work Experience',
+  skills: 'Skills',
+  education: 'Education',
+  projects: 'Projects',
+  certifications: 'Certifications',
+  extracurriculars: 'Activities',
+}
+
+const OPTIONAL_SECTIONS = new Set(['projects', 'certifications', 'extracurriculars'])
+
+function SectionNav({
+  sections,
+  hiddenSections,
+  onToggleVisibility,
+  scrollContainerRef,
+}: {
+  sections: string[]
+  hiddenSections: Set<string>
+  onToggleVisibility: (section: string) => void
+  scrollContainerRef: React.RefObject<HTMLElement | null>
+}) {
+  const [activeSection, setActiveSection] = useState<string>('')
+
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id)
+          }
+        }
+      },
+      { root: container, rootMargin: '-10% 0px -70% 0px' }
+    )
+
+    sections.forEach((id) => {
+      const el = container.querySelector(`#${id}`)
+      if (el) observer.observe(el)
+    })
+
+    return () => observer.disconnect()
+  }, [sections, scrollContainerRef])
+
+  return (
+    <nav className="hidden w-44 shrink-0 flex-col gap-0.5 overflow-y-auto border-r p-2 pt-4 md:flex">
+      {sections.map((id) => {
+        const isHidden = hiddenSections.has(id)
+        const isOptional = OPTIONAL_SECTIONS.has(id)
+        const isActive = activeSection === id
+        return (
+          <div key={id}>
+            <div className="group/nav flex items-center gap-1">
+              <button
+                onClick={() => {
+                  const container = scrollContainerRef.current
+                  const el = container?.querySelector(`#${id}`)
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }}
+                className={cn(
+                  'flex-1 truncate rounded px-2 py-1.5 text-left text-xs transition-colors',
+                  isActive
+                    ? 'bg-accent text-accent-foreground font-medium'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                  isHidden && 'line-through opacity-40'
+                )}
+              >
+                {sectionNames[id] ?? id}
+              </button>
+            {isOptional && (
+              <button
+                onClick={() => onToggleVisibility(id)}
+                className="text-muted-foreground hover:text-foreground rounded p-0.5 opacity-0 transition-opacity group-hover/nav:opacity-100"
+              >
+                {isHidden ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+              </button>
+            )}
+            </div>
+          </div>
+        )
+      })}
+    </nav>
+  )
+}
+
 function SortableSection({ id, children }: { id: string; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
     <div ref={setNodeRef} style={style} className="group/section relative rounded-lg border border-transparent transition-colors hover:border-border/50">
-      <div className="flex gap-2 px-1 pt-1">
-        <button
-          {...attributes}
-          {...listeners}
-          className="mt-2.5 flex h-7 w-5 shrink-0 cursor-grab items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-muted-foreground active:cursor-grabbing"
-          aria-label="Drag to reorder"
-        >
-          <GripVertical className="h-3.5 w-3.5" />
-        </button>
-        <div className="min-w-0 flex-1 pb-1">{children}</div>
+      <div className="flex gap-0.5 p-2 pb-1">
+        <div className="flex h-5 items-center">
+          <button
+            {...attributes}
+            {...listeners}
+            className="flex h-5 w-5 shrink-0 cursor-grab items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground active:cursor-grabbing"
+            aria-label="Drag to reorder"
+          >
+            <GripVertical className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="min-w-0 flex-1">{children}</div>
       </div>
     </div>
   )
 }
 
-function JobDetailsCard({ resume }: { resume: ResumeWithRelations }) {
-  const [isPending, startTransition] = useTransition()
+function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
+  const [editingDetails, setEditingDetails] = useState(false)
+  const [editingJd, setEditingJd] = useState(false)
+  const [, startTransition] = useTransition()
 
-  function handleBlur(field: string, value: string) {
+  function handleDetailBlur(field: string, value: string) {
     const trimmed = value.trim() || null
     startTransition(async () => {
       try {
@@ -94,79 +191,146 @@ function JobDetailsCard({ resume }: { resume: ResumeWithRelations }) {
     })
   }
 
+  function handleJdSave(value: string) {
+    const trimmed = value.trim() || null
+    startTransition(async () => {
+      try {
+        await updateResumeMetadata(resume.id, { job_description_text: trimmed })
+        setEditingJd(false)
+      } catch {
+        toast.error('Failed to save job description')
+      }
+    })
+  }
+
+  const hasJdText = !!resume.job_description_text?.trim()
+
+  const detailFields = [
+    { key: 'title', label: 'Resume Title', value: resume.title, placeholder: 'e.g., My Google Resume' },
+    { key: 'target_role', label: 'Target Role', value: resume.target_role, placeholder: 'e.g., Software Engineer' },
+    { key: 'company_name', label: 'Company', value: resume.company_name, placeholder: 'e.g., Google' },
+    { key: 'job_location', label: 'Location', value: resume.job_location, placeholder: 'e.g., San Francisco, CA' },
+  ]
+
   return (
-    <div className="rounded-lg border p-4 space-y-3">
-      <h3 className="flex items-center gap-2 text-sm font-semibold">
-        <Briefcase className="h-4 w-4" />
-        Job Details
-      </h3>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label htmlFor="jd-resume-title" className="text-xs">Resume Title</Label>
-          <Input
-            id="jd-resume-title"
-            defaultValue={resume.title}
-            placeholder="e.g., My Google Resume"
-            onBlur={(e) => handleBlur('title', e.target.value)}
-            className="h-8 text-sm"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="jd-target-role" className="text-xs">Target Role</Label>
-          <Input
-            id="jd-target-role"
-            defaultValue={resume.target_role ?? ''}
-            placeholder="e.g., Software Engineer"
-            onBlur={(e) => handleBlur('target_role', e.target.value)}
-            className="h-8 text-sm"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="jd-company" className="text-xs">Company</Label>
-          <Input
-            id="jd-company"
-            defaultValue={resume.company_name ?? ''}
-            placeholder="e.g., Google"
-            onBlur={(e) => handleBlur('company_name', e.target.value)}
-            className="h-8 text-sm"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="jd-location" className="text-xs">Location</Label>
-          <Input
-            id="jd-location"
-            defaultValue={resume.job_location ?? ''}
-            placeholder="e.g., San Francisco, CA"
-            onBlur={(e) => handleBlur('job_location', e.target.value)}
-            className="h-8 text-sm"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="jd-work-mode" className="text-xs">Work Mode</Label>
-          <Select
-            defaultValue={resume.work_mode ?? ''}
-            onValueChange={(v) => {
-              startTransition(async () => {
-                try {
-                  await updateResumeMetadata(resume.id, { work_mode: v || null })
-                } catch {
-                  toast.error('Failed to update work mode')
-                }
-              })
-            }}
+    <Tabs defaultValue="details" className="mt-4">
+      <TabsList className="w-full">
+        <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
+        <TabsTrigger value="description" className="flex-1">Description</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="details" className="space-y-4 pt-2">
+        <div className="flex items-center justify-between">
+          <p className="text-muted-foreground text-xs">Job targeting information</p>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-[11px]"
+            onClick={() => setEditingDetails(!editingDetails)}
           >
-            <SelectTrigger id="jd-work-mode" className="h-8 text-sm">
-              <SelectValue placeholder="Select..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="remote">Remote</SelectItem>
-              <SelectItem value="hybrid">Hybrid</SelectItem>
-              <SelectItem value="onsite">On-site</SelectItem>
-            </SelectContent>
-          </Select>
+            {editingDetails ? 'Done' : 'Edit'}
+          </Button>
         </div>
-      </div>
-    </div>
+
+        {editingDetails ? (
+          <div className="grid gap-3">
+            {detailFields.map((f) => (
+              <div key={f.key} className="space-y-1.5">
+                <Label htmlFor={`ji-${f.key}`} className="text-xs">{f.label}</Label>
+                <Input
+                  id={`ji-${f.key}`}
+                  defaultValue={f.value ?? ''}
+                  placeholder={f.placeholder}
+                  onBlur={(e) => handleDetailBlur(f.key, e.target.value)}
+                  className="h-8 text-sm"
+                />
+              </div>
+            ))}
+            <div className="space-y-1.5">
+              <Label htmlFor="ji-work-mode" className="text-xs">Work Mode</Label>
+              <Select
+                defaultValue={resume.work_mode ?? ''}
+                onValueChange={(v) => {
+                  startTransition(async () => {
+                    try {
+                      await updateResumeMetadata(resume.id, { work_mode: v || null })
+                    } catch {
+                      toast.error('Failed to update work mode')
+                    }
+                  })
+                }}
+              >
+                <SelectTrigger id="ji-work-mode" className="h-8 text-sm">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="remote">Remote</SelectItem>
+                  <SelectItem value="hybrid">Hybrid</SelectItem>
+                  <SelectItem value="onsite">On-site</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-2">
+            {detailFields.map((f) => (
+              <div key={f.key}>
+                <p className="text-muted-foreground text-[11px]">{f.label}</p>
+                <p className="text-sm">{f.value || <span className="text-muted-foreground italic">Not set</span>}</p>
+              </div>
+            ))}
+            <div>
+              <p className="text-muted-foreground text-[11px]">Work Mode</p>
+              <p className="text-sm capitalize">{resume.work_mode || <span className="text-muted-foreground italic">Not set</span>}</p>
+            </div>
+          </div>
+        )}
+      </TabsContent>
+
+      <TabsContent value="description" className="space-y-3 pt-2">
+        <div className="flex items-center justify-between">
+          <p className="text-muted-foreground text-xs">Paste a job description to help AI tailor your resume</p>
+          {hasJdText && !editingJd && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-[11px]"
+              onClick={() => setEditingJd(true)}
+            >
+              Edit
+            </Button>
+          )}
+        </div>
+
+        {editingJd || !hasJdText ? (
+          <div className="space-y-2">
+            <Textarea
+              defaultValue={resume.job_description_text ?? ''}
+              placeholder="Paste the job description here..."
+              rows={12}
+              className="text-sm"
+              onBlur={(e) => handleJdSave(e.target.value)}
+            />
+            {editingJd && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-[11px]"
+                onClick={() => setEditingJd(false)}
+              >
+                Cancel
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="max-h-[60vh] overflow-y-auto rounded-md border p-3">
+            <p className="text-muted-foreground whitespace-pre-wrap text-xs leading-relaxed">
+              {resume.job_description_text}
+            </p>
+          </div>
+        )}
+      </TabsContent>
+    </Tabs>
   )
 }
 
@@ -178,7 +342,9 @@ interface ResumeEditorProps {
 export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
   const [showPreview, setShowPreview] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
+  const [showJobInfo, setShowJobInfo] = useState(false)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+  const editorScrollRef = useRef<HTMLDivElement>(null)
 
   const handleTemplateChange = useCallback(
     async (templateId: string) => {
@@ -221,7 +387,9 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
     'contact', 'summary', 'experience', 'education',
     'skills', 'projects', 'certifications', 'extracurriculars',
   ]
-  const hiddenSections = new Set(resume.settings?.hidden_sections ?? [])
+  const [hiddenSections, setHiddenSections] = useState(
+    () => new Set(resume.settings?.hidden_sections ?? [])
+  )
   const [currentOrder, setCurrentOrder] = useState<string[]>(sectionOrder)
 
   const sensors = useSensors(
@@ -245,6 +413,24 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
       setCurrentOrder(sectionOrder) // revert
     }
   }, [currentOrder, resume.id, sectionOrder])
+
+  const handleToggleSectionVisibility = useCallback(async (section: string) => {
+    const isHidden = hiddenSections.has(section)
+    const newHidden = isHidden
+      ? (resume.settings?.hidden_sections ?? []).filter((s) => s !== section)
+      : [...(resume.settings?.hidden_sections ?? []), section]
+
+    // Optimistic update
+    setHiddenSections(new Set(newHidden))
+
+    try {
+      await updateResumeSettings(resume.id, { hidden_sections: newHidden })
+    } catch {
+      // Revert on failure
+      setHiddenSections(new Set(resume.settings?.hidden_sections ?? []))
+      toast.error('Failed to toggle section visibility')
+    }
+  }, [hiddenSections, resume.id, resume.settings?.hidden_sections])
 
   const sectionMap: Record<string, React.ReactNode> = {
     contact: (
@@ -354,6 +540,18 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
             </SelectContent>
           </Select>
 
+          <Sheet open={showJobInfo} onOpenChange={setShowJobInfo}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="h-8 w-8">
+                <Briefcase className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="overflow-y-auto px-5">
+              <SheetTitle>Job Info</SheetTitle>
+              <JobInfoSheet resume={resume} />
+            </SheetContent>
+          </Sheet>
+
           <Sheet open={showSettings} onOpenChange={setShowSettings}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="h-8 w-8">
@@ -366,6 +564,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
                 resumeId={resume.id}
                 settings={resume.settings}
                 sectionOrder={sectionOrder}
+                templateId={resume.template_id}
               />
             </SheetContent>
           </Sheet>
@@ -414,13 +613,51 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
       </header>
 
       {/* Editor + Preview */}
-      <div className="min-h-0 flex-1">
-        <PanelGroup orientation="horizontal" id="resume-editor-layout">
-          {/* Editor Panel */}
-          <Panel defaultSize="50%" minSize="30%">
-            <ScrollArea className="h-full border-r">
+      <div className="min-h-0 flex-1 overflow-hidden flex">
+        <SectionNav
+          sections={currentOrder}
+          hiddenSections={hiddenSections}
+          onToggleVisibility={handleToggleSectionVisibility}
+          scrollContainerRef={editorScrollRef}
+        />
+        <div className="min-w-0 flex-1">
+          {showPreview ? (
+            <PanelGroup orientation="horizontal" id="resume-editor-layout">
+              {/* Editor Panel */}
+              <Panel defaultSize="50%" minSize="30%">
+                <div ref={editorScrollRef} className="h-full overflow-y-auto border-r">
+                  <div className="max-w-2xl space-y-6 p-4 md:p-6">
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      modifiers={[restrictToVerticalAxis]}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <SortableContext items={visibleSections} strategy={verticalListSortingStrategy}>
+                        {visibleSections.map((sectionId) => (
+                          <SortableSection key={sectionId} id={sectionId}>
+                            {sectionMap[sectionId]}
+                          </SortableSection>
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  </div>
+                </div>
+              </Panel>
+
+              <PanelResizeHandle className="hover:bg-primary/10 active:bg-primary/20 flex w-1.5 items-center justify-center bg-transparent transition-colors">
+                <div className="bg-border h-8 w-0.5 rounded-full" />
+              </PanelResizeHandle>
+
+              <Panel defaultSize="50%" minSize="25%">
+                <div className="hidden h-full bg-gray-100 dark:bg-gray-900 md:block">
+                  <ResumePreviewPane resume={resume} />
+                </div>
+              </Panel>
+            </PanelGroup>
+          ) : (
+            <div ref={editorScrollRef} className="h-full overflow-y-auto">
               <div className="max-w-2xl space-y-6 p-4 md:p-6">
-                <JobDetailsCard resume={resume} />
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
@@ -436,24 +673,9 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
                   </SortableContext>
                 </DndContext>
               </div>
-            </ScrollArea>
-          </Panel>
-
-          {/* Resize Handle + Preview Panel (only when preview is shown) */}
-          {showPreview && (
-            <>
-              <PanelResizeHandle className="hover:bg-primary/10 active:bg-primary/20 flex w-1.5 items-center justify-center bg-transparent transition-colors">
-                <div className="bg-border h-8 w-0.5 rounded-full" />
-              </PanelResizeHandle>
-
-              <Panel defaultSize="50%" minSize="25%">
-                <div className="hidden h-full bg-gray-100 dark:bg-gray-900 md:block">
-                  <ResumePreviewPane resume={resume} />
-                </div>
-              </Panel>
-            </>
+            </div>
           )}
-        </PanelGroup>
+        </div>
       </div>
     </div>
   )
