@@ -24,9 +24,21 @@ interface HeroProps {
     description: string
     url: string
     email: string
+    phone: string
     location: string
     availability: string
     socials: Record<string, string>
+    linkedinUrl: string
+    githubUrl: string
+    portfolioUrl: string
+    visibility: {
+      email: boolean
+      phone: boolean
+      location: boolean
+      linkedin: boolean
+      github: boolean
+      portfolio: boolean
+    }
   } | null
 }
 
@@ -45,9 +57,14 @@ const defaultSiteConfig: NonNullable<HeroProps["siteConfig"]> = {
   description: "",
   url: "",
   email: "",
+  phone: "",
   location: "",
   availability: "Open to opportunities",
   socials: {},
+  linkedinUrl: "",
+  githubUrl: "",
+  portfolioUrl: "",
+  visibility: { email: true, phone: false, location: true, linkedin: true, github: true, portfolio: true },
 }
 
 export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: HeroProps) {

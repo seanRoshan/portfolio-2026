@@ -15,9 +15,21 @@ interface ContactProps {
     description: string
     url: string
     email: string
+    phone: string
     location: string
     availability: string
     socials: Record<string, string>
+    linkedinUrl: string
+    githubUrl: string
+    portfolioUrl: string
+    visibility: {
+      email: boolean
+      phone: boolean
+      location: boolean
+      linkedin: boolean
+      github: boolean
+      portfolio: boolean
+    }
   } | null
 }
 
@@ -27,9 +39,14 @@ const defaultSiteConfig: NonNullable<ContactProps["siteConfig"]> = {
   description: "",
   url: "",
   email: "",
+  phone: "",
   location: "",
   availability: "",
   socials: {},
+  linkedinUrl: "",
+  githubUrl: "",
+  portfolioUrl: "",
+  visibility: { email: true, phone: false, location: true, linkedin: true, github: true, portfolio: true },
 }
 
 export function Contact({ siteConfig: siteConfigProp }: ContactProps) {
