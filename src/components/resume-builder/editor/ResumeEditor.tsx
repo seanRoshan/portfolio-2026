@@ -31,7 +31,6 @@ import {
   Palette,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Select,
   SelectContent,
@@ -52,9 +51,10 @@ import { ProjectsSection } from './sections/ProjectsSection'
 import { CertificationsSection } from './sections/CertificationsSection'
 import { ExtracurricularsSection } from './sections/ExtracurricularsSection'
 import { SettingsPanel } from './SettingsPanel'
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import { ResumePreviewPane } from '../templates/ResumePreviewPane'
-import { validateResume } from '@/lib/resume-builder/validation/rules'
-import { scoreResume } from '@/lib/resume-builder/ai/services'
+import { ScorePanel } from './ScorePanel'
+import { OptimizeDialog } from './OptimizeDialog'
 import type { ResumeWithRelations, ResumeTemplate } from '@/types/resume-builder'
 
 function SortableSection({ id, children }: { id: string; children: React.ReactNode }) {
@@ -87,14 +87,6 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
   const [showSettings, setShowSettings] = useState(false)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
 
-  const validationResults = validateResume(resume)
-  const criticalCount = validationResults.filter(
-    (r) => r.severity === 'critical'
-  ).length
-  const warningCount = validationResults.filter(
-    (r) => r.severity === 'warning'
-  ).length
-
   const handleTemplateChange = useCallback(
     async (templateId: string) => {
       try {
@@ -108,14 +100,6 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
   )
 
   const handleDownloadPdf = useCallback(async () => {
-    if (criticalCount > 0) {
-      toast.warning('Resume has issues — PDF may have missing data', {
-        description: validationResults
-          .filter((r) => r.severity === 'critical')
-          .map((r) => r.message)
-          .join(', '),
-      })
-    }
     setIsGeneratingPdf(true)
     try {
       const res = await fetch(`/api/resume-builder/pdf?resumeId=${resume.id}`)
@@ -138,7 +122,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
     } finally {
       setIsGeneratingPdf(false)
     }
-  }, [resume.id, resume.contact_info?.full_name, criticalCount, validationResults])
+  }, [resume.id, resume.contact_info?.full_name])
 
   const sectionOrder = resume.settings?.section_order ?? [
     'contact', 'summary', 'experience', 'education',
@@ -244,27 +228,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
           {resume.title}
         </h1>
 
-        <div className="flex items-center gap-2">
-          {criticalCount > 0 && (
-            <Badge variant="destructive" className="text-xs">
-              {criticalCount} critical
-            </Badge>
-          )}
-          {warningCount > 0 && (
-            <Badge variant="secondary" className="text-xs">
-              {warningCount} warnings
-            </Badge>
-          )}
-          {(() => {
-            const score = scoreResume(resume)
-            const variant = score.grade === 'A' || score.grade === 'B' ? 'secondary' : 'destructive'
-            return (
-              <Badge variant={variant} className="text-xs">
-                {score.grade} &middot; {score.overall}
-              </Badge>
-            )
-          })()}
-        </div>
+        <ScorePanel resume={resume} />
 
         <span className="text-muted-foreground hidden items-center gap-1 text-xs sm:flex">
           <Check className="h-3 w-3" />
@@ -335,6 +299,8 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
             )}
           </Button>
 
+          <OptimizeDialog resume={resume} />
+
           <Button
             size="sm"
             className="h-8"
@@ -348,33 +314,45 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
       </header>
 
       {/* Editor + Preview */}
-      <div className="flex min-h-0 flex-1">
-        {/* Editor Panel */}
-        <ScrollArea className={showPreview ? 'w-1/2 border-r' : 'w-full'}>
-          <div className="max-w-2xl space-y-6 p-4 md:p-6">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              modifiers={[restrictToVerticalAxis]}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext items={visibleSections} strategy={verticalListSortingStrategy}>
-                {visibleSections.map((sectionId) => (
-                  <SortableSection key={sectionId} id={sectionId}>
-                    {sectionMap[sectionId]}
-                  </SortableSection>
-                ))}
-              </SortableContext>
-            </DndContext>
-          </div>
-        </ScrollArea>
+      <div className="min-h-0 flex-1">
+        <PanelGroup direction="horizontal" autoSaveId="resume-editor-layout">
+          {/* Editor Panel */}
+          <Panel defaultSize={50} minSize={30}>
+            <ScrollArea className="h-full border-r">
+              <div className="max-w-2xl space-y-6 p-4 md:p-6">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  modifiers={[restrictToVerticalAxis]}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext items={visibleSections} strategy={verticalListSortingStrategy}>
+                    {visibleSections.map((sectionId) => (
+                      <SortableSection key={sectionId} id={sectionId}>
+                        {sectionMap[sectionId]}
+                      </SortableSection>
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </div>
+            </ScrollArea>
+          </Panel>
 
-        {/* Preview Panel */}
-        {showPreview && (
-          <div className="hidden w-1/2 bg-gray-100 dark:bg-gray-900 md:block">
-            <ResumePreviewPane resume={resume} />
-          </div>
-        )}
+          {/* Resize Handle + Preview Panel (only when preview is shown) */}
+          {showPreview && (
+            <>
+              <PanelResizeHandle className="hover:bg-primary/10 active:bg-primary/20 flex w-1.5 items-center justify-center bg-transparent transition-colors">
+                <div className="bg-border h-8 w-0.5 rounded-full" />
+              </PanelResizeHandle>
+
+              <Panel defaultSize={50} minSize={25}>
+                <div className="hidden h-full bg-gray-100 dark:bg-gray-900 md:block">
+                  <ResumePreviewPane resume={resume} />
+                </div>
+              </Panel>
+            </>
+          )}
+        </PanelGroup>
       </div>
     </div>
   )
