@@ -1,5 +1,6 @@
 import type { ResumeWithRelations, DateFormat } from '@/types/resume-builder'
 import { findFont, fontFamilyCss, googleFontUrl } from '@/lib/resume-builder/fonts'
+import { MARGIN_PRESETS, TEMPLATE_IDS, DEFAULT_NAME_SIZES, DEFAULT_UPPERCASE } from '@/components/resume-builder/templates/shared'
 
 const LEGACY_FONT_MAP: Record<string, string> = {
   inter: '"Inter", system-ui, sans-serif',
@@ -53,6 +54,10 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   const baseDensity = DENSITY_MAP[resume.settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
   const accentColor = resume.settings?.accent_color ?? '#000000'
   const backgroundColor = resume.settings?.background_color ?? '#374151'
+  const pageMargin = resume.settings?.page_margin ?? 'normal'
+  const nameFontSize = resume.settings?.name_font_size
+  const sectionTitleUppercase = resume.settings?.section_title_uppercase
+  const rightPanelColor = resume.settings?.right_panel_color ?? '#f9fafb'
 
   // Scale density if font_size_base is set
   const fontSizeBase = resume.settings?.font_size_base
@@ -69,22 +74,29 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
     }
   }
 
+  const visibleExps = resume.work_experiences.filter((e) => e.is_visible !== false)
+
   const hiddenSections = new Set(resume.settings?.hidden_sections ?? [])
   const sectionOrder = (resume.settings?.section_order ?? [
     'contact', 'summary', 'experience', 'skills', 'projects',
     'education', 'certifications', 'extracurriculars',
   ]).filter((s) => !hiddenSections.has(s) && s !== 'contact')
 
+  // Resolve new settings (BEFORE two-column checks so they can use them)
+  const resolvedNameSize = nameFontSize ?? DEFAULT_NAME_SIZES[templateId] ?? 28
+  const titleTransform = (sectionTitleUppercase ?? DEFAULT_UPPERCASE[templateId] ?? true) ? 'uppercase' : 'none'
+  const margin = MARGIN_PRESETS[templateId]?.[pageMargin] ?? '0.8in'
+
   // Check if this is a two-column template
   const isTwoColumn = templateId === 'a1b2c3d4-0005-4000-8000-000000000005' ||
     templateId === 'a1b2c3d4-0006-4000-8000-000000000006'
 
   if (isTwoColumn && templateId === 'a1b2c3d4-0005-4000-8000-000000000005') {
-    return generateParkerHtml(resume, ci, df, accentColor, backgroundColor, fontFamily, fontImportUrl, density, sectionOrder)
+    return generateParkerHtml(resume, ci, df, accentColor, backgroundColor, fontFamily, fontImportUrl, density, sectionOrder, resolvedNameSize, titleTransform, rightPanelColor)
   }
 
   if (isTwoColumn && templateId === 'a1b2c3d4-0006-4000-8000-000000000006') {
-    return generateExperiencedHtml(resume, ci, df, accentColor, backgroundColor, fontFamily, fontImportUrl, density, sectionOrder)
+    return generateExperiencedHtml(resume, ci, df, accentColor, backgroundColor, fontFamily, fontImportUrl, density, sectionOrder, resolvedNameSize, titleTransform)
   }
 
   // Single-column templates
@@ -93,13 +105,12 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   const isCareerCupTemplate = templateId === 'a1b2c3d4-0004-4000-8000-000000000004'
 
   const bodyFont = isMonoTemplate ? LEGACY_FONT_MAP.source_code : fontFamily
-  const margin = isCareerCupTemplate ? '0.6in' : isMonoTemplate ? '0.75in' : '1in'
   const headerAlign = isCareerCupTemplate ? 'center' : 'left'
   const dividerStyle = isMonoTemplate ? 'border-top: 1px dashed #999' : isSmarkdownTemplate ? `border-top: 2px solid ${accentColor}` : 'border-top: 1px solid #d1d5db'
   const sectionHeaderColor = isSmarkdownTemplate ? accentColor : '#111827'
 
   const contactLinks = [
-    ci?.linkedin_url, ci?.github_url, ci?.portfolio_url, ci?.blog_url,
+    ci?.linkedin_url, ci?.github_url, ci?.portfolio_url,
   ].filter(Boolean).map((url) => {
     const display = (url as string).replace(/https?:\/\/(www\.)?/, '').replace(/\/$/, '')
     return `<a href="${url}" style="color:${isSmarkdownTemplate ? accentColor : '#6b7280'};text-decoration:none">${escapeHtml(display)}</a>`
@@ -108,7 +119,7 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   const contactParts = [
     ci?.email,
     ci?.phone,
-    (ci?.city || ci?.country) ? [ci?.city, ci?.country].filter(Boolean).join(', ') : null,
+    (ci?.city || ci?.state || ci?.country) ? [ci?.city, ci?.state, ci?.country].filter(Boolean).join(', ') : null,
     ...contactLinks,
   ].filter(Boolean)
 
@@ -116,11 +127,11 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
     switch (sid) {
       case 'summary':
         if (!resume.summary?.is_visible || !resume.summary?.text) return ''
-        return sectionBlock('SUMMARY', `<p style="line-height:${density.lineHeight};color:#374151">${escapeHtml(resume.summary.text)}</p>`, sectionHeaderColor, dividerStyle, density)
+        return sectionBlock('SUMMARY', `<p style="line-height:${density.lineHeight};color:#374151">${escapeHtml(resume.summary.text)}</p>`, sectionHeaderColor, dividerStyle, density, titleTransform)
 
       case 'experience':
-        if (!resume.work_experiences.length) return ''
-        return sectionBlock('EXPERIENCE', resume.work_experiences.map((exp) => `
+        if (!visibleExps.length) return ''
+        return sectionBlock('EXPERIENCE', visibleExps.map((exp) => `
           <div class="experience-entry" style="margin-bottom:10px">
             <div style="display:flex;justify-content:space-between;align-items:baseline">
               <div><strong style="font-size:${density.heading}">${escapeHtml(exp.job_title)}</strong> <span style="color:#6b7280;font-size:${density.heading}">· ${escapeHtml(exp.company)}</span></div>
@@ -129,7 +140,7 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
             ${exp.location ? `<div style="font-size:${density.body};color:#9ca3af">${escapeHtml(exp.location)}</div>` : ''}
             ${(exp.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:18px;list-style:disc">${exp.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}
           </div>
-        `).join(''), sectionHeaderColor, dividerStyle, density)
+        `).join(''), sectionHeaderColor, dividerStyle, density, titleTransform)
 
       case 'education':
         if (!resume.education.length) return ''
@@ -143,13 +154,13 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
             ${edu.gpa ? `<div style="font-size:${density.body};color:#9ca3af">GPA: ${edu.gpa}</div>` : ''}
             ${edu.honors ? `<div style="font-size:${density.body};color:#9ca3af">${escapeHtml(edu.honors)}</div>` : ''}
           </div>
-        `).join(''), sectionHeaderColor, dividerStyle, density)
+        `).join(''), sectionHeaderColor, dividerStyle, density, titleTransform)
 
       case 'skills':
         if (!resume.skill_categories.length) return ''
         return sectionBlock('SKILLS', resume.skill_categories.map((cat) =>
           `<div style="margin-bottom:4px;font-size:${density.body}"><strong>${escapeHtml(cat.name)}:</strong> <span style="color:#374151">${cat.skills.map(escapeHtml).join(', ')}</span></div>`
-        ).join(''), sectionHeaderColor, dividerStyle, density)
+        ).join(''), sectionHeaderColor, dividerStyle, density, titleTransform)
 
       case 'projects':
         if (!resume.projects.length) return ''
@@ -162,19 +173,19 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
             ${proj.description ? `<div style="font-size:${density.body};color:#374151;margin-top:2px">${escapeHtml(proj.description)}</div>` : ''}
             ${(proj.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:18px;list-style:disc">${proj.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}
           </div>
-        `).join(''), sectionHeaderColor, dividerStyle, density)
+        `).join(''), sectionHeaderColor, dividerStyle, density, titleTransform)
 
       case 'certifications':
         if (!resume.certifications.length) return ''
         return sectionBlock('CERTIFICATIONS', resume.certifications.map((cert) =>
           `<div class="experience-entry" style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:${density.body}"><span><strong>${escapeHtml(cert.name)}</strong>${cert.issuer ? ` <span style="color:#6b7280">– ${escapeHtml(cert.issuer)}</span>` : ''}</span>${cert.date ? `<span style="color:#6b7280;font-size:${density.body}">${formatDate(cert.date, df)}</span>` : ''}</div>`
-        ).join(''), sectionHeaderColor, dividerStyle, density)
+        ).join(''), sectionHeaderColor, dividerStyle, density, titleTransform)
 
       case 'extracurriculars':
         if (!resume.extracurriculars.length) return ''
         return sectionBlock('ACTIVITIES', resume.extracurriculars.map((item) =>
           `<div style="margin-bottom:4px;font-size:${density.body}"><strong>${escapeHtml(item.title)}</strong>${item.description ? ` <span style="color:#6b7280">– ${escapeHtml(item.description)}</span>` : ''}</div>`
-        ).join(''), sectionHeaderColor, dividerStyle, density)
+        ).join(''), sectionHeaderColor, dividerStyle, density, titleTransform)
 
       default:
         return ''
@@ -201,7 +212,7 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
 <body>
 <div style="padding:${margin}">
   <div style="text-align:${headerAlign};margin-bottom:16px">
-    <h1 style="font-size:${isMonoTemplate ? '24px' : '28px'};font-weight:700;margin:0;letter-spacing:-0.5px${isSmarkdownTemplate ? `;border-bottom:3px solid ${accentColor};display:inline-block;padding-bottom:4px` : ''}">${escapeHtml(ci?.full_name || 'Your Name')}</h1>
+    <h1 style="font-size:${resolvedNameSize}px;font-weight:700;margin:0;letter-spacing:-0.5px${isSmarkdownTemplate ? `;border-bottom:3px solid ${accentColor};display:inline-block;padding-bottom:4px` : ''}">${escapeHtml(ci?.full_name || 'Your Name')}</h1>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;font-size:${density.body};color:#6b7280;${headerAlign === 'center' ? 'justify-content:center' : ''}">${contactParts.map((p, i) => `${i > 0 ? '<span>·</span> ' : ''}${typeof p === 'string' && p.startsWith('<a') ? p : `<span>${escapeHtml(p as string)}</span>`}`).join(' ')}</div>
     <hr style="${dividerStyle};margin-top:12px" />
   </div>
@@ -211,14 +222,14 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
 </html>`
 }
 
-function sectionBlock(title: string, content: string, headerColor: string, dividerStyle: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }): string {
+function sectionBlock(title: string, content: string, headerColor: string, dividerStyle: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, titleTransform: string): string {
   return `<div class="resume-section" style="margin-bottom:${density.sectionGap}">
-    <h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;color:${headerColor}">${title}</h2>
+    <h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:8px;color:${headerColor}">${title}</h2>
     ${content}
   </div>`
 }
 
-function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, backgroundColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
+function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, backgroundColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[], nameSize: number, titleTransform: string, rightPanelColor: string): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -240,42 +251,42 @@ function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations
 <div style="display:grid;grid-template-columns:30% 70%;min-height:11in">
   <!-- Sidebar -->
   <div style="background:${backgroundColor};color:white;padding:40px 20px">
-    <h1 style="font-size:22px;font-weight:700;margin-bottom:4px">${escapeHtml(ci?.full_name || '')}</h1>
+    <h1 style="font-size:${nameSize}px;font-weight:700;margin-bottom:4px">${escapeHtml(ci?.full_name || '')}</h1>
     <div style="font-size:9px;margin-bottom:24px;opacity:0.8">
       ${ci?.email ? `<div style="margin-bottom:3px">${escapeHtml(ci.email)}</div>` : ''}
       ${ci?.phone ? `<div style="margin-bottom:3px">${escapeHtml(ci.phone)}</div>` : ''}
-      ${(ci?.city || ci?.country) ? `<div style="margin-bottom:3px">${[ci?.city, ci?.country].filter(Boolean).map(s => escapeHtml(s!)).join(', ')}</div>` : ''}
+      ${(ci?.city || ci?.state || ci?.country) ? `<div style="margin-bottom:3px">${[ci?.city, ci?.state, ci?.country].filter(Boolean).map(s => escapeHtml(s!)).join(', ')}</div>` : ''}
       ${ci?.linkedin_url ? `<div style="margin-bottom:3px"><a href="${ci.linkedin_url}" style="color:${accentColor === '#000000' ? '#93c5fd' : accentColor};text-decoration:none">${escapeHtml(ci.linkedin_url.replace(/https?:\/\/(www\.)?/, ''))}</a></div>` : ''}
       ${ci?.github_url ? `<div style="margin-bottom:3px"><a href="${ci.github_url}" style="color:${accentColor === '#000000' ? '#93c5fd' : accentColor};text-decoration:none">${escapeHtml(ci.github_url.replace(/https?:\/\/(www\.)?/, ''))}</a></div>` : ''}
     </div>
     ${resume.skill_categories.length > 0 ? `
       <div class="resume-section" style="margin-bottom:20px">
-        <h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.3);padding-bottom:4px">SKILLS</h2>
+        <h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.3);padding-bottom:4px">SKILLS</h2>
         ${resume.skill_categories.map((cat) => `<div style="margin-bottom:6px"><div style="font-weight:600;font-size:${density.body};margin-bottom:2px">${escapeHtml(cat.name)}</div><div style="font-size:${density.body};opacity:0.85">${cat.skills.map(escapeHtml).join(', ')}</div></div>`).join('')}
       </div>` : ''}
     ${resume.education.length > 0 ? `
       <div class="resume-section" style="margin-bottom:20px">
-        <h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.3);padding-bottom:4px">EDUCATION</h2>
+        <h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.3);padding-bottom:4px">EDUCATION</h2>
         ${resume.education.map((edu) => `<div class="experience-entry" style="margin-bottom:6px"><div style="font-weight:600;font-size:${density.body}">${escapeHtml(edu.degree)}</div><div style="font-size:${density.body};opacity:0.85">${escapeHtml(edu.institution)}</div>${edu.graduation_date ? `<div style="font-size:${density.body};opacity:0.7">${formatDate(edu.graduation_date, df)}</div>` : ''}</div>`).join('')}
       </div>` : ''}
     ${resume.certifications.length > 0 ? `
       <div class="resume-section">
-        <h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.3);padding-bottom:4px">CERTIFICATIONS</h2>
+        <h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.3);padding-bottom:4px">CERTIFICATIONS</h2>
         ${resume.certifications.map((cert) => `<div class="experience-entry" style="margin-bottom:4px;font-size:${density.body}"><div style="font-weight:600">${escapeHtml(cert.name)}</div>${cert.issuer ? `<div style="opacity:0.85">${escapeHtml(cert.issuer)}</div>` : ''}</div>`).join('')}
       </div>` : ''}
   </div>
   <!-- Main Content -->
-  <div style="padding:40px 30px;color:#111827">
-    ${resume.summary?.is_visible && resume.summary?.text ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">SUMMARY</h2><p style="font-size:${density.body};line-height:${density.lineHeight};color:#374151">${escapeHtml(resume.summary.text)}</p></div>` : ''}
-    ${resume.work_experiences.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">EXPERIENCE</h2>${resume.work_experiences.map((exp) => `<div class="experience-entry" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:baseline"><div><strong style="font-size:${density.heading}">${escapeHtml(exp.job_title)}</strong> <span style="color:#6b7280;font-size:${density.heading}">· ${escapeHtml(exp.company)}</span></div><span style="font-size:${density.body};color:#6b7280">${dateRange(exp.start_date, exp.end_date, df)}</span></div>${exp.location ? `<div style="font-size:${density.body};color:#9ca3af">${escapeHtml(exp.location)}</div>` : ''}${(exp.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:16px;list-style:disc">${exp.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>` : ''}
-    ${resume.projects.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">PROJECTS</h2>${resume.projects.map((proj) => `<div class="experience-entry" style="margin-bottom:8px"><strong style="font-size:${density.heading}">${escapeHtml(proj.name)}</strong>${proj.description ? `<div style="font-size:${density.body};color:#374151;margin-top:2px">${escapeHtml(proj.description)}</div>` : ''}${(proj.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:16px;list-style:disc">${proj.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>` : ''}
+  <div style="padding:40px 30px;color:#111827;background:${rightPanelColor}">
+    ${resume.summary?.is_visible && resume.summary?.text ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:6px">SUMMARY</h2><p style="font-size:${density.body};line-height:${density.lineHeight};color:#374151">${escapeHtml(resume.summary.text)}</p></div>` : ''}
+    ${(() => { const vExps = resume.work_experiences.filter(e => e.is_visible !== false); return vExps.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:8px">EXPERIENCE</h2>${vExps.map((exp) => `<div class="experience-entry" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:baseline"><div><strong style="font-size:${density.heading}">${escapeHtml(exp.job_title)}</strong> <span style="color:#6b7280;font-size:${density.heading}">· ${escapeHtml(exp.company)}</span></div><span style="font-size:${density.body};color:#6b7280">${dateRange(exp.start_date, exp.end_date, df)}</span></div>${exp.location ? `<div style="font-size:${density.body};color:#9ca3af">${escapeHtml(exp.location)}</div>` : ''}${(exp.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:16px;list-style:disc">${exp.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>` : '' })()}
+    ${resume.projects.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:8px">PROJECTS</h2>${resume.projects.map((proj) => `<div class="experience-entry" style="margin-bottom:8px"><strong style="font-size:${density.heading}">${escapeHtml(proj.name)}</strong>${proj.description ? `<div style="font-size:${density.body};color:#374151;margin-top:2px">${escapeHtml(proj.description)}</div>` : ''}${(proj.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:16px;list-style:disc">${proj.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>` : ''}
   </div>
 </div>
 </body>
 </html>`
 }
 
-function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, backgroundColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
+function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, backgroundColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[], nameSize: number, titleTransform: string): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -297,11 +308,11 @@ function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRela
 <div style="padding:0.5in">
   <!-- Full-width header -->
   <div style="margin-bottom:16px;border-bottom:1px solid #d1d5db;padding-bottom:12px">
-    <h1 style="font-size:26px;font-weight:700">${escapeHtml(ci?.full_name || '')}</h1>
+    <h1 style="font-size:${nameSize}px;font-weight:700">${escapeHtml(ci?.full_name || '')}</h1>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;font-size:${density.body};color:#6b7280">
       ${ci?.email ? `<span>${escapeHtml(ci.email)}</span>` : ''}
       ${ci?.phone ? `<span>· ${escapeHtml(ci.phone)}</span>` : ''}
-      ${(ci?.city || ci?.country) ? `<span>· ${[ci?.city, ci?.country].filter(Boolean).map(s => escapeHtml(s!)).join(', ')}</span>` : ''}
+      ${(ci?.city || ci?.state || ci?.country) ? `<span>· ${[ci?.city, ci?.state, ci?.country].filter(Boolean).map(s => escapeHtml(s!)).join(', ')}</span>` : ''}
       ${ci?.linkedin_url ? `<span>· <a href="${ci.linkedin_url}" style="color:${accentColor};text-decoration:none">${escapeHtml(ci.linkedin_url.replace(/https?:\/\/(www\.)?/, ''))}</a></span>` : ''}
     </div>
   </div>
@@ -309,15 +320,15 @@ function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRela
   <div style="display:grid;grid-template-columns:25% 75%;gap:0">
     <!-- Left column -->
     <div style="border-right:1px solid #d1d5db;padding-right:16px">
-      ${resume.skill_categories.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">SKILLS</h2>${resume.skill_categories.map((cat) => `<div style="margin-bottom:6px"><div style="font-weight:600;font-size:${density.body}">${escapeHtml(cat.name)}</div><div style="font-size:${density.body};color:#6b7280">${cat.skills.map(escapeHtml).join(', ')}</div></div>`).join('')}</div>` : ''}
-      ${resume.education.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">EDUCATION</h2>${resume.education.map((edu) => `<div class="experience-entry" style="margin-bottom:6px"><div style="font-weight:600;font-size:${density.body}">${escapeHtml(edu.degree)}</div><div style="font-size:${density.body};color:#6b7280">${escapeHtml(edu.institution)}</div></div>`).join('')}</div>` : ''}
-      ${resume.certifications.length > 0 ? `<div class="resume-section"><h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">CERTIFICATIONS</h2>${resume.certifications.map((cert) => `<div class="experience-entry" style="margin-bottom:4px;font-size:${density.body}"><strong>${escapeHtml(cert.name)}</strong>${cert.issuer ? `<div style="color:#6b7280">${escapeHtml(cert.issuer)}</div>` : ''}</div>`).join('')}</div>` : ''}
+      ${resume.skill_categories.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:6px">SKILLS</h2>${resume.skill_categories.map((cat) => `<div style="margin-bottom:6px"><div style="font-weight:600;font-size:${density.body}">${escapeHtml(cat.name)}</div><div style="font-size:${density.body};color:#6b7280">${cat.skills.map(escapeHtml).join(', ')}</div></div>`).join('')}</div>` : ''}
+      ${resume.education.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:6px">EDUCATION</h2>${resume.education.map((edu) => `<div class="experience-entry" style="margin-bottom:6px"><div style="font-weight:600;font-size:${density.body}">${escapeHtml(edu.degree)}</div><div style="font-size:${density.body};color:#6b7280">${escapeHtml(edu.institution)}</div></div>`).join('')}</div>` : ''}
+      ${resume.certifications.length > 0 ? `<div class="resume-section"><h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:6px">CERTIFICATIONS</h2>${resume.certifications.map((cert) => `<div class="experience-entry" style="margin-bottom:4px;font-size:${density.body}"><strong>${escapeHtml(cert.name)}</strong>${cert.issuer ? `<div style="color:#6b7280">${escapeHtml(cert.issuer)}</div>` : ''}</div>`).join('')}</div>` : ''}
     </div>
     <!-- Right column -->
     <div style="padding-left:16px">
-      ${resume.summary?.is_visible && resume.summary?.text ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">SUMMARY</h2><p style="font-size:${density.body};line-height:${density.lineHeight};color:#374151">${escapeHtml(resume.summary.text)}</p></div>` : ''}
-      ${resume.work_experiences.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">EXPERIENCE</h2>${resume.work_experiences.map((exp) => `<div class="experience-entry" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between"><div><strong style="font-size:${density.heading}">${escapeHtml(exp.job_title)}</strong> · <span style="color:#6b7280;font-size:${density.heading}">${escapeHtml(exp.company)}</span></div><span style="font-size:${density.body};color:#6b7280">${dateRange(exp.start_date, exp.end_date, df)}</span></div>${(exp.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:16px;list-style:disc">${exp.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>` : ''}
-      ${resume.projects.length > 0 ? `<div class="resume-section"><h2 style="font-size:${density.section};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">PROJECTS</h2>${resume.projects.map((proj) => `<div class="experience-entry" style="margin-bottom:8px"><strong style="font-size:${density.heading}">${escapeHtml(proj.name)}</strong>${proj.description ? `<div style="font-size:${density.body};color:#374151;margin-top:2px">${escapeHtml(proj.description)}</div>` : ''}${(proj.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:16px;list-style:disc">${proj.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>` : ''}
+      ${resume.summary?.is_visible && resume.summary?.text ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:6px">SUMMARY</h2><p style="font-size:${density.body};line-height:${density.lineHeight};color:#374151">${escapeHtml(resume.summary.text)}</p></div>` : ''}
+      ${(() => { const vExps = resume.work_experiences.filter(e => e.is_visible !== false); return vExps.length > 0 ? `<div class="resume-section" style="margin-bottom:${density.sectionGap}"><h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:8px">EXPERIENCE</h2>${vExps.map((exp) => `<div class="experience-entry" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between"><div><strong style="font-size:${density.heading}">${escapeHtml(exp.job_title)}</strong> · <span style="color:#6b7280;font-size:${density.heading}">${escapeHtml(exp.company)}</span></div><span style="font-size:${density.body};color:#6b7280">${dateRange(exp.start_date, exp.end_date, df)}</span></div>${(exp.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:16px;list-style:disc">${exp.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>` : '' })()}
+      ${resume.projects.length > 0 ? `<div class="resume-section"><h2 style="font-size:${density.section};font-weight:700;text-transform:${titleTransform};letter-spacing:1px;margin-bottom:8px">PROJECTS</h2>${resume.projects.map((proj) => `<div class="experience-entry" style="margin-bottom:8px"><strong style="font-size:${density.heading}">${escapeHtml(proj.name)}</strong>${proj.description ? `<div style="font-size:${density.body};color:#374151;margin-top:2px">${escapeHtml(proj.description)}</div>` : ''}${(proj.achievements?.length ?? 0) > 0 ? `<ul style="margin:4px 0 0;padding-left:16px;list-style:disc">${proj.achievements!.map((a) => `<li style="font-size:${density.body};line-height:${density.lineHeight};color:#374151;margin-bottom:2px">${escapeHtml(a.text)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>` : ''}
     </div>
   </div>
 </div>
