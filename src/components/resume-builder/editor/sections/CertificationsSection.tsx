@@ -5,6 +5,17 @@ import { Award, Plus, Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 import { addCertification, updateCertification, deleteCertification } from '@/app/admin/resume-builder/actions'
 import { EditorSection } from '../EditorSection'
@@ -87,9 +98,23 @@ function CertificationCard({ cert, resumeId }: { cert: ResumeCertification; resu
         <Input defaultValue={cert.issuer ?? ''} onBlur={(e) => handleUpdate('issuer', e.target.value)} placeholder="Amazon" className="text-sm" />
         <Input type="month" defaultValue={cert.date?.slice(0, 7) ?? ''} onBlur={(e) => handleUpdate('date', e.target.value ? `${e.target.value}-01` : null)} className="text-sm" />
       </div>
-      <Button variant="ghost" size="icon" onClick={handleDelete} disabled={isPending} className="h-8 w-8 shrink-0">
-        <Trash2 className="h-3.5 w-3.5" />
-      </Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="ghost" size="icon" disabled={isPending} className="h-8 w-8 shrink-0">
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this entry?</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

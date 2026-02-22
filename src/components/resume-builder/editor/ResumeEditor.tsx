@@ -22,6 +22,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
   ArrowLeft,
+  Check,
   Download,
   Eye,
   EyeOff,
@@ -264,6 +265,11 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
             )
           })()}
         </div>
+
+        <span className="text-muted-foreground hidden items-center gap-1 text-xs sm:flex">
+          <Check className="h-3 w-3" />
+          All changes saved
+        </span>
 
         <div className="ml-auto flex items-center gap-2">
           <Select
