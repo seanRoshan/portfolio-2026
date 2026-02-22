@@ -6,14 +6,34 @@ import { requireAuth } from "@/lib/admin-auth"
 import { z } from "zod"
 
 const contactInfoSchema = z.object({
+  // Identity
+  full_name: z.string().optional().transform((v) => v?.trim() || null),
   contact_email: z
     .string()
     .email()
     .nullable()
     .or(z.literal(""))
     .transform((v) => v || null),
+  phone: z.string().optional().transform((v) => v?.trim() || null),
+  // Location
+  city: z.string().optional().transform((v) => v?.trim() || null),
+  state: z.string().optional().transform((v) => v?.trim() || null),
+  country: z.string().optional().transform((v) => v?.trim() || null),
+  // Online presence
+  linkedin_url: z.string().url().or(z.literal("")).optional().transform((v) => v?.trim() || null),
+  github_url: z.string().url().or(z.literal("")).optional().transform((v) => v?.trim() || null),
+  portfolio_url: z.string().url().or(z.literal("")).optional().transform((v) => v?.trim() || null),
+  blog_url: z.string().url().or(z.literal("")).optional().transform((v) => v?.trim() || null),
+  // Settings
   contact_form_enabled: z.boolean(),
   social_links: z.record(z.string(), z.string()),
+  // Visibility toggles
+  landing_show_email: z.boolean(),
+  landing_show_phone: z.boolean(),
+  landing_show_location: z.boolean(),
+  landing_show_linkedin: z.boolean(),
+  landing_show_github: z.boolean(),
+  landing_show_portfolio: z.boolean(),
 })
 
 export type ContactInfoFormValues = z.input<typeof contactInfoSchema>
@@ -28,11 +48,7 @@ export async function updateContactInfo(data: ContactInfoFormValues) {
 
   const { error } = await supabase
     .from("site_settings")
-    .update({
-      contact_email: validated.contact_email,
-      contact_form_enabled: validated.contact_form_enabled,
-      social_links: validated.social_links,
-    })
+    .update(validated)
     .eq("id", current.id)
 
   if (error) return { error: error.message }
