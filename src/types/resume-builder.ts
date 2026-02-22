@@ -15,6 +15,7 @@ export type FontFamily = string
 
 export type FontSizePreset = 'compact' | 'comfortable' | 'spacious'
 export type DateFormat = 'full' | 'month_year' | 'year_only'
+export type PageMargin = 'compact' | 'normal' | 'wide'
 export type TemplateCategory = 'recommended' | 'classic' | 'creative' | 'minimal'
 export type TemplateLayout = 'single_column' | 'two_column'
 export type AchievementParentType = 'work' | 'project'
@@ -106,6 +107,7 @@ export interface Resume {
   company_name: string | null
   job_location: string | null
   work_mode: RemoteType | null
+  job_description_text: string | null
   is_master: boolean
   parent_resume_id: string | null
   short_id: string | null
@@ -146,6 +148,7 @@ export interface ResumeWorkExperience {
   is_promotion: boolean
   parent_experience_id: string | null
   sort_order: number
+  is_visible: boolean
   created_at: string
   updated_at: string
   achievements?: ResumeAchievement[]
@@ -226,6 +229,10 @@ export interface ResumeSettings {
   page_limit: 1 | 2 | 3
   font_size_base?: number
   background_color?: string
+  page_margin?: PageMargin
+  name_font_size?: number
+  section_title_uppercase?: boolean
+  right_panel_color?: string
 }
 
 // ===== Full Resume (with all relations) =====
