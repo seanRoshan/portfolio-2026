@@ -13,7 +13,11 @@ import {
   Clock,
   Target,
   Sparkles,
+  Loader2,
+  Menu,
+  Search,
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -40,8 +44,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from '@/components/ui/sheet'
 import { toast } from 'sonner'
 import { createResume, deleteResume, cloneResume, generateTailoredResume } from './actions'
+import { AdminSidebar } from '../admin-sidebar'
 import type { Resume, ResumeTemplate, ExperienceLevel } from '@/types/resume-builder'
 
 const experienceLevels: { value: ExperienceLevel; label: string }[] = [
@@ -55,6 +66,19 @@ const experienceLevels: { value: ExperienceLevel; label: string }[] = [
   { value: 'tech_lead', label: 'Tech Lead' },
   { value: 'eng_manager', label: 'Engineering Manager' },
 ]
+
+const TEMPLATE_COLORS: Record<string, string> = {
+  Pragmatic: 'border-l-blue-500',
+  Mono: 'border-l-zinc-400',
+  Smarkdown: 'border-l-emerald-500',
+  CareerCup: 'border-l-orange-500',
+  Parker: 'border-l-violet-500',
+  Experienced: 'border-l-teal-500',
+}
+
+function getTemplateColor(name: string): string {
+  return TEMPLATE_COLORS[name] ?? 'border-l-zinc-500'
+}
 
 interface ResumeListProps {
   resumes: Resume[]
@@ -74,6 +98,18 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   const [mode, setMode] = useState<'choose' | 'tailor' | 'scratch'>('choose')
   const [jobDescription, setJobDescription] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const masterResume = resumes.find((r) => r.is_master) ?? null
+  const tailoredResumes = resumes.filter((r) => !r.is_master)
+  const filteredTailored = tailoredResumes.filter((r) => {
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase()
+    return (
+      r.title.toLowerCase().includes(q) ||
+      (r.target_role?.toLowerCase().includes(q) ?? false)
+    )
+  })
 
   function handleCreate() {
     startTransition(async () => {
@@ -157,121 +193,276 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="mx-auto w-full max-w-[1600px]">
+      {/* Page Header */}
+      <div className="mb-8 flex items-center gap-3">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[264px] p-0">
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
+            <AdminSidebar />
+          </SheetContent>
+        </Sheet>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Your Resumes</h2>
+          <h1 className="text-2xl font-bold tracking-tight">Resume Builder</h1>
           <p className="text-muted-foreground text-sm">
-            Create and manage multiple resume versions for different applications.
+            Manage your master resume and tailored versions.
           </p>
         </div>
-        <Button onClick={() => setShowCreate(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Resume
-        </Button>
       </div>
 
-      {resumes.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center py-16">
-          <FileText className="text-muted-foreground mb-4 h-12 w-12" />
-          <h3 className="mb-2 text-lg font-semibold">No resumes yet</h3>
-          <p className="text-muted-foreground mb-4 text-sm">
-            Create your first resume to get started.
-          </p>
-          <Button onClick={() => setShowCreate(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Resume
-          </Button>
+      {/* Master Resume Hero */}
+      {masterResume ? (
+        <Card className="mb-8 border-l-4 border-l-primary bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+          <div className="flex flex-col gap-6 p-6 md:flex-row">
+            {/* PDF Thumbnail Placeholder */}
+            <div className="bg-muted/50 flex h-[200px] w-[155px] shrink-0 items-center justify-center rounded-md border">
+              <FileText className="text-muted-foreground/50 h-12 w-12" />
+            </div>
+
+            {/* Master Resume Details */}
+            <div className="flex min-w-0 flex-1 flex-col">
+              <div className="mb-2">
+                <Badge variant="secondary" className="mb-2 gap-1">
+                  <Crown className="h-3 w-3" />
+                  Master Resume
+                </Badge>
+                <h2 className="truncate text-xl font-semibold" title={masterResume.title}>
+                  {masterResume.title}
+                </h2>
+                {masterResume.target_role && (
+                  <p className="text-muted-foreground mt-0.5 text-sm">
+                    {masterResume.target_role}
+                  </p>
+                )}
+              </div>
+
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                <span className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium">
+                  <FileText className="h-3 w-3" />
+                  {getTemplateName(masterResume.template_id)}
+                </span>
+                {getLevelLabel(masterResume.experience_level) && (
+                  <span className="bg-muted text-muted-foreground inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium">
+                    {getLevelLabel(masterResume.experience_level)}
+                  </span>
+                )}
+                <span className="text-muted-foreground/60 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs">
+                  <Clock className="h-3 w-3" />
+                  Updated {formatDate(masterResume.updated_at)}
+                </span>
+              </div>
+
+              {masterResume.short_id && (
+                <p className="text-muted-foreground mb-3 text-xs">
+                  Public URL:{' '}
+                  <Link
+                    href={`/r/${masterResume.short_id}`}
+                    className="text-primary hover:underline"
+                    target="_blank"
+                  >
+                    /r/{masterResume.short_id}
+                  </Link>
+                </p>
+              )}
+
+              <div className="mt-auto flex items-center gap-2">
+                <Button asChild>
+                  <Link href={`/admin/resume-builder/${masterResume.id}/edit`}>
+                    Edit Master Resume
+                  </Link>
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" aria-label="More actions">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setCloneTitle(`${masterResume.title} (Copy)`)
+                        setShowClone(masterResume.id)
+                      }}
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      Clone
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {resumes.map((resume) => (
-            <Card key={resume.id} className="group relative overflow-hidden">
-              <Link
-                href={`/admin/resume-builder/${resume.id}/edit`}
-                className="block p-5"
-              >
-                <div className="mb-3 flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="line-clamp-1 font-semibold">
-                      {resume.title}
-                    </h3>
-                    {resume.is_master && (
-                      <Badge
-                        variant="secondary"
-                        className="mt-1 gap-1 text-xs"
-                      >
-                        <Crown className="h-3 w-3" />
-                        Master
-                      </Badge>
-                    )}
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 opacity-0 group-hover:opacity-100"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setCloneTitle(`${resume.title} (Copy)`)
-                          setShowClone(resume.id)
-                        }}
-                      >
-                        <Copy className="mr-2 h-4 w-4" />
-                        Clone
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setShowDelete(resume.id)
-                        }}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <div className="text-muted-foreground space-y-1.5 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <Target className="h-3.5 w-3.5" />
-                    {getTemplateName(resume.template_id)} &middot;{' '}
-                    {getLevelLabel(resume.experience_level)}
-                  </div>
-                  {resume.target_role && (
-                    <div className="text-muted-foreground/80">
-                      Target: {resume.target_role}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
-                    Updated {formatDate(resume.updated_at)}
-                  </div>
-                </div>
-              </Link>
-            </Card>
-          ))}
-        </div>
+        <Card className="mb-8 border-2 border-dashed">
+          <div className="flex flex-col items-center justify-center py-12">
+            <Crown className="text-muted-foreground mb-4 h-10 w-10" />
+            <h3 className="mb-1 text-lg font-semibold">No Master Resume</h3>
+            <p className="text-muted-foreground mb-4 max-w-sm text-center text-sm">
+              Create a master resume to serve as the foundation for all your tailored versions.
+            </p>
+            <Button onClick={() => setShowCreate(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Master Resume
+            </Button>
+          </div>
+        </Card>
       )}
+
+      {/* Tailored Resumes Section */}
+      <div>
+        {/* Section Header */}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">Tailored Resumes</h2>
+            <Badge variant="secondary">{tailoredResumes.length}</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="text-muted-foreground absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <Input
+                placeholder="Search resumes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-9 w-[240px] pl-8"
+              />
+            </div>
+            <Button onClick={() => setShowCreate(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Resume
+            </Button>
+          </div>
+        </div>
+
+        {/* Grid */}
+        {tailoredResumes.length === 0 ? (
+          <Card className="border-2 border-dashed">
+            <div className="flex flex-col items-center justify-center py-12">
+              <Target className="text-muted-foreground mb-4 h-10 w-10" />
+              <h3 className="mb-1 text-lg font-semibold">No Tailored Resumes</h3>
+              <p className="text-muted-foreground mb-4 max-w-sm text-center text-sm">
+                Create tailored versions of your resume for specific job applications.
+              </p>
+              <Button onClick={() => setShowCreate(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Resume
+              </Button>
+            </div>
+          </Card>
+        ) : filteredTailored.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="text-muted-foreground text-sm">
+              No resumes matching &ldquo;{searchQuery}&rdquo;
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredTailored.map((resume) => {
+              const templateName = getTemplateName(resume.template_id)
+              const levelLabel = getLevelLabel(resume.experience_level)
+              return (
+                <Card
+                  key={resume.id}
+                  className={cn(
+                    'group relative overflow-hidden border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5',
+                    getTemplateColor(templateName),
+                  )}
+                >
+                  <Link
+                    href={`/admin/resume-builder/${resume.id}/edit`}
+                    className="block p-5"
+                  >
+                    {/* Header: title + actions */}
+                    <div className="mb-3 flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate font-semibold leading-tight" title={resume.title}>
+                          {resume.title}
+                        </h3>
+                        {resume.target_role && (
+                          <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                            {resume.target_role}
+                          </p>
+                        )}
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Resume actions"
+                            className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                            onClick={(e) => e.preventDefault()}
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setCloneTitle(`${resume.title} (Copy)`)
+                              setShowClone(resume.id)
+                            }}
+                          >
+                            <Copy className="mr-2 h-4 w-4" />
+                            Clone
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setShowDelete(resume.id)
+                            }}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+
+                    {/* Meta pills */}
+                    <div className="mb-3 flex flex-wrap gap-1.5">
+                      <span className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium">
+                        <FileText className="h-3 w-3" />
+                        {templateName}
+                      </span>
+                      {levelLabel && (
+                        <span className="bg-muted text-muted-foreground inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium">
+                          {levelLabel}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Footer: date */}
+                    <div className="text-muted-foreground/60 flex items-center gap-1.5 text-[11px]">
+                      <Clock className="h-3 w-3" />
+                      Updated {formatDate(resume.updated_at)}
+                    </div>
+                  </Link>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Create Resume Dialog */}
       <Dialog open={showCreate} onOpenChange={(open) => {
+        if (!open && isGenerating) return
         setShowCreate(open)
         if (!open) {
           setMode('choose')
           setJobDescription('')
           setTitle('')
           setTargetRole('')
+          setLevel('mid')
           setIsGenerating(false)
         }
       }}>
@@ -288,7 +479,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                 <button
                   type="button"
                   onClick={() => setMode('tailor')}
-                  className="flex items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-accent"
+                  className="flex items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                     <Sparkles className="h-5 w-5 text-primary" />
@@ -303,7 +494,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                 <button
                   type="button"
                   onClick={() => setMode('scratch')}
-                  className="flex items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-accent"
+                  className="flex items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
                     <FileText className="h-5 w-5 text-muted-foreground" />
@@ -353,7 +544,8 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                     placeholder="Paste the full job description here..."
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
-                    className="min-h-[200px] resize-y"
+                    className="h-[300px] overflow-y-auto resize-none"
+                    style={{ fieldSizing: 'fixed' }}
                   />
                 </div>
                 <div className="flex gap-2">
@@ -372,8 +564,8 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                   >
                     {isGenerating ? (
                       <>
-                        <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-                        Generating...
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating (~30s)...
                       </>
                     ) : (
                       <>
