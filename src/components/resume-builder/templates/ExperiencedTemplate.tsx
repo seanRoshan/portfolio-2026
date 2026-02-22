@@ -13,9 +13,9 @@ export function ExperiencedTemplate({ resume }: Props) {
   const dateFormat = resume.settings?.date_format ?? 'month_year'
   const sections = getVisibleSections(resume)
   const links = getContactLinks(resume)
-  const { accent, font, density } = getTemplateStyles(resume.settings)
+  const { accent, background, font, density } = getTemplateStyles(resume.settings)
 
-  const leftBg = '#f3f4f6'
+  const leftBg = background
 
   /* ---- left column renderers ---- */
   const leftRenderers: Record<string, () => React.ReactNode> = {

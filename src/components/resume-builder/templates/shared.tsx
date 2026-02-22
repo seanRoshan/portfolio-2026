@@ -73,8 +73,9 @@ export const DENSITY_MAP: Record<string, { body: string; heading: string; sectio
   spacious:    { body: '11px', heading: '13px', section: '15px', lineHeight: '1.5', sectionGap: '16px' },
 }
 
-export function getTemplateStyles(settings: { accent_color?: string; font_family?: string; font_size_preset?: string; font_size_base?: number } | null | undefined) {
+export function getTemplateStyles(settings: { accent_color?: string; font_family?: string; font_size_preset?: string; font_size_base?: number; background_color?: string } | null | undefined) {
   const accent = settings?.accent_color || '#000000'
+  const background = settings?.background_color || '#374151'
   const font = resolveFontFamily(settings?.font_family ?? 'Inter')
   const baseDensity = DENSITY_MAP[settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
 
@@ -90,8 +91,8 @@ export function getTemplateStyles(settings: { accent_color?: string; font_family
       lineHeight: baseDensity.lineHeight,
       sectionGap: baseDensity.sectionGap,
     }
-    return { accent, font, density }
+    return { accent, background, font, density }
   }
 
-  return { accent, font, density: baseDensity }
+  return { accent, background, font, density: baseDensity }
 }

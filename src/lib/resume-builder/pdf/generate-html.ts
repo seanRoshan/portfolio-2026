@@ -52,6 +52,7 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   const fontImportUrl = googleFontUrl(fontValue)
   const baseDensity = DENSITY_MAP[resume.settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
   const accentColor = resume.settings?.accent_color ?? '#000000'
+  const backgroundColor = resume.settings?.background_color ?? '#374151'
 
   // Scale density if font_size_base is set
   const fontSizeBase = resume.settings?.font_size_base
@@ -79,11 +80,11 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
     templateId === 'a1b2c3d4-0006-4000-8000-000000000006'
 
   if (isTwoColumn && templateId === 'a1b2c3d4-0005-4000-8000-000000000005') {
-    return generateParkerHtml(resume, ci, df, accentColor, fontFamily, fontImportUrl, density, sectionOrder)
+    return generateParkerHtml(resume, ci, df, accentColor, backgroundColor, fontFamily, fontImportUrl, density, sectionOrder)
   }
 
   if (isTwoColumn && templateId === 'a1b2c3d4-0006-4000-8000-000000000006') {
-    return generateExperiencedHtml(resume, ci, df, accentColor, fontFamily, fontImportUrl, density, sectionOrder)
+    return generateExperiencedHtml(resume, ci, df, accentColor, backgroundColor, fontFamily, fontImportUrl, density, sectionOrder)
   }
 
   // Single-column templates
@@ -189,10 +190,12 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   * { margin: 0; padding: 0; box-sizing: border-box; }
   @page { size: Letter; margin: 0; }
   body { font-family: ${bodyFont}; font-size: ${density.body}; line-height: ${density.lineHeight}; color: #111827; }
+  .resume-section { page-break-inside: avoid; break-inside: avoid; }
   .experience-entry { page-break-inside: avoid; break-inside: avoid; }
   h2 { page-break-after: avoid; break-after: avoid; }
   li { page-break-inside: avoid; break-inside: avoid; }
-  ul { orphans: 2; widows: 2; }
+  ul { orphans: 3; widows: 3; }
+  p { orphans: 3; widows: 3; }
 </style>
 </head>
 <body>
@@ -215,7 +218,7 @@ function sectionBlock(title: string, content: string, headerColor: string, divid
   </div>`
 }
 
-function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
+function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, backgroundColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -225,16 +228,18 @@ function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations
   * { margin: 0; padding: 0; box-sizing: border-box; }
   @page { size: Letter; margin: 0; }
   body { font-family: ${fontFamily}; font-size: ${density.body}; line-height: ${density.lineHeight}; }
+  .resume-section { page-break-inside: avoid; break-inside: avoid; }
   .experience-entry { page-break-inside: avoid; break-inside: avoid; }
   h2 { page-break-after: avoid; break-after: avoid; }
   li { page-break-inside: avoid; break-inside: avoid; }
-  ul { orphans: 2; widows: 2; }
+  ul { orphans: 3; widows: 3; }
+  p { orphans: 3; widows: 3; }
 </style>
 </head>
 <body>
 <div style="display:grid;grid-template-columns:30% 70%;min-height:11in">
   <!-- Sidebar -->
-  <div style="background:#374151;color:white;padding:40px 20px">
+  <div style="background:${backgroundColor};color:white;padding:40px 20px">
     <h1 style="font-size:22px;font-weight:700;margin-bottom:4px">${escapeHtml(ci?.full_name || '')}</h1>
     <div style="font-size:9px;margin-bottom:24px;opacity:0.8">
       ${ci?.email ? `<div style="margin-bottom:3px">${escapeHtml(ci.email)}</div>` : ''}
@@ -270,7 +275,7 @@ function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations
 </html>`
 }
 
-function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
+function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, backgroundColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -280,10 +285,12 @@ function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRela
   * { margin: 0; padding: 0; box-sizing: border-box; }
   @page { size: Letter; margin: 0; }
   body { font-family: ${fontFamily}; font-size: ${density.body}; line-height: ${density.lineHeight}; color: #111827; }
+  .resume-section { page-break-inside: avoid; break-inside: avoid; }
   .experience-entry { page-break-inside: avoid; break-inside: avoid; }
   h2 { page-break-after: avoid; break-after: avoid; }
   li { page-break-inside: avoid; break-inside: avoid; }
-  ul { orphans: 2; widows: 2; }
+  ul { orphans: 3; widows: 3; }
+  p { orphans: 3; widows: 3; }
 </style>
 </head>
 <body>

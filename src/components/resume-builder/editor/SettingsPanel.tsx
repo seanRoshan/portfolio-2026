@@ -196,6 +196,35 @@ export function SettingsPanel({ resumeId, settings, sectionOrder }: Props) {
         </div>
       </SettingRow>
 
+      <SettingRow icon={Palette} label="Background Color" description="Sidebar or header background (Parker, Experienced)">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Input
+              type="color"
+              defaultValue={settings?.background_color ?? '#374151'}
+              onChange={(e) => handleUpdate('background_color', e.target.value)}
+              className="h-9 w-12 cursor-pointer border-2 p-0.5"
+            />
+          </div>
+          <Input
+            key={settings?.background_color ?? '#374151'}
+            defaultValue={settings?.background_color ?? '#374151'}
+            onBlur={(e) => {
+              const val = e.target.value.trim()
+              if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                handleUpdate('background_color', val)
+              }
+            }}
+            className="h-9 w-24 font-mono text-xs uppercase"
+            placeholder="#374151"
+          />
+          <div
+            className="h-9 w-9 shrink-0 rounded-md border"
+            style={{ backgroundColor: settings?.background_color ?? '#374151' }}
+          />
+        </div>
+      </SettingRow>
+
       <SettingRow icon={Type} label="Font Family" description="Typography used throughout the resume">
         <FontFamilyPicker
           value={settings?.font_family ?? 'Inter'}

@@ -221,6 +221,7 @@ export interface ResumeSettings {
   hidden_sections: string[]
   page_limit: 1 | 2 | 3
   font_size_base?: number
+  background_color?: string
 }
 
 // ===== Full Resume (with all relations) =====

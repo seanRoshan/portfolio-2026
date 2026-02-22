@@ -13,9 +13,9 @@ export function ParkerTemplate({ resume }: Props) {
   const dateFormat = resume.settings?.date_format ?? 'month_year'
   const sections = getVisibleSections(resume)
   const links = getContactLinks(resume)
-  const { accent, font, density } = getTemplateStyles(resume.settings)
+  const { accent, background, font, density } = getTemplateStyles(resume.settings)
 
-  const dark = '#374151'
+  const dark = background
   const light = '#f9fafb'
 
   /* ---- sidebar renderers ---- */
