@@ -61,16 +61,18 @@ function SortableSection({ id, children }: { id: string; children: React.ReactNo
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} className="group/section relative">
-      <button
-        {...attributes}
-        {...listeners}
-        className="absolute -left-2 top-4 z-10 flex h-8 w-6 -translate-x-full cursor-grab items-center justify-center rounded-md opacity-0 transition-opacity group-hover/section:opacity-100 hover:bg-muted active:cursor-grabbing"
-        aria-label="Drag to reorder"
-      >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
-      </button>
-      {children}
+    <div ref={setNodeRef} style={style} className="group/section relative rounded-lg border border-transparent transition-colors hover:border-border/50">
+      <div className="flex gap-2 px-1 pt-1">
+        <button
+          {...attributes}
+          {...listeners}
+          className="mt-2.5 flex h-7 w-5 shrink-0 cursor-grab items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-muted-foreground active:cursor-grabbing"
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="h-3.5 w-3.5" />
+        </button>
+        <div className="min-w-0 flex-1 pb-1">{children}</div>
+      </div>
     </div>
   )
 }
