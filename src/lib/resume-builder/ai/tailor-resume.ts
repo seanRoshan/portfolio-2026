@@ -599,25 +599,24 @@ ${formattedPortfolio}
 
 Create the tailored resume JSON now. Remember: EVERY section must be populated with data from the portfolio above. Do not leave any section empty.`
 
-  let response
+  let text = ''
   try {
-    response = await client.messages.create({
+    const stream = client.messages.stream({
       model: MODEL,
       max_tokens: 32768,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
     })
+    const response = await stream.finalMessage()
+    totalUsage.input_tokens += response.usage?.input_tokens ?? 0
+    totalUsage.output_tokens += response.usage?.output_tokens ?? 0
+    text = response.content.find((b) => b.type === 'text')?.text ?? ''
   } catch (err) {
     if (err instanceof Error && !(err instanceof APIError || err instanceof APIConnectionError || err instanceof APIConnectionTimeoutError || err instanceof AuthenticationError || err instanceof RateLimitError)) {
       throw err
     }
     handleAPIError(err)
   }
-
-  totalUsage.input_tokens += response.usage?.input_tokens ?? 0
-  totalUsage.output_tokens += response.usage?.output_tokens ?? 0
-
-  const text = response.content.find((b) => b.type === 'text')?.text ?? ''
   if (!text) throw new Error('AI returned empty response')
 
   const jsonMatch = extractJSON(text)
