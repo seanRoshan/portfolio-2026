@@ -1,4 +1,3 @@
-import { AdminHeader } from '../admin-header'
 import { getResumes } from '@/lib/resume-builder/queries'
 import { getTemplates } from '@/lib/resume-builder/queries'
 import { ResumeList } from './resume-list'
@@ -10,11 +9,8 @@ export default async function ResumeBuilderPage() {
   ])
 
   return (
-    <>
-      <AdminHeader title="Resume Builder" />
-      <div className="p-4 md:p-6">
-        <ResumeList resumes={resumes} templates={templates} />
-      </div>
-    </>
+    <div className="p-4 md:p-6">
+      <ResumeList resumes={resumes} templates={templates} />
+    </div>
   )
 }
