@@ -189,6 +189,7 @@ export function ApplicationDetail({
   const [notesSaved, setNotesSaved] = useState(true)
   const daysSinceApplied = useMemo(() => {
     if (!application.applied_date) return null
+    // eslint-disable-next-line react-hooks/purity -- computing elapsed days legitimately needs current time
     return Math.floor((Date.now() - new Date(application.applied_date).getTime()) / (1000 * 60 * 60 * 24))
   }, [application.applied_date])
 
