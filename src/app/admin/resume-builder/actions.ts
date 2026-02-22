@@ -6,6 +6,11 @@ import type { ExperienceLevel } from '@/types/resume-builder'
 import { fetchPortfolioData } from '@/lib/resume-builder/ai/portfolio-data'
 import { tailorResume, getTemplateId, TEMPLATE_MAP, type TailorResult } from '@/lib/resume-builder/ai/tailor-resume'
 import { logAIUsage } from '@/lib/resume-builder/ai/usage'
+import {
+  executePrompt as execPrompt,
+  listPrompts as listPromptsService,
+} from '@/lib/resume-builder/ai/prompt-service'
+import type { AIPrompt } from '@/types/ai-prompts'
 
 function generateShortId(): string {
   return Math.random().toString(36).substring(2, 8)
@@ -66,9 +71,28 @@ export async function createResume(formData: {
 
   // Create default related records
   const results = await Promise.all([
-    supabase
-      .from('resume_contact_info')
-      .insert({ resume_id: resume.id, full_name: '' }),
+    (async () => {
+      const { data: settings } = await supabase
+        .from('site_settings')
+        .select('full_name, contact_email, phone, city, state, country, linkedin_url, github_url, portfolio_url, blog_url')
+        .single()
+
+      return supabase
+        .from('resume_contact_info')
+        .insert({
+          resume_id: resume.id,
+          full_name: settings?.full_name ?? '',
+          email: settings?.contact_email ?? null,
+          phone: settings?.phone ?? null,
+          city: settings?.city ?? null,
+          state: settings?.state ?? null,
+          country: settings?.country ?? null,
+          linkedin_url: settings?.linkedin_url ?? null,
+          github_url: settings?.github_url ?? null,
+          portfolio_url: settings?.portfolio_url ?? null,
+          blog_url: settings?.blog_url ?? null,
+        })
+    })(),
     supabase
       .from('resume_summaries')
       .insert({ resume_id: resume.id, text: '', is_visible: true }),
@@ -129,7 +153,8 @@ export async function generateTailoredResume(formData: {
   const templateId = getTemplateId(tailored.suggested_template)
 
   // 5. Parse target_role from title (split on em-dash, en-dash, or hyphen)
-  const suggestedTitle = tailored.suggested_title || 'Untitled Resume'
+  const suggestedTitle = tailored.suggested_title
+    || `${jdAnalysis.role_title} — ${jdAnalysis.company || 'Tailored Resume'}`
   const dashMatch = suggestedTitle.match(/^(.+?)\s*[—–\-]\s*.+$/)
   const targetRole = dashMatch ? dashMatch[1].trim() : null
 
@@ -156,19 +181,23 @@ export async function generateTailoredResume(formData: {
   // 7-13. Insert all related records (with rollback on failure)
   try {
     // 7. Insert contact_info, summary, and settings in parallel
+    // Fallback ALL contact fields to portfolio data (not just full_name)
     const contact = tailored.contact_info ?? {}
+    const locationParts = (portfolio.location ?? '').split(',').map((s: string) => s.trim())
+    const portfolioCity = locationParts[0] || null
+    const portfolioCountry = locationParts.length > 1 ? locationParts.slice(1).join(', ').trim() : null
     const parallelResults = await Promise.all([
       supabase.from('resume_contact_info').insert({
         resume_id: resume.id,
         full_name: contact.full_name || portfolio.name || '',
-        email: contact.email || null,
-        phone: contact.phone || null,
-        city: contact.city || null,
-        country: contact.country || null,
-        linkedin_url: contact.linkedin_url || null,
-        github_url: contact.github_url || null,
-        portfolio_url: contact.portfolio_url || null,
-        blog_url: contact.blog_url || null,
+        email: contact.email || portfolio.email || null,
+        phone: contact.phone || portfolio.phone || null,
+        city: contact.city || portfolioCity || null,
+        country: contact.country || portfolioCountry || null,
+        linkedin_url: contact.linkedin_url || portfolio.linkedin || null,
+        github_url: contact.github_url || portfolio.github || null,
+        portfolio_url: contact.portfolio_url || portfolio.website || null,
+        blog_url: contact.blog_url || portfolio.blog || null,
       }),
       supabase.from('resume_summaries').insert({
         resume_id: resume.id,
@@ -193,8 +222,8 @@ export async function generateTailoredResume(formData: {
     if (workExperiences.length > 0) {
       const expInserts = workExperiences.map((exp, i) => ({
         resume_id: resume.id,
-        job_title: exp.job_title,
-        company: exp.company,
+        job_title: exp.job_title || jdAnalysis.role_title || 'Role',
+        company: exp.company || jdAnalysis.company || 'Company',
         location: exp.location || null,
         start_date: normalizeDate(exp.start_date),
         end_date: normalizeDate(exp.end_date),
@@ -251,7 +280,7 @@ export async function generateTailoredResume(formData: {
     if (projects.length > 0) {
       const projInserts = projects.map((proj, i) => ({
         resume_id: resume.id,
-        name: proj.name,
+        name: proj.name || 'Project',
         description: proj.description || null,
         project_url: proj.url || null,
         source_url: proj.source_url || null,
@@ -988,6 +1017,62 @@ export async function updateResumeTitle(resumeId: string, title: string) {
   revalidatePath(`/admin/resume-builder/${resumeId}/edit`)
 }
 
+// ===== Resume Prompt Overrides =====
+
+export async function getResumePromptOverrides(resumeId: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('resume_prompt_overrides')
+    .select('*')
+    .eq('resume_id', resumeId)
+
+  if (error) throw new Error(error.message)
+  return data ?? []
+}
+
+export async function saveResumePromptOverride(
+  resumeId: string,
+  promptSlug: string,
+  overrides: {
+    system_prompt?: string | null
+    user_prompt_template?: string | null
+    model?: string | null
+    max_tokens?: number | null
+  }
+) {
+  const supabase = await createClient()
+
+  // Upsert: insert or update on conflict
+  const { error } = await supabase
+    .from('resume_prompt_overrides')
+    .upsert(
+      {
+        resume_id: resumeId,
+        prompt_slug: promptSlug,
+        ...overrides,
+      },
+      { onConflict: 'resume_id,prompt_slug' }
+    )
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/resume-builder/${resumeId}/edit`)
+}
+
+export async function deleteResumePromptOverride(
+  resumeId: string,
+  promptSlug: string
+) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('resume_prompt_overrides')
+    .delete()
+    .eq('resume_id', resumeId)
+    .eq('prompt_slug', promptSlug)
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/resume-builder/${resumeId}/edit`)
+}
+
 // ===== Helpers =====
 
 function getDefaultSectionOrder(level: ExperienceLevel): string[] {
@@ -1066,6 +1151,73 @@ function getDefaultSectionOrder(level: ExperienceLevel): string[] {
       ]
   }
 }
+
+// ===== AI Prompt Actions =====
+
+export async function executeAIPrompt(
+  slug: string,
+  variables: Record<string, string>,
+  resumeId?: string
+): Promise<string> {
+  try {
+    return await execPrompt(slug, variables, resumeId)
+  } catch (err) {
+    console.error('[executeAIPrompt] Error:', err)
+    throw new Error(
+      err instanceof Error ? err.message : 'AI prompt execution failed'
+    )
+  }
+}
+
+export async function fetchPromptsByCategory(
+  category?: string
+): Promise<AIPrompt[]> {
+  return listPromptsService(category)
+}
+
+export async function updateAchievementText(
+  achievementId: string,
+  text: string,
+  resumeId: string
+) {
+  const supabase = await createClient()
+  const hasMetric = /\d/.test(text)
+  const { error } = await supabase
+    .from('resume_achievements')
+    .update({ text, has_metric: hasMetric })
+    .eq('id', achievementId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/resume-builder/${resumeId}/edit`)
+}
+
+export async function updateSummaryText(resumeId: string, text: string) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('resume_summaries')
+    .update({ text })
+    .eq('resume_id', resumeId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/resume-builder/${resumeId}/edit`)
+}
+
+export async function updateProjectDescription(
+  projectId: string,
+  description: string,
+  resumeId: string
+) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('resume_projects')
+    .update({ description })
+    .eq('id', projectId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/resume-builder/${resumeId}/edit`)
+}
+
+// ===== Helpers =====
 
 function getDefaultPageLimit(
   level: ExperienceLevel
