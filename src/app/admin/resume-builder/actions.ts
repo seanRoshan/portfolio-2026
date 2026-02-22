@@ -4,10 +4,27 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { ExperienceLevel } from '@/types/resume-builder'
 import { fetchPortfolioData } from '@/lib/resume-builder/ai/portfolio-data'
-import { tailorResume, getTemplateId } from '@/lib/resume-builder/ai/tailor-resume'
+import { tailorResume, getTemplateId, TEMPLATE_MAP, type TailorResult } from '@/lib/resume-builder/ai/tailor-resume'
+import { logAIUsage } from '@/lib/resume-builder/ai/usage'
 
 function generateShortId(): string {
   return Math.random().toString(36).substring(2, 8)
+}
+
+/** Normalize AI date strings to valid PostgreSQL DATE format (YYYY-MM-DD) */
+function normalizeDate(d: string | null | undefined): string | null {
+  if (!d) return null
+  const s = d.trim()
+  // Already YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
+  // YYYY-MM → YYYY-MM-01
+  if (/^\d{4}-\d{2}$/.test(s)) return `${s}-01`
+  // YYYY → YYYY-01-01
+  if (/^\d{4}$/.test(s)) return `${s}-01-01`
+  // Try to parse other formats
+  const parsed = new Date(s)
+  if (!isNaN(parsed.getTime())) return parsed.toISOString().split('T')[0]
+  return null
 }
 
 // ===== Resume CRUD =====
@@ -83,31 +100,45 @@ export async function generateTailoredResume(formData: {
   } = await supabase.auth.getUser()
 
   // 2. Fetch portfolio data
-  const portfolio = await fetchPortfolioData()
+  let portfolio
+  try {
+    portfolio = await fetchPortfolioData()
+  } catch (err) {
+    console.error('[generateTailoredResume] Portfolio fetch error:', err)
+    throw new Error('Failed to fetch portfolio data')
+  }
 
-  // 3. Call AI tailoring
-  const tailored = await tailorResume(
-    portfolio,
-    formData.job_description,
-    formData.experience_level
-  )
+  // 3. Call AI tailoring (multi-step: JD analysis → skill matching → tailoring)
+  let result: TailorResult
+  try {
+    result = await tailorResume(
+      portfolio,
+      formData.job_description,
+      formData.experience_level
+    )
+  } catch (err) {
+    console.error('[generateTailoredResume] AI tailoring error:', err)
+    throw new Error(
+      err instanceof Error ? err.message : 'AI tailoring failed'
+    )
+  }
 
-  // 4. Resolve template UUID
+  const { data: tailored, jdAnalysis, skillMatch, usage } = result
+
+  // 4. Resolve template UUID (has built-in fallback to pragmatic)
   const templateId = getTemplateId(tailored.suggested_template)
 
   // 5. Parse target_role from title (split on em-dash, en-dash, or hyphen)
-  const targetRole =
-    tailored.suggested_title.split('—')[0]?.trim() ||
-    tailored.suggested_title.split('–')[0]?.trim() ||
-    tailored.suggested_title.split('-')[0]?.trim() ||
-    null
+  const suggestedTitle = tailored.suggested_title || 'Untitled Resume'
+  const dashMatch = suggestedTitle.match(/^(.+?)\s*[—–\-]\s*.+$/)
+  const targetRole = dashMatch ? dashMatch[1].trim() : null
 
   // 6. Insert resume record
   const { data: resume, error: resumeError } = await supabase
     .from('resumes')
     .insert({
       user_id: user?.id,
-      title: tailored.suggested_title,
+      title: suggestedTitle,
       template_id: templateId,
       experience_level: formData.experience_level,
       target_role: targetRole,
@@ -122,220 +153,214 @@ export async function generateTailoredResume(formData: {
     throw new Error(`Failed to create resume: ${resumeError.message}`)
   }
 
-  // 7. Insert contact_info, summary, and settings in parallel
-  const parallelResults = await Promise.all([
-    supabase.from('resume_contact_info').insert({
-      resume_id: resume.id,
-      full_name: tailored.contact_info.full_name,
-      email: tailored.contact_info.email || null,
-      phone: tailored.contact_info.phone || null,
-      city: tailored.contact_info.city || null,
-      country: tailored.contact_info.country || null,
-      linkedin_url: tailored.contact_info.linkedin_url || null,
-      github_url: tailored.contact_info.github_url || null,
-      portfolio_url: tailored.contact_info.portfolio_url || null,
-    }),
-    supabase.from('resume_summaries').insert({
-      resume_id: resume.id,
-      text: tailored.summary,
-      is_visible: true,
-    }),
-    supabase.from('resume_settings').insert({
-      resume_id: resume.id,
-      section_order: tailored.section_order,
-      page_limit: getDefaultPageLimit(formData.experience_level),
-    }),
-  ])
+  // 7-13. Insert all related records (with rollback on failure)
+  try {
+    // 7. Insert contact_info, summary, and settings in parallel
+    const contact = tailored.contact_info ?? {}
+    const parallelResults = await Promise.all([
+      supabase.from('resume_contact_info').insert({
+        resume_id: resume.id,
+        full_name: contact.full_name || portfolio.name || '',
+        email: contact.email || null,
+        phone: contact.phone || null,
+        city: contact.city || null,
+        country: contact.country || null,
+        linkedin_url: contact.linkedin_url || null,
+        github_url: contact.github_url || null,
+        portfolio_url: contact.portfolio_url || null,
+        blog_url: contact.blog_url || null,
+      }),
+      supabase.from('resume_summaries').insert({
+        resume_id: resume.id,
+        text: tailored.summary || '',
+        is_visible: true,
+      }),
+      supabase.from('resume_settings').insert({
+        resume_id: resume.id,
+        section_order: tailored.section_order?.length
+          ? tailored.section_order
+          : getDefaultSectionOrder(formData.experience_level),
+        page_limit: getDefaultPageLimit(formData.experience_level),
+      }),
+    ])
 
-  for (const result of parallelResults) {
-    if (result.error) {
-      console.error(
-        '[generateTailoredResume] Related record error:',
-        result.error
-      )
+    for (const result of parallelResults) {
+      if (result.error) throw result.error
     }
-  }
 
-  // 8. Insert work experiences sequentially (need parent ID for achievements)
-  for (let i = 0; i < tailored.work_experiences.length; i++) {
-    const exp = tailored.work_experiences[i]
-    const { data: newExp, error: expError } = await supabase
-      .from('resume_work_experiences')
-      .insert({
+    // 8. Batch insert all work experiences at once
+    const workExperiences = tailored.work_experiences ?? []
+    if (workExperiences.length > 0) {
+      const expInserts = workExperiences.map((exp, i) => ({
         resume_id: resume.id,
         job_title: exp.job_title,
         company: exp.company,
         location: exp.location || null,
-        start_date: exp.start_date || null,
-        end_date: exp.end_date || null,
+        start_date: normalizeDate(exp.start_date),
+        end_date: normalizeDate(exp.end_date),
         sort_order: i,
-      })
-      .select()
-      .single()
+      }))
 
-    if (expError) {
-      console.error(
-        '[generateTailoredResume] Work experience insert error:',
-        expError
-      )
-      continue
-    }
+      const { data: newExperiences, error: expError } = await supabase
+        .from('resume_work_experiences')
+        .insert(expInserts)
+        .select('id')
 
-    if (exp.achievements.length > 0) {
-      const { error: achError } = await supabase
-        .from('resume_achievements')
-        .insert(
-          exp.achievements.map((text, idx) => ({
+      if (expError) throw expError
+
+      // Batch insert ALL achievements for ALL experiences in one call
+      if (newExperiences?.length) {
+        const allAchievements = newExperiences.flatMap((newExp, i) => {
+          const achievements = workExperiences[i]?.achievements ?? []
+          return achievements.map((text, j) => ({
             parent_id: newExp.id,
             parent_type: 'work' as const,
-            text,
-            has_metric: /\d/.test(text),
-            sort_order: idx,
+            text: text || '',
+            has_metric: /\d/.test(text || ''),
+            sort_order: j,
+          }))
+        })
+        if (allAchievements.length > 0) {
+          const { error: achError } = await supabase
+            .from('resume_achievements')
+            .insert(allAchievements)
+          if (achError) throw achError
+        }
+      }
+    }
+
+    // 9. Insert skill categories in bulk
+    const skillCategories = tailored.skill_categories ?? []
+    if (skillCategories.length > 0) {
+      const { error: skillsError } = await supabase
+        .from('resume_skill_categories')
+        .insert(
+          skillCategories.map((cat, i) => ({
+            resume_id: resume.id,
+            name: cat.name || '',
+            skills: cat.skills ?? [],
+            sort_order: i,
           }))
         )
 
-      if (achError) {
-        console.error(
-          '[generateTailoredResume] Work achievements insert error:',
-          achError
-        )
-      }
+      if (skillsError) throw skillsError
     }
-  }
 
-  // 9. Insert skill categories in bulk
-  if (tailored.skill_categories.length > 0) {
-    const { error: skillsError } = await supabase
-      .from('resume_skill_categories')
-      .insert(
-        tailored.skill_categories.map((cat, i) => ({
-          resume_id: resume.id,
-          name: cat.name,
-          skills: cat.skills,
-          sort_order: i,
-        }))
-      )
-
-    if (skillsError) {
-      console.error(
-        '[generateTailoredResume] Skills insert error:',
-        skillsError
-      )
-    }
-  }
-
-  // 10. Insert projects sequentially (need parent ID for achievements)
-  for (let i = 0; i < tailored.projects.length; i++) {
-    const proj = tailored.projects[i]
-    const { data: newProj, error: projError } = await supabase
-      .from('resume_projects')
-      .insert({
+    // 10. Batch insert all projects
+    const projects = tailored.projects ?? []
+    if (projects.length > 0) {
+      const projInserts = projects.map((proj, i) => ({
         resume_id: resume.id,
         name: proj.name,
         description: proj.description || null,
         project_url: proj.url || null,
         source_url: proj.source_url || null,
         sort_order: i,
-      })
-      .select()
-      .single()
+      }))
 
-    if (projError) {
-      console.error(
-        '[generateTailoredResume] Project insert error:',
-        projError
-      )
-      continue
-    }
+      const { data: newProjects, error: projError } = await supabase
+        .from('resume_projects')
+        .insert(projInserts)
+        .select('id')
 
-    if (proj.achievements.length > 0) {
-      const { error: achError } = await supabase
-        .from('resume_achievements')
-        .insert(
-          proj.achievements.map((text, idx) => ({
+      if (projError) throw projError
+
+      // Batch insert project achievements
+      if (newProjects?.length) {
+        const allProjAchievements = newProjects.flatMap((newProj, i) => {
+          const achievements = projects[i]?.achievements ?? []
+          return achievements.map((text, j) => ({
             parent_id: newProj.id,
             parent_type: 'project' as const,
-            text,
-            has_metric: /\d/.test(text),
-            sort_order: idx,
+            text: text || '',
+            has_metric: /\d/.test(text || ''),
+            sort_order: j,
+          }))
+        })
+        if (allProjAchievements.length > 0) {
+          const { error: projAchError } = await supabase
+            .from('resume_achievements')
+            .insert(allProjAchievements)
+          if (projAchError) throw projAchError
+        }
+      }
+    }
+
+    // 11. Insert education in bulk
+    const education = tailored.education ?? []
+    if (education.length > 0) {
+      const { error: eduError } = await supabase
+        .from('resume_education')
+        .insert(
+          education.map((edu, i) => ({
+            resume_id: resume.id,
+            degree: edu.degree || '',
+            institution: edu.institution || '',
+            field_of_study: edu.field_of_study || null,
+            graduation_date: normalizeDate(edu.graduation_date),
+            sort_order: i,
           }))
         )
 
-      if (achError) {
-        console.error(
-          '[generateTailoredResume] Project achievements insert error:',
-          achError
+      if (eduError) throw eduError
+    }
+
+    // 12. Insert certifications in bulk
+    const certifications = tailored.certifications ?? []
+    if (certifications.length > 0) {
+      const { error: certError } = await supabase
+        .from('resume_certifications')
+        .insert(
+          certifications.map((cert, i) => ({
+            resume_id: resume.id,
+            name: cert.name || '',
+            issuer: cert.issuer || null,
+            date: normalizeDate(cert.date),
+            sort_order: i,
+          }))
         )
-      }
+
+      if (certError) throw certError
     }
+
+    // 13. Insert extracurriculars in bulk
+    const extracurriculars = tailored.extracurriculars ?? []
+    if (extracurriculars.length > 0) {
+      const { error: extraError } = await supabase
+        .from('resume_extracurriculars')
+        .insert(
+          extracurriculars.map((extra, i) => ({
+            resume_id: resume.id,
+            type: extra.type || 'other',
+            title: extra.title || '',
+            description: extra.description || null,
+            url: extra.url || null,
+            sort_order: i,
+          }))
+        )
+
+      if (extraError) throw extraError
+    }
+  } catch (insertErr) {
+    // Rollback: delete the partially created resume (cascade deletes will clean up children)
+    await supabase.from('resumes').delete().eq('id', resume.id)
+    console.error('[generateTailoredResume] Rollback — deleted resume:', resume.id, insertErr)
+    throw new Error(
+      `Failed to populate resume data: ${insertErr instanceof Error ? insertErr.message : String(insertErr)}`
+    )
   }
 
-  // 11. Insert education in bulk
-  if (tailored.education.length > 0) {
-    const { error: eduError } = await supabase
-      .from('resume_education')
-      .insert(
-        tailored.education.map((edu, i) => ({
-          resume_id: resume.id,
-          degree: edu.degree,
-          institution: edu.institution,
-          field_of_study: edu.field_of_study || null,
-          graduation_date: edu.graduation_date || null,
-          sort_order: i,
-        }))
-      )
-
-    if (eduError) {
-      console.error(
-        '[generateTailoredResume] Education insert error:',
-        eduError
-      )
-    }
-  }
-
-  // 12. Insert certifications in bulk
-  if (tailored.certifications.length > 0) {
-    const { error: certError } = await supabase
-      .from('resume_certifications')
-      .insert(
-        tailored.certifications.map((cert, i) => ({
-          resume_id: resume.id,
-          name: cert.name,
-          issuer: cert.issuer || null,
-          date: cert.date || null,
-          sort_order: i,
-        }))
-      )
-
-    if (certError) {
-      console.error(
-        '[generateTailoredResume] Certifications insert error:',
-        certError
-      )
-    }
-  }
-
-  // 13. Insert extracurriculars in bulk
-  if (tailored.extracurriculars.length > 0) {
-    const { error: extraError } = await supabase
-      .from('resume_extracurriculars')
-      .insert(
-        tailored.extracurriculars.map((extra, i) => ({
-          resume_id: resume.id,
-          type: extra.type,
-          title: extra.title,
-          description: extra.description || null,
-          url: extra.url || null,
-          sort_order: i,
-        }))
-      )
-
-    if (extraError) {
-      console.error(
-        '[generateTailoredResume] Extracurriculars insert error:',
-        extraError
-      )
-    }
+  // 14. Log AI usage for cost tracking
+  if (usage) {
+    logAIUsage({
+      user_id: user?.id ?? null,
+      action: 'tailor_resume',
+      model: usage.model,
+      input_tokens: usage.input_tokens,
+      output_tokens: usage.output_tokens,
+    }).catch((err) =>
+      console.error('[generateTailoredResume] Usage log error:', err)
+    )
   }
 
   revalidatePath('/admin/resume-builder')
@@ -966,15 +991,19 @@ export async function updateResumeTitle(resumeId: string, title: string) {
 // ===== Helpers =====
 
 function getDefaultSectionOrder(level: ExperienceLevel): string[] {
+  // Page 1: contact, summary, experience, skills
+  // Page 2: education, projects, certifications, extracurriculars
   switch (level) {
     case 'intern':
     case 'new_grad':
       return [
         'contact',
+        'summary',
         'education',
         'experience',
-        'projects',
         'skills',
+        'projects',
+        'certifications',
         'extracurriculars',
       ]
     case 'bootcamp_grad':
@@ -986,6 +1015,7 @@ function getDefaultSectionOrder(level: ExperienceLevel): string[] {
         'experience',
         'education',
         'certifications',
+        'extracurriculars',
       ]
     case 'junior':
     case 'mid':
@@ -994,9 +1024,10 @@ function getDefaultSectionOrder(level: ExperienceLevel): string[] {
         'summary',
         'experience',
         'skills',
-        'projects',
         'education',
+        'projects',
         'certifications',
+        'extracurriculars',
       ]
     case 'senior':
     case 'staff_plus':
@@ -1007,6 +1038,8 @@ function getDefaultSectionOrder(level: ExperienceLevel): string[] {
         'extracurriculars',
         'skills',
         'education',
+        'projects',
+        'certifications',
       ]
     case 'tech_lead':
     case 'eng_manager':
@@ -1017,6 +1050,8 @@ function getDefaultSectionOrder(level: ExperienceLevel): string[] {
         'extracurriculars',
         'skills',
         'education',
+        'projects',
+        'certifications',
       ]
     default:
       return [
