@@ -16,6 +16,8 @@ import {
   Loader2,
   Menu,
   Search,
+  Share2,
+  Pencil,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -271,12 +273,25 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                 </p>
               )}
 
-              <div className="mt-auto flex items-center gap-2">
+              <div className="mt-auto flex flex-wrap items-center gap-2">
                 <Button asChild>
                   <Link href={`/admin/resume-builder/${masterResume.id}/edit`}>
                     Edit Master Resume
                   </Link>
                 </Button>
+                {masterResume.short_id && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const url = `${window.location.origin}/r/${masterResume.short_id}`
+                      navigator.clipboard.writeText(url)
+                      toast.success('Share link copied to clipboard')
+                    }}
+                  >
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Share Link
+                  </Button>
+                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="icon" aria-label="More actions">
@@ -440,10 +455,24 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                       )}
                     </div>
 
-                    {/* Footer: date */}
-                    <div className="text-muted-foreground/60 flex items-center gap-1.5 text-[11px]">
-                      <Clock className="h-3 w-3" />
-                      Updated {formatDate(resume.updated_at)}
+                    {/* Footer: date + edit button */}
+                    <div className="flex items-center justify-between">
+                      <div className="text-muted-foreground/60 flex items-center gap-1.5 text-[11px]">
+                        <Clock className="h-3 w-3" />
+                        Updated {formatDate(resume.updated_at)}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 gap-1 px-2 text-xs opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          router.push(`/admin/resume-builder/${resume.id}/edit`)
+                        }}
+                      >
+                        <Pencil className="h-3 w-3" />
+                        Edit
+                      </Button>
                     </div>
                   </Link>
                 </Card>
