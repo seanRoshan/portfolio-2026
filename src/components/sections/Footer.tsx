@@ -86,8 +86,20 @@ export function Footer({ siteConfig: siteConfigProp, navLinks, venturesData = []
   const siteConfig = siteConfigProp ?? defaultSiteConfig
   const currentYear = new Date().getFullYear()
 
+  // Map social platform keys to visibility flags
+  const socialVisibility: Record<string, keyof typeof siteConfig.visibility> = {
+    linkedin: "linkedin",
+    github: "github",
+    website: "portfolio",
+    portfolio: "portfolio",
+  }
+
   const socials = Object.entries(siteConfig.socials)
-    .filter(([, url]) => url?.trim())
+    .filter(([key, url]) => {
+      if (!url?.trim()) return false
+      const visKey = socialVisibility[key]
+      return visKey ? siteConfig.visibility[visKey] : true
+    })
     .map(([key, url]) => ({ name: formatSocialName(key), url }))
 
   return (

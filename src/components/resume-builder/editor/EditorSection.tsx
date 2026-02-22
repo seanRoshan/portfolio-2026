@@ -24,8 +24,8 @@ export function EditorSection({
     <section id={id} className="scroll-mt-16">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Icon className="text-muted-foreground h-4 w-4" />
-          <h2 className="text-sm font-semibold">{title}</h2>
+          <Icon className="text-foreground h-4 w-4" />
+          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
           {badge && (
             <Badge variant="outline" className="text-[10px]">
               {badge}

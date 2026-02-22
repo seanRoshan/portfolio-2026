@@ -1,8 +1,6 @@
 # SEO Optimization Design - Portfolio
 
-**Date:** 2026-02-16
-**Status:** Approved
-**Goal:** Optimize seanroshan.com for Google search presence including Knowledge Panel, profile photo, and sitemap visibility.
+**Date:** 2026-02-16 **Status:** Approved **Goal:** Optimize seanroshan.com for Google search presence including Knowledge Panel, profile photo, and sitemap visibility.
 
 ## Decisions
 
@@ -14,11 +12,13 @@
 ## 1. Domain Consolidation
 
 ### Vercel Dashboard (Manual)
+
 - Set `seanroshan.com` as primary domain for portfolio project
 - Configure 5 other domains as redirects to `seanroshan.com`
 - Set `NEXT_PUBLIC_SITE_URL=https://seanroshan.com` in production environment variables
 
 ### Code
+
 - Add `alternates.canonical` to `buildRootMetadata()` in `src/lib/seo.ts`
 - Add page-level canonical URLs in each `generateMetadata()` (home, blog, resume)
 
@@ -36,25 +36,30 @@
 ### `src/lib/json-ld.ts` changes
 
 **Person schema (home page):**
+
 - Add `@id: "https://seanroshan.com/#person"` for cross-page entity linking
 - Add `alternateName: "Shahriyar Valielahiroshan"`
 - Add `jobTitle` and `knowsAbout` fields
 - Point `image` to static canonical URL
 
 **BreadcrumbList schema (all pages):**
+
 - New `breadcrumbJsonLd()` function
-- Home > Blog > Post Title hierarchy
+- Home &gt; Blog &gt; Post Title hierarchy
 
 **ProfilePage schema (resume):**
+
 - Add `dateCreated`, `dateModified`, `image`
 - Use `@id` reference for mainEntity Person
 
 **Article schema (blog posts):**
+
 - Author uses `@id` reference to Person entity
 
 ## 4. Sitemap Enhancement
 
 ### `src/app/sitemap.ts` changes
+
 - Add `lastModified` to static pages (home, blog index, resume)
 - Add image entries for blog posts with cover images
 
@@ -75,7 +80,7 @@
 ## Files Modified
 
 | File | Change |
-|------|--------|
+| --- | --- |
 | `src/lib/seo.ts` | Add canonical URL to alternates |
 | `src/lib/json-ld.ts` | Enhanced Person, BreadcrumbList, @id linking |
 | `src/app/sitemap.ts` | lastModified + image entries |

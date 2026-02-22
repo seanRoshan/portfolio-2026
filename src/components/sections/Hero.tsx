@@ -27,6 +27,7 @@ interface HeroProps {
     phone: string
     location: string
     availability: string
+    showAvailability: boolean
     socials: Record<string, string>
     linkedinUrl: string
     githubUrl: string
@@ -60,6 +61,7 @@ const defaultSiteConfig: NonNullable<HeroProps["siteConfig"]> = {
   phone: "",
   location: "",
   availability: "Open to opportunities",
+  showAvailability: false,
   socials: {},
   linkedinUrl: "",
   githubUrl: "",
@@ -236,7 +238,7 @@ export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: Her
         />
       </div>
 
-      <div className="container-wide relative pt-32 pb-20">
+      <div className="container-wide relative pt-32 pb-32">
         <div className="max-w-4xl">
           {/* Greeting */}
           <span
@@ -316,29 +318,32 @@ export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: Her
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-          <div className="text-muted-foreground flex flex-col items-center gap-2">
-            <span className="text-xs font-medium tracking-widest uppercase">Scroll</span>
-            <div className="bg-border relative h-8 w-[1.5px] overflow-hidden">
-              <div className="animate-scroll-line bg-primary absolute top-0 left-0 h-4 w-full" />
-            </div>
+      </div>
+
+      {/* Scroll indicator — positioned on section, not container */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+        <div className="text-muted-foreground flex flex-col items-center gap-2">
+          <span className="text-xs font-medium tracking-widest uppercase">Scroll</span>
+          <div className="bg-border relative h-8 w-[1.5px] overflow-hidden">
+            <div className="animate-scroll-line bg-primary absolute top-0 left-0 h-4 w-full" />
           </div>
         </div>
       </div>
 
       {/* Status badge */}
-      <div className="absolute top-32 right-8 hidden lg:block">
-        <div className="glass rounded-2xl px-4 py-3 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
-            </span>
-            <span className="text-muted-foreground">{siteConfig.availability}</span>
+      {siteConfig.showAvailability && (
+        <div className="absolute top-32 right-8 hidden lg:block">
+          <div className="glass rounded-2xl px-4 py-3 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+              </span>
+              <span className="text-muted-foreground">{siteConfig.availability}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </section>
   )
 }

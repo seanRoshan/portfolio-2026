@@ -17,6 +17,8 @@ export async function getSiteConfig() {
   const locationParts = [settings.city, settings.state, settings.country].filter(Boolean)
   const location = locationParts.join(", ")
 
+  const socials = (settings.social_links as Record<string, string>) ?? {}
+
   return {
     name: settings.full_name || hero.name,
     title: settings.site_title?.split("—")[1]?.trim() ?? "Developer",
@@ -25,11 +27,13 @@ export async function getSiteConfig() {
     email: settings.contact_email ?? "",
     phone: settings.phone ?? "",
     location,
-    availability: "Open to opportunities",
-    socials: (settings.social_links as Record<string, string>) ?? {},
-    linkedinUrl: settings.linkedin_url ?? "",
-    githubUrl: settings.github_url ?? "",
-    portfolioUrl: settings.portfolio_url ?? "",
+    availability: settings.availability_text || "Open to opportunities",
+    showAvailability: settings.landing_show_availability ?? false,
+    socials,
+    // Derive specific URLs from social_links JSONB
+    linkedinUrl: socials.linkedin ?? "",
+    githubUrl: socials.github ?? "",
+    portfolioUrl: socials.website ?? socials.portfolio ?? "",
     linkAnimations: (settings.link_animations as { header: string; footer: string }) ?? {
       header: "underline-slide",
       footer: "underline-slide",

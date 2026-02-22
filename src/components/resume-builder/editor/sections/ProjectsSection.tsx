@@ -28,6 +28,7 @@ import {
   deleteAchievement,
 } from '@/app/admin/resume-builder/actions'
 import { EditorSection } from '../EditorSection'
+import { AIAssistButton } from '../AIAssistButton'
 import { analyzeAchievement } from '@/lib/resume-builder/validation/rules'
 import type { ResumeProject } from '@/types/resume-builder'
 
@@ -69,8 +70,8 @@ export function ProjectsSection({ resumeId, projects }: Props) {
       icon={FolderKanban}
       id="projects"
       action={
-        <Button variant="ghost" size="sm" onClick={handleAdd} disabled={isPending} className="h-7 text-xs">
-          <Plus className="mr-1 h-3 w-3" />
+        <Button variant="ghost" size="sm" onClick={handleAdd} disabled={isPending} className="h-5 px-1.5 text-[11px]">
+          <Plus className="mr-0.5 h-3 w-3" />
           Add Project
         </Button>
       }
@@ -144,8 +145,8 @@ function ProjectCard({
     <div className="rounded-lg border">
       <button type="button" className="flex w-full items-center gap-3 p-3 text-left" onClick={onToggle}>
         <div className="flex-1">
-          <div className="text-sm font-medium">{project.name || 'Untitled Project'}</div>
-          <div className="text-muted-foreground text-xs">{project.description?.slice(0, 60) || 'No description'}</div>
+          <div className="text-sm font-medium text-foreground">{project.name || 'Untitled Project'}</div>
+          <div className="text-foreground/60 text-xs">{project.description?.slice(0, 60) || 'No description'}</div>
         </div>
         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </button>
@@ -169,7 +170,16 @@ function ProjectCard({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs">Description</Label>
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Description</Label>
+              <AIAssistButton
+                category="description"
+                currentText={project.description ?? ''}
+                context={{ name: project.name }}
+                resumeId={resumeId}
+                onAccept={(text) => handleUpdate('description', text)}
+              />
+            </div>
             <Textarea defaultValue={project.description ?? ''} onBlur={(e) => handleUpdate('description', e.target.value)} placeholder="Brief description of the project..." rows={2} className="resize-none text-sm" />
           </div>
 
@@ -178,7 +188,7 @@ function ProjectCard({
             <Label className="mb-2 text-xs font-medium">Achievement Bullets</Label>
             <div className="space-y-2">
               {project.achievements?.map((achievement) => (
-                <ProjectAchievementRow key={achievement.id} achievement={achievement} resumeId={resumeId} />
+                <ProjectAchievementRow key={achievement.id} achievement={achievement} resumeId={resumeId} projectName={project.name} />
               ))}
             </div>
             <Button variant="ghost" size="sm" onClick={handleAddBullet} disabled={isPending} className="mt-2 h-7 text-xs">
@@ -216,9 +226,11 @@ function ProjectCard({
 function ProjectAchievementRow({
   achievement,
   resumeId,
+  projectName,
 }: {
   achievement: { id: string; text: string; has_metric: boolean }
   resumeId: string
+  projectName: string
 }) {
   const [isPending, startTransition] = useTransition()
   const [text, setText] = useState(achievement.text)
@@ -245,6 +257,18 @@ function ProjectAchievementRow({
     })
   }
 
+  function handleAIAccept(newText: string) {
+    setText(newText)
+    startTransition(async () => {
+      try {
+        await updateAchievement(achievement.id, resumeId, { text: newText })
+        toast.success('Bullet updated')
+      } catch {
+        toast.error('Failed to save')
+      }
+    })
+  }
+
   return (
     <div className="group flex gap-2">
       <div className="flex-1">
@@ -259,6 +283,13 @@ function ProjectAchievementRow({
             ))}
           </div>
         )}
+        <AIAssistButton
+          category="bullet"
+          currentText={text}
+          context={{ name: projectName, job_title: projectName, company: '' }}
+          resumeId={resumeId}
+          onAccept={handleAIAccept}
+        />
       </div>
       <AlertDialog>
         <AlertDialogTrigger asChild>

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { updateSummary } from '@/app/admin/resume-builder/actions'
 import { EditorSection } from '../EditorSection'
+import { AIAssistButton } from '../AIAssistButton'
 import type { ResumeSummary } from '@/types/resume-builder'
 
 interface Props {
@@ -77,13 +78,25 @@ export function SummarySection({ resumeId, summary }: Props) {
           </span>
         </div>
 
-        <Button
-          onClick={handleSave}
-          disabled={isPending || !isDirty}
-          size="sm"
-        >
-          {isPending ? 'Saving...' : 'Save Summary'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleSave}
+            disabled={isPending || !isDirty}
+            size="sm"
+          >
+            {isPending ? 'Saving...' : 'Save Summary'}
+          </Button>
+          <AIAssistButton
+            category="summary"
+            currentText={text}
+            context={{}}
+            resumeId={resumeId}
+            onAccept={(newText) => {
+              setText(newText)
+              setIsDirty(true)
+            }}
+          />
+        </div>
       </div>
     </EditorSection>
   )

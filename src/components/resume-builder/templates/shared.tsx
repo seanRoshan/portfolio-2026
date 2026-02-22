@@ -117,6 +117,63 @@ export const DENSITY_MAP: Record<string, { body: string; heading: string; sectio
   spacious:    { body: '11px', heading: '13px', section: '15px', lineHeight: '1.5', sectionGap: '16px' },
 }
 
+// ===== Color utilities =====
+
+/** Parse hex to RGB tuple */
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace('#', '')
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]
+}
+
+/** RGB to hex */
+function rgbToHex(r: number, g: number, b: number): string {
+  return '#' + [r, g, b].map(v => Math.round(v).toString(16).padStart(2, '0')).join('')
+}
+
+/** WCAG relative luminance */
+function relativeLuminance([r, g, b]: [number, number, number]): number {
+  const [rs, gs, bs] = [r, g, b].map(c => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
+}
+
+/** WCAG contrast ratio between two hex colors (1:1 to 21:1) */
+export function getContrastRatio(fg: string, bg: string): number {
+  const l1 = relativeLuminance(hexToRgb(fg))
+  const l2 = relativeLuminance(hexToRgb(bg))
+  const lighter = Math.max(l1, l2)
+  const darker = Math.min(l1, l2)
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+/** Pick optimal text color for a given background */
+export function getContrastTextColor(bgHex: string): string {
+  const lum = relativeLuminance(hexToRgb(bgHex))
+  return lum > 0.179 ? '#111827' : '#ffffff'
+}
+
+/** Blend a color toward a target at given ratio (0-1) */
+function blendColors(fg: string, bg: string, ratio: number): string {
+  const [r1, g1, b1] = hexToRgb(fg)
+  const [r2, g2, b2] = hexToRgb(bg)
+  return rgbToHex(
+    r1 + (r2 - r1) * ratio,
+    g1 + (g2 - g1) * ratio,
+    b1 + (b2 - b1) * ratio,
+  )
+}
+
+/** Derive 3-tier sidebar color palette from primary text color + background */
+export function deriveSidebarColors(primaryText: string, bgHex: string) {
+  return {
+    primary: primaryText,
+    secondary: blendColors(primaryText, bgHex, 0.15),
+    muted: blendColors(primaryText, bgHex, 0.4),
+  }
+}
+
 export function getTemplateStyles(
   settings: {
     accent_color?: string
@@ -128,6 +185,7 @@ export function getTemplateStyles(
     name_font_size?: number
     section_title_uppercase?: boolean
     right_panel_color?: string
+    sidebar_text_color?: string
   } | null | undefined,
   templateId?: string,
 ) {
@@ -151,6 +209,10 @@ export function getTemplateStyles(
   // Resolve right panel color from settings or default
   const rightPanelColor = settings?.right_panel_color ?? '#f9fafb'
 
+  // Resolve sidebar text colors (auto-computed or user override)
+  const sidebarTextColor = settings?.sidebar_text_color ?? getContrastTextColor(background)
+  const sidebarColors = deriveSidebarColors(sidebarTextColor, background)
+
   // If font_size_base is set, scale all sizes proportionally from the density preset
   const fontSizeBase = settings?.font_size_base
   if (fontSizeBase != null) {
@@ -163,8 +225,8 @@ export function getTemplateStyles(
       lineHeight: baseDensity.lineHeight,
       sectionGap: baseDensity.sectionGap,
     }
-    return { accent, background, font, density, margin, nameSize, uppercase, rightPanelColor }
+    return { accent, background, font, density, margin, nameSize, uppercase, rightPanelColor, sidebarTextColor, sidebarColors }
   }
 
-  return { accent, background, font, density: baseDensity, margin, nameSize, uppercase, rightPanelColor }
+  return { accent, background, font, density: baseDensity, margin, nameSize, uppercase, rightPanelColor, sidebarTextColor, sidebarColors }
 }

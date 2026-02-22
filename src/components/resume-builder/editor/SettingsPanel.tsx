@@ -17,6 +17,7 @@ import {
   Maximize,
   Heading1,
   CaseSensitive,
+  AlertTriangle,
 } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -38,7 +39,7 @@ import {
   saveResumePromptOverride,
   deleteResumePromptOverride,
 } from '@/app/admin/resume-builder/actions'
-import { DEFAULT_NAME_SIZES, DEFAULT_UPPERCASE } from '@/components/resume-builder/templates/shared'
+import { DEFAULT_NAME_SIZES, DEFAULT_UPPERCASE, getContrastTextColor, getContrastRatio } from '@/components/resume-builder/templates/shared'
 import type { ResumeSettings } from '@/types/resume-builder'
 import type { AIPrompt, ResumePromptOverride } from '@/types/ai-prompts'
 
@@ -185,6 +186,9 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
   const showRightPanel = TEMPLATES_WITH_RIGHT_PANEL.has(templateId ?? '')
   const nameSizeDefault = DEFAULT_NAME_SIZES[templateId ?? ''] ?? 28
   const uppercaseDefault = DEFAULT_UPPERCASE[templateId ?? ''] ?? true
+  const resolvedBg = settings?.background_color ?? '#374151'
+  const resolvedSidebarText = settings?.sidebar_text_color ?? getContrastTextColor(resolvedBg)
+  const contrastRatio = getContrastRatio(resolvedSidebarText, resolvedBg)
 
   return (
     <div className="space-y-4 pt-4">
@@ -247,6 +251,60 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
               className="h-9 w-9 shrink-0 rounded-md border"
               style={{ backgroundColor: settings?.background_color ?? '#374151' }}
             />
+          </div>
+        </SettingRow>
+      )}
+
+      {showBackground && (
+        <SettingRow icon={Type} label="Sidebar Text" description="Text color on the sidebar background">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Input
+                  type="color"
+                  defaultValue={resolvedSidebarText}
+                  key={`stc-${resolvedSidebarText}`}
+                  onChange={(e) => handleUpdate('sidebar_text_color', e.target.value)}
+                  className="h-9 w-12 cursor-pointer border-2 p-0.5"
+                />
+              </div>
+              <Input
+                key={`sti-${resolvedSidebarText}`}
+                defaultValue={resolvedSidebarText}
+                onBlur={(e) => {
+                  const val = e.target.value.trim()
+                  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                    handleUpdate('sidebar_text_color', val)
+                  }
+                }}
+                className="h-9 w-24 font-mono text-xs uppercase"
+                placeholder="#ffffff"
+              />
+              <div
+                className="h-9 w-9 shrink-0 rounded-md border"
+                style={{ backgroundColor: resolvedSidebarText }}
+              />
+              {!settings?.sidebar_text_color && (
+                <Badge variant="secondary" className="text-[9px]">Auto</Badge>
+              )}
+              {settings?.sidebar_text_color && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => handleUpdate('sidebar_text_color', null)}
+                  disabled={isPending}
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+            {contrastRatio < 4.5 && (
+              <div className="flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                <span>Low contrast ({contrastRatio.toFixed(1)}:1). WCAG AA requires 4.5:1 minimum.</span>
+              </div>
+            )}
           </div>
         </SettingRow>
       )}

@@ -233,6 +233,7 @@ export interface ResumeSettings {
   name_font_size?: number
   section_title_uppercase?: boolean
   right_panel_color?: string
+  sidebar_text_color?: string
 }
 
 // ===== Full Resume (with all relations) =====

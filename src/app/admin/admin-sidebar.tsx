@@ -26,11 +26,13 @@ import {
   Target,
   Search,
   Bot,
+  Wand2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { SystemStatusPanel } from "@/components/admin/system-status"
 import { logout } from "./actions"
 import type { LucideIcon } from "lucide-react"
 
@@ -94,10 +96,7 @@ const navItems: NavItem[] = [
     href: "/admin/resume-builder",
     label: "Resume Builder",
     icon: FileEdit,
-    children: [
-      { hash: "resumes", label: "My Resumes" },
-      { hash: "templates", label: "Templates" },
-    ],
+    children: undefined,
   },
   {
     href: "/admin/resume-builder/applications",
@@ -115,12 +114,19 @@ const navItems: NavItem[] = [
     icon: Bot,
   },
   {
+    href: "/admin/prompt-engineer",
+    label: "Prompt Engineer",
+    icon: Wand2,
+  },
+  {
     href: "/admin/contact",
     label: "Contact",
     icon: Mail,
     children: [
       { hash: "contact-details", label: "Contact Details" },
       { hash: "social-links", label: "Social Links" },
+      { hash: "landing-visibility", label: "Visibility" },
+      { hash: "contact-form", label: "Contact Form" },
     ],
   },
   { href: "/admin/messages", label: "Messages", icon: MessageSquare },
@@ -149,7 +155,7 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
   // Derive auto-expanded section from pathname
   const autoExpandedHref = useMemo(() => {
     for (const item of navItems) {
-      if (item.children && pathname.startsWith(item.href) && item.href !== "/admin") {
+      if (item.children && (pathname === item.href || pathname.startsWith(item.href + "/")) && item.href !== "/admin") {
         return item.href
       }
     }
@@ -176,7 +182,9 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
   const isPageActive = useCallback(
     (href: string) => {
       if (href === "/admin") return pathname === "/admin"
-      return pathname.startsWith(href)
+      // Exact match or match with trailing slash/segment to prevent
+      // /admin/resume matching /admin/resume-builder
+      return pathname === href || pathname.startsWith(href + "/")
     },
     [pathname],
   )
@@ -212,7 +220,7 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
         </Link>
       </div>
       <ScrollArea className="flex-1 px-3 py-4">
-        <nav className="flex flex-col gap-0.5">
+        <nav aria-label="Admin navigation" className="flex flex-col gap-0.5">
           {navItems.map((item) => {
             const active = isPageActive(item.href)
             const hasChildren = !!item.children?.length
@@ -252,6 +260,8 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
                     <button
                       type="button"
                       onClick={() => toggleExpand(item.href)}
+                      aria-label={`Expand ${item.label}`}
+                      aria-expanded={isExpanded}
                       className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
                     >
                       <ChevronRight
@@ -289,6 +299,7 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
           })}
         </nav>
       </ScrollArea>
+      <SystemStatusPanel />
       <div className="space-y-1 border-t p-3">
         <Link
           href="/"

@@ -13,7 +13,7 @@ export function ExperiencedTemplate({ resume }: Props) {
   const dateFormat = resume.settings?.date_format ?? 'month_year'
   const sections = getVisibleSections(resume)
   const links = getContactLinks(resume)
-  const { accent, background, font, density, margin, nameSize, uppercase } = getTemplateStyles(resume.settings, TEMPLATE_IDS.experienced)
+  const { accent, background, font, density, margin, nameSize, uppercase, sidebarColors } = getTemplateStyles(resume.settings, TEMPLATE_IDS.experienced)
 
   const leftBg = background
 
@@ -22,13 +22,13 @@ export function ExperiencedTemplate({ resume }: Props) {
     contact: () => null, // rendered in left column header area
     skills: () =>
       resume.skill_categories.length > 0 ? (
-        <LeftSection title="Skills" accent={accent} uppercase={uppercase}>
+        <LeftSection title="Skills" accent={accent} uppercase={uppercase} sectionSize={density.section}>
           {resume.skill_categories.map((cat) => (
             <div key={cat.id} style={{ marginBottom: '6px' }}>
-              <div style={{ fontWeight: 700, fontSize: density.body, textTransform: 'uppercase', letterSpacing: '0.3px', color: '#374151', marginBottom: '2px' }}>
+              <div style={{ fontWeight: 700, fontSize: density.heading, textTransform: 'uppercase', letterSpacing: '0.3px', color: sidebarColors.primary, marginBottom: '2px' }}>
                 {cat.name}
               </div>
-              <div style={{ fontSize: density.body, color: '#4b5563', lineHeight: density.lineHeight }}>
+              <div style={{ fontSize: density.body, color: sidebarColors.secondary, lineHeight: density.lineHeight }}>
                 {cat.skills.join(', ')}
               </div>
             </div>
@@ -37,34 +37,34 @@ export function ExperiencedTemplate({ resume }: Props) {
       ) : null,
     education: () =>
       resume.education.length > 0 ? (
-        <LeftSection title="Education" accent={accent} uppercase={uppercase}>
+        <LeftSection title="Education" accent={accent} uppercase={uppercase} sectionSize={density.section}>
           {resume.education.map((edu) => (
             <div key={edu.id} style={{ marginBottom: '8px' }}>
-              <div style={{ fontWeight: 700, fontSize: density.body, color: '#111827' }}>{edu.degree}</div>
+              <div style={{ fontWeight: 700, fontSize: density.heading, color: sidebarColors.primary }}>{edu.degree}</div>
               {edu.field_of_study && (
-                <div style={{ fontSize: density.body, color: '#4b5563' }}>{edu.field_of_study}</div>
+                <div style={{ fontSize: density.body, color: sidebarColors.secondary }}>{edu.field_of_study}</div>
               )}
-              <div style={{ fontSize: density.body, color: '#6b7280' }}>{edu.institution}</div>
+              <div style={{ fontSize: density.body, color: sidebarColors.secondary }}>{edu.institution}</div>
               {edu.graduation_date && (
-                <div style={{ fontSize: density.body, color: '#9ca3af', marginTop: '2px' }}>
+                <div style={{ fontSize: density.body, color: sidebarColors.muted, marginTop: '2px' }}>
                   {getDateRange(null, edu.graduation_date, dateFormat).replace('Present – ', '')}
                 </div>
               )}
-              {edu.gpa && <div style={{ fontSize: density.body, color: '#9ca3af' }}>GPA: {edu.gpa}</div>}
-              {edu.honors && <div style={{ fontSize: density.body, color: '#9ca3af' }}>{edu.honors}</div>}
+              {edu.gpa && <div style={{ fontSize: density.body, color: sidebarColors.muted }}>GPA: {edu.gpa}</div>}
+              {edu.honors && <div style={{ fontSize: density.body, color: sidebarColors.muted }}>{edu.honors}</div>}
             </div>
           ))}
         </LeftSection>
       ) : null,
     certifications: () =>
       resume.certifications.length > 0 ? (
-        <LeftSection title="Certifications" accent={accent} uppercase={uppercase}>
+        <LeftSection title="Certifications" accent={accent} uppercase={uppercase} sectionSize={density.section}>
           {resume.certifications.map((cert) => (
             <div key={cert.id} style={{ marginBottom: '6px' }}>
-              <div style={{ fontWeight: 700, fontSize: density.body, color: '#111827' }}>{cert.name}</div>
-              {cert.issuer && <div style={{ fontSize: density.body, color: '#6b7280' }}>{cert.issuer}</div>}
+              <div style={{ fontWeight: 700, fontSize: density.heading, color: sidebarColors.primary }}>{cert.name}</div>
+              {cert.issuer && <div style={{ fontSize: density.body, color: sidebarColors.secondary }}>{cert.issuer}</div>}
               {cert.date && (
-                <div style={{ fontSize: density.body, color: '#9ca3af' }}>
+                <div style={{ fontSize: density.body, color: sidebarColors.muted }}>
                   {getDateRange(null, cert.date, dateFormat).replace('Present – ', '')}
                 </div>
               )}
@@ -238,11 +238,11 @@ export function ExperiencedTemplate({ resume }: Props) {
   )
 }
 
-function LeftSection({ title, accent, uppercase, children }: { title: string; accent: string; uppercase?: boolean; children: React.ReactNode }) {
+function LeftSection({ title, accent, uppercase, sectionSize, children }: { title: string; accent: string; uppercase?: boolean; sectionSize?: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: '18px' }}>
       <h2 style={{
-        fontSize: '10px',
+        fontSize: sectionSize ?? '10px',
         fontWeight: 700,
         textTransform: uppercase ? 'uppercase' : 'none',
         letterSpacing: '1.5px',

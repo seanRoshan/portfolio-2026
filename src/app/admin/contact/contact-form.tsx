@@ -11,13 +11,7 @@ import {
   Mail,
   Phone,
   MapPin,
-  Link,
-  Linkedin,
-  Github,
-  Globe,
-  BookOpen,
   Loader2,
-  Eye,
 } from "lucide-react"
 import {
   DndContext,
@@ -219,18 +213,16 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
       city: data.city ?? "",
       state: data.state ?? "",
       country: data.country ?? "",
-      linkedin_url: data.linkedin_url ?? "",
-      github_url: data.github_url ?? "",
-      portfolio_url: data.portfolio_url ?? "",
-      blog_url: data.blog_url ?? "",
       contact_form_enabled: data.contact_form_enabled,
       social_links: data.social_links ?? {},
-      landing_show_email: data.landing_show_email,
-      landing_show_phone: data.landing_show_phone,
-      landing_show_location: data.landing_show_location,
-      landing_show_linkedin: data.landing_show_linkedin,
-      landing_show_github: data.landing_show_github,
-      landing_show_portfolio: data.landing_show_portfolio,
+      landing_show_email: data.landing_show_email ?? true,
+      landing_show_phone: data.landing_show_phone ?? false,
+      landing_show_location: data.landing_show_location ?? true,
+      landing_show_linkedin: data.landing_show_linkedin ?? true,
+      landing_show_github: data.landing_show_github ?? true,
+      landing_show_portfolio: data.landing_show_portfolio ?? true,
+      availability_text: data.availability_text ?? "Open to opportunities",
+      landing_show_availability: data.landing_show_availability ?? false,
     },
   })
 
@@ -362,54 +354,6 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
             </div>
           </GroupCard>
 
-          <GroupCard label="Online Presence" icon={Link}>
-            <div className="space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="linkedin_url" className="text-xs font-medium">
-                  LinkedIn
-                </Label>
-                <IconInput
-                  icon={Linkedin}
-                  id="linkedin_url"
-                  {...form.register("linkedin_url")}
-                  placeholder="https://linkedin.com/in/janedoe"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="github_url" className="text-xs font-medium">
-                  GitHub
-                </Label>
-                <IconInput
-                  icon={Github}
-                  id="github_url"
-                  {...form.register("github_url")}
-                  placeholder="https://github.com/janedoe"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="portfolio_url" className="text-xs font-medium">
-                  Portfolio
-                </Label>
-                <IconInput
-                  icon={Globe}
-                  id="portfolio_url"
-                  {...form.register("portfolio_url")}
-                  placeholder="https://janedoe.dev"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="blog_url" className="text-xs font-medium">
-                  Blog
-                </Label>
-                <IconInput
-                  icon={BookOpen}
-                  id="blog_url"
-                  {...form.register("blog_url")}
-                  placeholder="https://blog.janedoe.dev"
-                />
-              </div>
-            </div>
-          </GroupCard>
         </FormSection>
 
         {/* ── Section 2: Social Links ────────────── */}
@@ -515,7 +459,33 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="landing_show_availability"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <FormLabel className="font-normal">Availability Status</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
+
+          {form.watch("landing_show_availability") && (
+            <div className="space-y-1.5">
+              <Label htmlFor="availability_text" className="text-xs font-medium">
+                Status Text
+              </Label>
+              <Input
+                id="availability_text"
+                {...form.register("availability_text")}
+                placeholder="Open to opportunities"
+                className="h-9 text-sm"
+              />
+            </div>
+          )}
         </FormSection>
 
         {/* ── Section 4: Contact Form ────────────── */}

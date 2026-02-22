@@ -51,8 +51,8 @@ export function SkillsSection({ resumeId, categories }: Props) {
       icon={Wrench}
       id="skills"
       action={
-        <Button variant="ghost" size="sm" onClick={handleAdd} disabled={isPending} className="h-7 text-xs">
-          <Plus className="mr-1 h-3 w-3" />
+        <Button variant="ghost" size="sm" onClick={handleAdd} disabled={isPending} className="h-5 px-1.5 text-[11px]">
+          <Plus className="mr-0.5 h-3 w-3" />
           Add Category
         </Button>
       }
@@ -138,7 +138,7 @@ function SkillCategoryCard({
         />
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" disabled={isPending} className="h-8 w-8 shrink-0">
+            <Button variant="ghost" size="icon" disabled={isPending} className="text-destructive h-8 w-8 shrink-0">
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </AlertDialogTrigger>

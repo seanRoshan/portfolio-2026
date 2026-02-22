@@ -230,8 +230,8 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
 
       {/* Master Resume Hero */}
       {masterResume ? (
-        <Card className="mb-8 border-l-4 border-l-primary bg-gradient-to-r from-primary/5 via-transparent to-transparent">
-          <div className="flex flex-col gap-6 p-6 md:flex-row">
+        <Card className="mb-8 gap-0 border-l-4 border-l-primary py-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+          <div className="flex flex-col gap-4 p-4 md:flex-row">
             {/* PDF Thumbnail Placeholder */}
             <div className="bg-muted/50 flex h-[200px] w-[155px] shrink-0 items-center justify-center rounded-md border">
               <FileText className="text-muted-foreground/50 h-12 w-12" />
@@ -247,25 +247,27 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                 <h2 className="truncate text-xl font-semibold" title={masterResume.target_role || masterResume.title}>
                   {masterResume.target_role || masterResume.title}
                 </h2>
-                {(masterResume.company_name || masterResume.job_location) && (
-                  <p className="text-muted-foreground mt-0.5 text-sm">
-                    {[masterResume.company_name, masterResume.job_location].filter(Boolean).join(' · ')}
-                  </p>
-                )}
-                {masterResume.work_mode && WORK_MODE_STYLES[masterResume.work_mode] && (
-                  <div className="mt-1.5">
-                    <span className={cn(
-                      'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium',
-                      WORK_MODE_STYLES[masterResume.work_mode].bg,
-                      WORK_MODE_STYLES[masterResume.work_mode].text,
-                    )}>
-                      <span className={cn('h-1.5 w-1.5 rounded-full', WORK_MODE_STYLES[masterResume.work_mode].dot)} />
-                      {WORK_MODE_STYLES[masterResume.work_mode].label}
-                    </span>
+                {(masterResume.company_name || masterResume.job_location || (masterResume.work_mode && WORK_MODE_STYLES[masterResume.work_mode])) && (
+                  <div className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">
+                    {(masterResume.company_name || masterResume.job_location) && (
+                      <span className="truncate">
+                        {[masterResume.company_name, masterResume.job_location].filter(Boolean).join(' · ')}
+                      </span>
+                    )}
+                    {masterResume.work_mode && WORK_MODE_STYLES[masterResume.work_mode] && (
+                      <span className={cn(
+                        'inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-px text-[11px] font-medium',
+                        WORK_MODE_STYLES[masterResume.work_mode].bg,
+                        WORK_MODE_STYLES[masterResume.work_mode].text,
+                      )}>
+                        <span className={cn('h-1.5 w-1.5 rounded-full', WORK_MODE_STYLES[masterResume.work_mode].dot)} />
+                        {WORK_MODE_STYLES[masterResume.work_mode].label}
+                      </span>
+                    )}
                   </div>
                 )}
-                {masterResume.target_role && (
-                  <p className="text-muted-foreground mt-1 text-xs italic">{masterResume.title}</p>
+                {masterResume.target_role && masterResume.title.toLowerCase() !== masterResume.target_role.toLowerCase() && (
+                  <p className="text-muted-foreground/70 mt-0.5 text-xs italic">{masterResume.title}</p>
                 )}
               </div>
 
@@ -345,7 +347,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
         </Card>
       ) : (
         <Card className="mb-8 border-2 border-dashed">
-          <div className="flex flex-col items-center justify-center py-12">
+          <div className="flex flex-col items-center justify-center py-4">
             <Crown className="text-muted-foreground mb-4 h-10 w-10" />
             <h3 className="mb-1 text-lg font-semibold">No Master Resume</h3>
             <p className="text-muted-foreground mb-4 max-w-sm text-center text-sm">
@@ -387,7 +389,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
         {/* Grid */}
         {tailoredResumes.length === 0 ? (
           <Card className="border-2 border-dashed">
-            <div className="flex flex-col items-center justify-center py-12">
+            <div className="flex flex-col items-center justify-center py-4">
               <Target className="text-muted-foreground mb-4 h-10 w-10" />
               <h3 className="mb-1 text-lg font-semibold">No Tailored Resumes</h3>
               <p className="text-muted-foreground mb-4 max-w-sm text-center text-sm">
@@ -406,44 +408,50 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredTailored.map((resume) => {
               const templateName = getTemplateName(resume.template_id)
               const levelLabel = getLevelLabel(resume.experience_level)
+              const workMode = resume.work_mode ? WORK_MODE_STYLES[resume.work_mode] : null
+              const showTitle = resume.target_role && resume.title.toLowerCase() !== resume.target_role.toLowerCase()
               return (
                 <Card
                   key={resume.id}
                   className={cn(
-                    'group relative overflow-hidden border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5',
+                    'group relative h-[120px] gap-0 overflow-hidden border-l-[3px] py-0 transition-all hover:shadow-md hover:-translate-y-0.5',
                     getTemplateColor(templateName),
                   )}
                 >
-                  <Link href={`/admin/resume-builder/${resume.id}/edit`} className="block p-5">
-                    {/* Primary: Role + Company */}
-                    <div className="mb-1.5 flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-semibold leading-tight" title={resume.target_role || resume.title}>
-                          {resume.target_role || resume.title}
-                        </h3>
-                        {(resume.company_name || resume.job_location) && (
-                          <p className="text-muted-foreground mt-0.5 truncate text-sm">
-                            {[resume.company_name, resume.job_location].filter(Boolean).join(' · ')}
-                          </p>
-                        )}
-                      </div>
+                  {/* Clickable content zone */}
+                  <Link href={`/admin/resume-builder/${resume.id}/edit`} className="flex flex-1 flex-col px-3 py-2">
+                    {/* Role heading + kebab menu */}
+                    <div className="flex items-start justify-between gap-1">
+                      <h3 className="min-w-0 line-clamp-2 text-[13px] font-semibold leading-tight" title={resume.target_role || resume.title}>
+                        {resume.target_role || resume.title}
+                      </h3>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="ghost"
                             size="icon"
                             aria-label="Resume actions"
-                            className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                            className="-mr-1 -mt-0.5 h-6 w-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
                           >
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreHorizontal className="h-3.5 w-3.5" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              router.push(`/admin/resume-builder/${resume.id}/edit`)
+                            }}
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.preventDefault()
@@ -470,61 +478,50 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                       </DropdownMenu>
                     </div>
 
-                    {/* Work mode pill */}
-                    {resume.work_mode && WORK_MODE_STYLES[resume.work_mode] && (
-                      <div className="mb-2">
-                        <span className={cn(
-                          'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium',
-                          WORK_MODE_STYLES[resume.work_mode].bg,
-                          WORK_MODE_STYLES[resume.work_mode].text,
-                        )}>
-                          <span className={cn('h-1.5 w-1.5 rounded-full', WORK_MODE_STYLES[resume.work_mode].dot)} />
-                          {WORK_MODE_STYLES[resume.work_mode].label}
-                        </span>
+                    {/* Company · Location + work mode pill — single line */}
+                    {(resume.company_name || resume.job_location || workMode) && (
+                      <div className="mt-px flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        {(resume.company_name || resume.job_location) && (
+                          <span className="min-w-0 truncate">
+                            {[resume.company_name, resume.job_location].filter(Boolean).join(' · ')}
+                          </span>
+                        )}
+                        {workMode && (
+                          <span className={cn(
+                            'inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-px text-[10px] font-medium',
+                            workMode.bg,
+                            workMode.text,
+                          )}>
+                            <span className={cn('h-1.5 w-1.5 rounded-full', workMode.dot)} />
+                            {workMode.label}
+                          </span>
+                        )}
                       </div>
                     )}
 
-                    {/* Resume title (secondary) */}
-                    {resume.target_role && (
-                      <p className="text-muted-foreground mb-2 truncate text-xs italic">
+                    {/* Resume title — only if different from role */}
+                    {showTitle && (
+                      <p className="mt-0.5 truncate text-[10px] italic text-muted-foreground/60">
                         {resume.title}
                       </p>
                     )}
-
-                    {/* Meta pills */}
-                    <div className="mb-3 flex flex-wrap gap-1.5">
-                      <span className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium">
-                        <FileText className="h-3 w-3" />
-                        {templateName}
-                      </span>
-                      {levelLabel && (
-                        <span className="bg-muted text-muted-foreground inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium">
-                          {levelLabel}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Footer */}
-                    <div className="flex items-center justify-between">
-                      <div className="text-muted-foreground/60 flex items-center gap-1.5 text-[11px]">
-                        <Clock className="h-3 w-3" />
-                        Updated {formatDate(resume.updated_at)}
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 cursor-pointer gap-1 px-2 text-xs opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          router.push(`/admin/resume-builder/${resume.id}/edit`)
-                        }}
-                      >
-                        <Pencil className="h-3 w-3" />
-                        Edit
-                      </Button>
-                    </div>
                   </Link>
+
+                  {/* Footer: meta + date — pinned to bottom */}
+                  <div className="mt-auto flex items-center gap-1.5 border-t border-border/40 px-3 py-1.5">
+                    <span className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded px-1.5 py-px text-[10px] font-medium">
+                      <FileText className="h-2.5 w-2.5" />
+                      {templateName}
+                    </span>
+                    {levelLabel && (
+                      <span className="bg-muted text-muted-foreground inline-flex items-center rounded px-1.5 py-px text-[10px] font-medium">
+                        {levelLabel}
+                      </span>
+                    )}
+                    <span className="text-muted-foreground/50 ml-auto text-[10px]">
+                      {formatDate(resume.updated_at)}
+                    </span>
+                  </div>
                 </Card>
               )
             })}

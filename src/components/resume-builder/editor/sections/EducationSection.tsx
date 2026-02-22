@@ -62,8 +62,8 @@ export function EducationSection({ resumeId, entries }: Props) {
       icon={GraduationCap}
       id="education"
       action={
-        <Button variant="ghost" size="sm" onClick={handleAdd} disabled={isPending} className="h-7 text-xs">
-          <Plus className="mr-1 h-3 w-3" />
+        <Button variant="ghost" size="sm" onClick={handleAdd} disabled={isPending} className="h-5 px-1.5 text-[11px]">
+          <Plus className="mr-0.5 h-3 w-3" />
           Add
         </Button>
       }
@@ -127,8 +127,8 @@ function EducationCard({
     <div className="rounded-lg border">
       <button type="button" className="flex w-full items-center gap-3 p-3 text-left" onClick={onToggle}>
         <div className="flex-1">
-          <div className="text-sm font-medium">{entry.degree || 'Untitled Degree'}</div>
-          <div className="text-muted-foreground text-xs">{entry.institution || 'Institution'}</div>
+          <div className="text-sm font-medium text-foreground">{entry.degree || 'Untitled Degree'}</div>
+          <div className="text-foreground/60 text-xs">{entry.institution || 'Institution'}</div>
         </div>
         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </button>

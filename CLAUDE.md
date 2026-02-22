@@ -1,9 +1,11 @@
 # Portfolio 2026 - Development Guide
 
 ## Project Overview
+
 Next.js 16 portfolio application with admin dashboard, blog, and resume builder.
 
 ## Tech Stack
+
 - **Framework:** Next.js 16 (App Router), React 19, TypeScript
 - **Styling:** Tailwind CSS v4, shadcn/ui (new-york style), Radix UI
 - **Database:** Supabase (PostgreSQL 17, Auth, Storage)
@@ -16,6 +18,7 @@ Next.js 16 portfolio application with admin dashboard, blog, and resume builder.
 - **AI:** Anthropic Claude API (resume builder features)
 
 ## Project Structure
+
 ```
 src/
 ├── app/
@@ -46,6 +49,7 @@ src/
 ```
 
 ## Development Conventions
+
 - Use Server Components by default, `'use client'` only when needed
 - Server Actions for mutations (revalidateTag/revalidatePath)
 - Zod schemas for all form validation
@@ -56,12 +60,14 @@ src/
 - OKLch color space for CSS variables
 
 ## Database
+
 - Supabase local dev: `npx supabase start`
 - Migrations in `supabase/migrations/`
 - RLS: public read, authenticated write
 - Admin client bypasses RLS for server operations
 
 ## Resume Builder
+
 - Multi-resume system: master + tailored versions
 - 6 templates: Pragmatic, Mono, Smarkdown, CareerCup, Parker, Experienced
 - AI features: bullet rewriter, cliche detector, summary generator, scorer, JD matcher
@@ -72,12 +78,14 @@ src/
 - Career coach AI assistant
 
 ## Commands
+
 - `npm run dev` - Start dev server
 - `npx supabase start` - Start local Supabase
 - `npx supabase db reset` - Reset database with migrations
 - `npx playwright test` - Run E2E tests
 
 ## Important Rules
+
 - Never deploy without explicit user approval
 - Test locally only
 - Feature branches for each feature

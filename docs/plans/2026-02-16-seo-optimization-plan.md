@@ -17,6 +17,7 @@
 The current `JsonLd` component uses `JSON.stringify()` without XSS sanitization. Next.js docs recommend replacing `<` with `\u003c`.
 
 **Files:**
+
 - Modify: `src/components/JsonLd.tsx`
 
 **Step 1: Update JsonLd to sanitize output**
@@ -37,11 +38,13 @@ git commit -m "fix(seo): sanitize JSON-LD output to prevent XSS"
 The `buildRootMetadata()` function in `seo.ts` is missing `alternates.canonical`. This tells Google which URL is authoritative.
 
 **Files:**
+
 - Modify: `src/lib/seo.ts`
 
 **Step 1: Add canonical to alternates in buildRootMetadata()**
 
 In the return object of `buildRootMetadata()`, update the `alternates` block to include:
+
 ```typescript
 alternates: {
   canonical: siteUrl || undefined,
@@ -53,9 +56,7 @@ alternates: {
 
 **Step 2: Verify locally**
 
-Run: `npm run dev`
-Visit: `http://localhost:3000`
-Check page source for `<link rel="canonical" ...>` in the `<head>`.
+Run: `npm run dev`Visit: `http://localhost:3000`Check page source for `<link rel="canonical" ...>` in the `<head>`.
 
 **Step 3: Commit**
 
@@ -71,6 +72,7 @@ git commit -m "feat(seo): add canonical URL to root metadata"
 Each public page needs its own canonical URL in `generateMetadata()`.
 
 **Files:**
+
 - Modify: `src/app/(public)/page.tsx` (home)
 - Modify: `src/app/(public)/blog/page.tsx` (blog index)
 - Modify: `src/app/(public)/blog/[slug]/page.tsx` (blog post)
@@ -79,6 +81,7 @@ Each public page needs its own canonical URL in `generateMetadata()`.
 **Step 1: Home page — add canonical**
 
 In `src/app/(public)/page.tsx`, update `generateMetadata()` to add:
+
 ```typescript
 alternates: {
   canonical: config.siteUrl || undefined,
@@ -88,6 +91,7 @@ alternates: {
 **Step 2: Blog index — add canonical**
 
 In `src/app/(public)/blog/page.tsx`, add to the returned metadata:
+
 ```typescript
 alternates: {
   canonical: config ? `${config.siteUrl}/blog` : undefined,
@@ -97,6 +101,7 @@ alternates: {
 **Step 3: Blog post — add canonical**
 
 In `src/app/(public)/blog/[slug]/page.tsx`, add `getCachedSiteConfig()` call alongside existing `getBlogPost()`, then add:
+
 ```typescript
 alternates: {
   canonical: config ? `${config.siteUrl}/blog/${slug}` : undefined,
@@ -106,6 +111,7 @@ alternates: {
 **Step 4: Resume page — add canonical**
 
 In `src/app/(public)/resume/page.tsx`, add:
+
 ```typescript
 alternates: {
   canonical: config ? `${config.siteUrl}/resume` : undefined,
@@ -114,8 +120,7 @@ alternates: {
 
 **Step 5: Verify all canonical URLs locally**
 
-Run: `npm run dev`
-Check page source on each page for correct canonical link tags.
+Run: `npm run dev`Check page source on each page for correct canonical link tags.
 
 **Step 6: Commit**
 
@@ -131,17 +136,20 @@ git commit -m "feat(seo): add page-level canonical URLs to all public pages"
 The current Person schema in `json-ld.ts` is minimal. Add `@id`, `alternateName`, `jobTitle`, `knowsAbout` for Knowledge Panel recognition.
 
 **Files:**
+
 - Modify: `src/lib/json-ld.ts`
 
 **Step 1: Update personAndWebsiteJsonLd()**
 
 Add to the Person object:
+
 - `"@id": "${config.siteUrl}/#person"` — for cross-page entity linking
 - `alternateName: "Shahriyar Valielahiroshan"` — legal name discoverability
 - `jobTitle: "Software Engineer"`
 - `knowsAbout: ["Software Engineering", "Web Development", "TypeScript", "React", "Next.js"]`
 
 Add to the WebSite object:
+
 - `"@id": "${config.siteUrl}/#website"`
 
 **Step 2: Commit**
@@ -158,6 +166,7 @@ git commit -m "feat(seo): enhance Person schema with @id, alternateName, jobTitl
 BreadcrumbList helps Google understand site hierarchy and can appear in search results.
 
 **Files:**
+
 - Modify: `src/lib/json-ld.ts`
 - Modify: `src/app/(public)/blog/page.tsx`
 - Modify: `src/app/(public)/blog/[slug]/page.tsx`
@@ -193,6 +202,7 @@ git commit -m "feat(seo): add BreadcrumbList schema to all public pages"
 Update article author to use `@id` reference and enhance ProfilePage with image.
 
 **Files:**
+
 - Modify: `src/lib/json-ld.ts`
 
 **Step 1: Update articleJsonLd() author**
@@ -217,6 +227,7 @@ git commit -m "feat(seo): enhance Article author @id linking and ProfilePage sch
 The current sitemap is missing `lastModified` on static pages and doesn't include blog post images.
 
 **Files:**
+
 - Modify: `src/app/sitemap.ts`
 
 **Step 1: Update sitemap**
@@ -227,9 +238,7 @@ The current sitemap is missing `lastModified` on static pages and doesn't includ
 
 **Step 2: Verify sitemap output**
 
-Run: `npm run dev`
-Visit: `http://localhost:3000/sitemap.xml`
-Verify: static pages have `<lastmod>`, blog posts with cover images have `<image:image>` entries.
+Run: `npm run dev`Visit: `http://localhost:3000/sitemap.xml`Verify: static pages have `<lastmod>`, blog posts with cover images have `<image:image>` entries.
 
 **Step 3: Commit**
 
@@ -245,6 +254,7 @@ git commit -m "feat(seo): add lastModified to static pages and images to blog si
 Add optimized profile images as static assets for schema markup and Knowledge Panel.
 
 **Files:**
+
 - Create: `public/images/` directory
 - Create: optimized profile images
 - Modify: `src/lib/json-ld.ts` (update Person schema image URL)
@@ -256,6 +266,7 @@ User provides the file path to their high-resolution profile photo.
 **Step 2: Generate optimized images**
 
 Using sips (macOS built-in) or sharp, create:
+
 - `public/images/profile-1000x1333.jpg` — 3:4 aspect ratio for Knowledge Panel (quality 85)
 - `public/images/profile-512x512.jpg` — square crop for schema markup (quality 85)
 
@@ -274,11 +285,11 @@ git commit -m "feat(seo): add optimized profile images for Knowledge Panel and s
 
 ### Task 9: Vercel Domain Configuration (Manual - User Steps)
 
-**Step 1:** Go to Vercel Dashboard > portfolio project > Settings > Domains. Ensure `seanroshan.com` is the primary domain.
+**Step 1:** Go to Vercel Dashboard &gt; portfolio project &gt; Settings &gt; Domains. Ensure `seanroshan.com` is the primary domain.
 
 **Step 2:** For each of `.dev`, `.io`, `.ca`, `.us`, `.live` — set to "Redirect to" `seanroshan.com` (308 permanent redirect).
 
-**Step 3:** Go to Settings > Environment Variables. Set `NEXT_PUBLIC_SITE_URL` = `https://seanroshan.com` for Production scope.
+**Step 3:** Go to Settings &gt; Environment Variables. Set `NEXT_PUBLIC_SITE_URL` = `https://seanroshan.com` for Production scope.
 
 **Step 4:** Trigger a new production deployment.
 
@@ -324,7 +335,4 @@ Task 10 (Search Console) — depends on Task 9 (needs domain configured)
 Task 11 (Entity signals) — depends on Task 10 (needs site indexed)
 ```
 
-**Parallelizable:** Tasks 1, 2, 3, 4, 7 can all run independently.
-**Sequential:** Tasks 5, 6, 8 depend on Task 4 completing first.
-**Code tasks:** 1-8 (automated)
-**Manual tasks:** 9-11 (user performs in browser)
+**Parallelizable:** Tasks 1, 2, 3, 4, 7 can all run independently. **Sequential:** Tasks 5, 6, 8 depend on Task 4 completing first. **Code tasks:** 1-8 (automated) **Manual tasks:** 9-11 (user performs in browser)

@@ -13,7 +13,7 @@ export function ParkerTemplate({ resume }: Props) {
   const dateFormat = resume.settings?.date_format ?? 'month_year'
   const sections = getVisibleSections(resume)
   const links = getContactLinks(resume)
-  const { accent, background, font, density, margin, nameSize, uppercase, rightPanelColor } = getTemplateStyles(resume.settings, TEMPLATE_IDS.parker)
+  const { accent, background, font, density, margin, nameSize, uppercase, rightPanelColor, sidebarColors } = getTemplateStyles(resume.settings, TEMPLATE_IDS.parker)
 
   const dark = background
   const light = rightPanelColor
@@ -23,13 +23,13 @@ export function ParkerTemplate({ resume }: Props) {
     contact: () => null, // handled inline in sidebar header
     skills: () =>
       resume.skill_categories.length > 0 ? (
-        <SidebarSection title="SKILLS" accent={accent} uppercase={uppercase}>
+        <SidebarSection title="SKILLS" accent={accent} uppercase={uppercase} sectionSize={density.section}>
           {resume.skill_categories.map((cat) => (
             <div key={cat.id} style={{ marginBottom: '6px' }}>
-              <div style={{ fontWeight: 700, fontSize: density.body, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#d1d5db', marginBottom: '2px' }}>
+              <div style={{ fontWeight: 700, fontSize: density.heading, textTransform: 'uppercase', letterSpacing: '0.5px', color: sidebarColors.secondary, marginBottom: '2px' }}>
                 {cat.name}
               </div>
-              <div style={{ fontSize: density.body, color: '#d1d5db', lineHeight: density.lineHeight }}>
+              <div style={{ fontSize: density.body, color: sidebarColors.secondary, lineHeight: density.lineHeight }}>
                 {cat.skills.join(', ')}
               </div>
             </div>
@@ -38,34 +38,34 @@ export function ParkerTemplate({ resume }: Props) {
       ) : null,
     education: () =>
       resume.education.length > 0 ? (
-        <SidebarSection title="EDUCATION" accent={accent} uppercase={uppercase}>
+        <SidebarSection title="EDUCATION" accent={accent} uppercase={uppercase} sectionSize={density.section}>
           {resume.education.map((edu) => (
             <div key={edu.id} style={{ marginBottom: '8px' }}>
-              <div style={{ fontWeight: 700, fontSize: density.body, color: '#fff' }}>{edu.degree}</div>
+              <div style={{ fontWeight: 700, fontSize: density.heading, color: sidebarColors.primary }}>{edu.degree}</div>
               {edu.field_of_study && (
-                <div style={{ fontSize: density.body, color: '#d1d5db' }}>{edu.field_of_study}</div>
+                <div style={{ fontSize: density.body, color: sidebarColors.secondary }}>{edu.field_of_study}</div>
               )}
-              <div style={{ fontSize: density.body, color: '#9ca3af' }}>{edu.institution}</div>
+              <div style={{ fontSize: density.body, color: sidebarColors.muted }}>{edu.institution}</div>
               {edu.graduation_date && (
-                <div style={{ fontSize: density.body, color: '#9ca3af', marginTop: '2px' }}>
+                <div style={{ fontSize: density.body, color: sidebarColors.muted, marginTop: '2px' }}>
                   {getDateRange(null, edu.graduation_date, dateFormat).replace('Present – ', '')}
                 </div>
               )}
-              {edu.gpa && <div style={{ fontSize: density.body, color: '#9ca3af' }}>GPA: {edu.gpa}</div>}
-              {edu.honors && <div style={{ fontSize: density.body, color: '#9ca3af' }}>{edu.honors}</div>}
+              {edu.gpa && <div style={{ fontSize: density.body, color: sidebarColors.muted }}>GPA: {edu.gpa}</div>}
+              {edu.honors && <div style={{ fontSize: density.body, color: sidebarColors.muted }}>{edu.honors}</div>}
             </div>
           ))}
         </SidebarSection>
       ) : null,
     certifications: () =>
       resume.certifications.length > 0 ? (
-        <SidebarSection title="CERTIFICATIONS" accent={accent} uppercase={uppercase}>
+        <SidebarSection title="CERTIFICATIONS" accent={accent} uppercase={uppercase} sectionSize={density.section}>
           {resume.certifications.map((cert) => (
             <div key={cert.id} style={{ marginBottom: '6px' }}>
-              <div style={{ fontWeight: 700, fontSize: density.body, color: '#fff' }}>{cert.name}</div>
-              {cert.issuer && <div style={{ fontSize: density.body, color: '#9ca3af' }}>{cert.issuer}</div>}
+              <div style={{ fontWeight: 700, fontSize: density.heading, color: sidebarColors.primary }}>{cert.name}</div>
+              {cert.issuer && <div style={{ fontSize: density.body, color: sidebarColors.muted }}>{cert.issuer}</div>}
               {cert.date && (
-                <div style={{ fontSize: density.body, color: '#9ca3af' }}>
+                <div style={{ fontSize: density.body, color: sidebarColors.muted }}>
                   {getDateRange(null, cert.date, dateFormat).replace('Present – ', '')}
                 </div>
               )}
@@ -75,12 +75,12 @@ export function ParkerTemplate({ resume }: Props) {
       ) : null,
     extracurriculars: () =>
       resume.extracurriculars.length > 0 ? (
-        <SidebarSection title="ACTIVITIES" accent={accent} uppercase={uppercase}>
+        <SidebarSection title="ACTIVITIES" accent={accent} uppercase={uppercase} sectionSize={density.section}>
           {resume.extracurriculars.map((item) => (
             <div key={item.id} style={{ marginBottom: '4px' }}>
-              <div style={{ fontWeight: 700, fontSize: density.body, color: '#fff' }}>{item.title}</div>
+              <div style={{ fontWeight: 700, fontSize: density.heading, color: sidebarColors.primary }}>{item.title}</div>
               {item.description && (
-                <div style={{ fontSize: density.body, color: '#9ca3af' }}>{item.description}</div>
+                <div style={{ fontSize: density.body, color: sidebarColors.muted }}>{item.description}</div>
               )}
             </div>
           ))}
@@ -181,7 +181,7 @@ export function ParkerTemplate({ resume }: Props) {
         style={{
           width: '30%',
           backgroundColor: dark,
-          color: '#fff',
+          color: sidebarColors.primary,
           padding: `${margin} 0.5in calc(${margin} - 0.2in)`,
           boxSizing: 'border-box',
           flexShrink: 0,
@@ -193,15 +193,15 @@ export function ParkerTemplate({ resume }: Props) {
             {ci?.full_name || 'Your Name'}
           </div>
           {resume.target_role && (
-            <div style={{ fontSize: density.body, color: '#9ca3af', marginTop: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            <div style={{ fontSize: density.body, color: sidebarColors.muted, marginTop: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               {resume.target_role}
             </div>
           )}
         </div>
 
         {/* Contact info */}
-        <SidebarSection title="CONTACT" accent={accent} uppercase={uppercase}>
-          <div style={{ fontSize: density.body, color: '#d1d5db', lineHeight: '1.6' }}>
+        <SidebarSection title="CONTACT" accent={accent} uppercase={uppercase} sectionSize={density.section}>
+          <div style={{ fontSize: density.body, color: sidebarColors.secondary, lineHeight: '1.6' }}>
             {ci?.email && <div>{ci.email}</div>}
             {ci?.phone && <div>{ci.phone}</div>}
             {(ci?.city || ci?.state || ci?.country) && <div>{[ci?.city, ci?.state, ci?.country].filter(Boolean).join(', ')}</div>}
@@ -240,11 +240,11 @@ export function ParkerTemplate({ resume }: Props) {
   )
 }
 
-function SidebarSection({ title, accent, uppercase, children }: { title: string; accent: string; uppercase?: boolean; children: React.ReactNode }) {
+function SidebarSection({ title, accent, uppercase, sectionSize, children }: { title: string; accent: string; uppercase?: boolean; sectionSize?: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: '18px' }}>
       <h2 style={{
-        fontSize: '10px',
+        fontSize: sectionSize ?? '10px',
         fontWeight: 700,
         textTransform: uppercase ? 'uppercase' : 'none',
         letterSpacing: '2px',

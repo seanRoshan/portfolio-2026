@@ -8,7 +8,7 @@ import {
   ChevronDown,
   ChevronUp,
   AlertTriangle,
-  Sparkles,
+  EyeOff,
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -37,6 +37,7 @@ import {
   deleteAchievement,
 } from '@/app/admin/resume-builder/actions'
 import { EditorSection } from '../EditorSection'
+import { AIAssistButton } from '../AIAssistButton'
 import { analyzeAchievement } from '@/lib/resume-builder/validation/rules'
 import type { ResumeWorkExperience } from '@/types/resume-builder'
 
@@ -83,9 +84,9 @@ export function WorkExperienceSection({ resumeId, experiences }: Props) {
           size="sm"
           onClick={handleAdd}
           disabled={isPending}
-          className="h-7 text-xs"
+          className="h-5 px-1.5 text-[11px]"
         >
-          <Plus className="mr-1 h-3 w-3" />
+          <Plus className="mr-0.5 h-3 w-3" />
           Add Role
         </Button>
       }
@@ -170,18 +171,24 @@ function ExperienceCard({
       {/* Header */}
       <button
         type="button"
-        className="flex w-full items-center gap-3 p-3 text-left"
+        className={`flex w-full items-center gap-3 p-3 text-left${experience.is_visible === false ? ' opacity-50' : ''}`}
         onClick={onToggle}
       >
         <div className="flex-1">
-          <div className="text-sm font-medium">
+          <div className="text-sm font-medium text-foreground">
             {experience.job_title || 'Untitled Role'}
           </div>
-          <div className="text-muted-foreground text-xs">
+          <div className="text-muted-foreground text-xs text-foreground/60">
             {experience.company || 'Company'}{' '}
             {experience.location && `· ${experience.location}`}
           </div>
         </div>
+        {experience.is_visible === false && (
+          <Badge variant="outline" className="text-[10px]">
+            <EyeOff className="mr-1 h-2.5 w-2.5" />
+            Hidden
+          </Badge>
+        )}
         {experience.is_promotion && (
           <Badge variant="secondary" className="text-xs">
             Promotion
@@ -254,12 +261,21 @@ function ExperienceCard({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={experience.is_promotion}
-              onCheckedChange={(v) => handleUpdate('is_promotion', v)}
-            />
-            <Label className="text-xs">This is a promotion</Label>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={experience.is_visible !== false}
+                onCheckedChange={(v) => handleUpdate('is_visible', v)}
+              />
+              <Label className="text-xs">Show on resume</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={experience.is_promotion}
+                onCheckedChange={(v) => handleUpdate('is_promotion', v)}
+              />
+              <Label className="text-xs">This is a promotion</Label>
+            </div>
           </div>
 
           {/* Achievement Bullets */}
@@ -282,6 +298,8 @@ function ExperienceCard({
                   key={achievement.id}
                   achievement={achievement}
                   resumeId={resumeId}
+                  jobTitle={experience.job_title}
+                  company={experience.company}
                 />
               ))}
             </div>
@@ -332,9 +350,13 @@ function ExperienceCard({
 function AchievementRow({
   achievement,
   resumeId,
+  jobTitle,
+  company,
 }: {
   achievement: { id: string; text: string; has_metric: boolean }
   resumeId: string
+  jobTitle: string
+  company: string
 }) {
   const [isPending, startTransition] = useTransition()
   const [text, setText] = useState(achievement.text)
@@ -362,6 +384,18 @@ function AchievementRow({
     })
   }
 
+  function handleAIAccept(newText: string) {
+    setText(newText)
+    startTransition(async () => {
+      try {
+        await updateAchievement(achievement.id, resumeId, { text: newText })
+        toast.success('Bullet updated')
+      } catch {
+        toast.error('Failed to save')
+      }
+    })
+  }
+
   return (
     <div className="group flex gap-2">
       <div className="flex-1">
@@ -383,7 +417,7 @@ function AchievementRow({
             ))}
           </div>
         )}
-        <div className="mt-1 flex gap-2">
+        <div className="mt-1 flex items-center gap-2">
           {analysis.hasMetric && (
             <Badge variant="secondary" className="text-[10px]">
               Has metric
@@ -395,6 +429,13 @@ function AchievementRow({
             </Badge>
           )}
         </div>
+        <AIAssistButton
+          category="bullet"
+          currentText={text}
+          context={{ job_title: jobTitle, company }}
+          resumeId={resumeId}
+          onAccept={handleAIAccept}
+        />
       </div>
       <AlertDialog>
         <AlertDialogTrigger asChild>

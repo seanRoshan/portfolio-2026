@@ -18,10 +18,6 @@ export interface SiteSettings {
   city: string | null
   state: string | null
   country: string | null
-  linkedin_url: string | null
-  github_url: string | null
-  portfolio_url: string | null
-  blog_url: string | null
   // Landing page visibility
   landing_show_email: boolean
   landing_show_phone: boolean
@@ -29,6 +25,9 @@ export interface SiteSettings {
   landing_show_linkedin: boolean
   landing_show_github: boolean
   landing_show_portfolio: boolean
+  // Availability
+  availability_text: string | null
+  landing_show_availability: boolean
   created_at: string
   updated_at: string
 }

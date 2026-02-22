@@ -127,7 +127,6 @@ export function validateResume(resume: ResumeWithRelations): ValidationResult[] 
     resume.contact_info?.linkedin_url,
     resume.contact_info?.github_url,
     resume.contact_info?.portfolio_url,
-    resume.contact_info?.blog_url,
   ].filter(Boolean).length
   if (linkCount > 4) {
     results.push({

@@ -1041,6 +1041,7 @@ export async function updateResumeMetadata(
     company_name?: string | null
     job_location?: string | null
     work_mode?: string | null
+    job_description_text?: string | null
   }
 ) {
   const supabase = await createClient()

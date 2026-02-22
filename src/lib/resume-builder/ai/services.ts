@@ -15,14 +15,15 @@ import {
 
 async function callClaude(
   systemPrompt: string,
-  userMessage: string
+  userMessage: string,
+  maxTokens: number = 2048
 ): Promise<string> {
   const client = getAnthropicClient()
   if (!client) throw new Error('AI not available: ANTHROPIC_API_KEY not set')
 
   const response = await client.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 1024,
+    model: 'claude-sonnet-4-6',
+    max_tokens: maxTokens,
     system: systemPrompt,
     messages: [{ role: 'user', content: userMessage }],
   })
@@ -569,8 +570,8 @@ Generate a professional summary that ties everything together.`,
   if (!client) throw new Error('AI not available')
 
   const response = await client.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 1024,
+    model: 'claude-sonnet-4-6',
+    max_tokens: 2048,
     system: fullSystem,
     messages: messages.map((m) => ({
       role: m.role,

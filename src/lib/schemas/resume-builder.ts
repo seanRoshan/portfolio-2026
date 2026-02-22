@@ -5,8 +5,9 @@ export const contactInfoSchema = z.object({
   full_name: z.string().min(1, 'Full name is required'),
   email: z.string().email('Valid email required').or(z.literal('')),
   phone: z.string().optional(),
-  city: z.string().min(1, 'City is required'),
-  country: z.string().min(1, 'Country is required'),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
   linkedin_url: z
     .string()
     .url('Must be a valid URL')
@@ -18,11 +19,6 @@ export const contactInfoSchema = z.object({
     .or(z.literal(''))
     .optional(),
   portfolio_url: z
-    .string()
-    .url('Must be a valid URL')
-    .or(z.literal(''))
-    .optional(),
-  blog_url: z
     .string()
     .url('Must be a valid URL')
     .or(z.literal(''))
