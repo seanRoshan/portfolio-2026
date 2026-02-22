@@ -103,6 +103,9 @@ export interface Resume {
   template_id: string | null
   experience_level: ExperienceLevel | null
   target_role: string | null
+  company_name: string | null
+  job_location: string | null
+  work_mode: RemoteType | null
   is_master: boolean
   parent_resume_id: string | null
   short_id: string | null
@@ -117,6 +120,7 @@ export interface ResumeContactInfo {
   email: string | null
   phone: string | null
   city: string | null
+  state: string | null
   country: string | null
   linkedin_url: string | null
   github_url: string | null
