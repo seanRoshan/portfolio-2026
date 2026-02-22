@@ -6,6 +6,12 @@ import type {
   JDMatchResult,
   ResumeWithRelations,
 } from '@/types/resume-builder'
+import {
+  BUZZWORDS as CAREER_COACH_BUZZWORDS,
+  WEAK_VERBS as CAREER_COACH_WEAK_VERBS,
+  STRONG_VERBS as CAREER_COACH_STRONG_VERBS,
+  hasMetricInText,
+} from '@/lib/resume-builder/validation/rules'
 
 async function callClaude(
   systemPrompt: string,
@@ -132,25 +138,10 @@ Respond with ONLY the summary text, no quotes or formatting.`
 
 // ===== Resume Scorer =====
 
-const BUZZWORDS = [
-  'team player', 'fast learner', 'self-starter', 'think outside the box',
-  'go-getter', 'hit the ground running', 'synergy', 'leverage', 'leveraged',
-  'paradigm shift', 'proactive', 'detail-oriented', 'results-driven',
-  'excellent communication', 'passionate', 'passionate about', 'hard worker',
-  'dynamic', 'guru', 'ninja', 'rockstar', 'visionary', 'world-class',
-]
-
-const STRONG_ACTION_VERBS = new Set([
-  'led', 'directed', 'managed', 'coordinated', 'spearheaded', 'championed',
-  'built', 'designed', 'architected', 'developed', 'implemented', 'created', 'launched',
-  'improved', 'optimized', 'enhanced', 'streamlined', 'accelerated', 'reduced',
-  'analyzed', 'evaluated', 'assessed', 'investigated', 'diagnosed',
-  'presented', 'documented', 'authored', 'published', 'mentored', 'trained',
-  'migrated', 'automated', 'deployed', 'configured', 'integrated', 'refactored',
-  'scaled', 'delivered', 'established', 'introduced', 'drove', 'enabled',
-  'pioneered', 'transformed', 'restructured', 'negotiated', 'secured',
-  'increased', 'decreased',
-])
+// Use the comprehensive career coach lists from the validation rules module
+// as the single source of truth for buzzwords, weak verbs, and strong verbs.
+const BUZZWORDS = CAREER_COACH_BUZZWORDS
+const STRONG_ACTION_VERBS = CAREER_COACH_STRONG_VERBS
 
 function computeGrade(score: number): 'A' | 'B' | 'C' | 'D' | 'F' {
   if (score >= 85) return 'A'
@@ -211,9 +202,9 @@ export function scoreResume(
     suggestions: completenessDeductions,
   })
 
-  // === 2. Metric Coverage (20%) ===
+  // === 2. Metric Coverage (20%) — uses XYZ formula check ===
   const bulletsWithMetrics = allBullets.filter((b) =>
-    /\d+[%+]?|\$[\d,]+/.test(b.text)
+    hasMetricInText(b.text)
   ).length
   const metricScore = totalBullets > 0
     ? Math.round((bulletsWithMetrics / totalBullets) * 100)
@@ -223,7 +214,7 @@ export function scoreResume(
   if (totalBullets > 0 && bulletsWithMetrics < totalBullets) {
     const missing = totalBullets - bulletsWithMetrics
     metricSuggestions.push(
-      `Add quantifiable metrics to ${missing} more bullet${missing > 1 ? 's' : ''}`
+      `${missing} bullet${missing > 1 ? 's lack' : ' lacks'} quantifiable metrics (XYZ formula: Accomplished [X] as measured by [Y] by doing [Z])`
     )
   }
   if (totalBullets === 0) {
@@ -238,28 +229,41 @@ export function scoreResume(
     suggestions: metricSuggestions,
   })
 
-  // === 3. Action Verb Quality (15%) ===
+  // === 3. Action Verb Quality (15%) — enhanced with weak verb detection ===
   const bulletsWithStrongVerbs = allBullets.filter((b) => {
     const firstWord = b.text.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '')
     return STRONG_ACTION_VERBS.has(firstWord ?? '')
   }).length
+  const bulletsWithWeakVerbs = allBullets.filter((b) => {
+    const firstWord = b.text.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '')
+    return CAREER_COACH_WEAK_VERBS.has(firstWord ?? '')
+  }).length
+  // Penalize weak verbs more heavily than just missing strong verbs
   const verbScore = totalBullets > 0
-    ? Math.round((bulletsWithStrongVerbs / totalBullets) * 100)
+    ? Math.max(0, Math.round(
+        ((bulletsWithStrongVerbs / totalBullets) * 100) -
+        (bulletsWithWeakVerbs * 10)
+      ))
     : 0
 
   const verbSuggestions: string[] = []
   if (totalBullets > 0 && bulletsWithStrongVerbs < totalBullets) {
-    const weak = totalBullets - bulletsWithStrongVerbs
+    const nonStrong = totalBullets - bulletsWithStrongVerbs
     verbSuggestions.push(
-      `${weak} bullet${weak > 1 ? 's' : ''} could start with stronger action verbs (Led, Built, Improved, etc.)`
+      `${nonStrong} bullet${nonStrong > 1 ? 's' : ''} could start with stronger action verbs (Led, Built, Improved, etc.)`
+    )
+  }
+  if (bulletsWithWeakVerbs > 0) {
+    verbSuggestions.push(
+      `${bulletsWithWeakVerbs} bullet${bulletsWithWeakVerbs > 1 ? 's start' : ' starts'} with a weak verb (was, did, used, worked, helped). Replace with impactful verbs.`
     )
   }
 
   dimensions.push({
     name: 'Action Verb Quality',
-    score: verbScore,
+    score: Math.min(verbScore, 100),
     weight: 0.15,
-    feedback: `${bulletsWithStrongVerbs} of ${totalBullets} bullets start with strong action verbs`,
+    feedback: `${bulletsWithStrongVerbs} of ${totalBullets} bullets start with strong action verbs${bulletsWithWeakVerbs > 0 ? ` (${bulletsWithWeakVerbs} start with weak verbs)` : ''}`,
     suggestions: verbSuggestions,
   })
 

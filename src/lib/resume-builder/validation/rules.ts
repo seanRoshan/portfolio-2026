@@ -1,7 +1,7 @@
 import type { ResumeWithRelations, ValidationResult } from '@/types/resume-builder'
 
 // Approved action verbs from the guide
-const STRONG_VERBS = new Set([
+export const STRONG_VERBS = new Set([
   'led', 'directed', 'managed', 'coordinated', 'spearheaded', 'championed',
   'built', 'designed', 'architected', 'developed', 'implemented', 'created', 'launched',
   'improved', 'optimized', 'enhanced', 'streamlined', 'accelerated', 'reduced',
@@ -10,24 +10,40 @@ const STRONG_VERBS = new Set([
   'migrated', 'automated', 'deployed', 'configured', 'integrated', 'refactored',
   'scaled', 'delivered', 'established', 'introduced', 'drove', 'enabled',
   'pioneered', 'transformed', 'restructured', 'negotiated', 'secured',
+  'increased', 'decreased',
 ])
 
-// Weak verbs to flag
-const WEAK_VERBS: Record<string, string[]> = {
+// Weak verbs to flag (phrase-based with suggested replacements)
+const WEAK_VERB_PHRASES: Record<string, string[]> = {
   'worked on': ['Built', 'Implemented', 'Developed'],
   'responsible for': ['Led', 'Managed', 'Drove'],
   'took part in': ['Contributed to', 'Collaborated on'],
   'assisted with': ['Supported', 'Enabled'],
+  'helped with': ['Enabled', 'Facilitated'],
   'helped': ['Enabled', 'Facilitated'],
   'was involved in': ['Contributed to', 'Led'],
+  'duties included': ['Led', 'Managed', 'Delivered'],
 }
 
-// Buzzwords to flag
-const BUZZWORDS = [
-  'team player', 'fast learner', 'self-starter', 'think outside the box',
-  'go-getter', 'hit the ground running', 'synergy', 'leverage',
-  'paradigm shift', 'proactive', 'detail-oriented', 'results-driven',
-  'excellent communication', 'passionate about', 'hard worker',
+// Weak single-word verbs that should not start bullets
+export const WEAK_VERBS = new Set([
+  'was', 'did', 'had', 'got', 'made', 'went', 'used',
+  'worked', 'helped', 'assisted', 'participated', 'responsible',
+  'involved', 'utilized', 'leveraged',
+])
+
+// Comprehensive buzzword/cliche list for career coach checks
+export const BUZZWORDS = [
+  'team player', 'go-getter', 'self-starter', 'detail-oriented',
+  'hard worker', 'think outside the box', 'synergy', 'leverage',
+  'proactive', 'results-driven', 'dynamic', 'passionate',
+  'motivated', 'excellent communication skills', 'fast learner',
+  'responsible for', 'assisted with', 'helped with', 'worked on',
+  'duties included', 'various tasks', 'many projects',
+  'strong work ethic', 'problem solver', 'innovative thinker',
+  'hit the ground running', 'paradigm shift',
+  'excellent communication', 'passionate about',
+  'guru', 'ninja', 'rockstar', 'visionary', 'world-class',
 ]
 
 // Sloppy language patterns
@@ -55,12 +71,12 @@ export function validateResume(resume: ResumeWithRelations): ValidationResult[] 
       message: 'Email address is required',
     })
   }
-  if (!resume.contact_info?.city || !resume.contact_info?.country) {
+  if (!resume.contact_info?.city && !resume.contact_info?.country) {
     results.push({
       severity: 'critical',
       section: 'contact',
       field: 'location',
-      message: 'City and country are required',
+      message: 'Location is required (city or country)',
     })
   }
 
@@ -88,7 +104,7 @@ export function validateResume(resume: ResumeWithRelations): ValidationResult[] 
     resume.work_experiences.length === 0
   ) {
     results.push({
-      severity: 'critical',
+      severity: 'warning',
       section: 'experience',
       message: 'Work experience section is visible but empty',
       suggestion: 'Add experience or hide the section',
@@ -97,7 +113,7 @@ export function validateResume(resume: ResumeWithRelations): ValidationResult[] 
 
   if (visibleSections.has('skills') && resume.skill_categories.length === 0) {
     results.push({
-      severity: 'critical',
+      severity: 'warning',
       section: 'skills',
       message: 'Skills section is visible but empty',
       suggestion: 'Add skills or hide the section',
@@ -121,25 +137,39 @@ export function validateResume(resume: ResumeWithRelations): ValidationResult[] 
     })
   }
 
-  // Check achievement bullets
+  // === Career Coach Rule: LinkedIn URL check ===
+  if (!resume.contact_info?.linkedin_url) {
+    results.push({
+      severity: 'warning',
+      section: 'contact',
+      field: 'linkedin_url',
+      message: 'LinkedIn URL missing — critical for tech industry resumes',
+      suggestion: 'Add your LinkedIn profile URL for recruiter visibility',
+    })
+  }
+
+  // Check achievement bullets for each experience
   for (const exp of resume.work_experiences) {
     const bulletCount = exp.achievements?.length ?? 0
 
-    if (bulletCount > 5) {
+    // === Career Coach Rule: Bullet count per experience (3-6 recommended) ===
+    if (bulletCount > 6) {
       results.push({
         severity: 'warning',
         section: 'experience',
         field: exp.id,
-        message: `"${exp.job_title || 'Role'}" has ${bulletCount} bullets (max 5)`,
+        message: `Experience '${exp.company || exp.job_title || 'Role'}' has ${bulletCount} bullets (recommended: 3-6)`,
+        suggestion: 'Trim to the 3-6 most impactful achievements',
       })
     }
 
-    if (bulletCount > 0 && bulletCount < 2) {
+    if (bulletCount > 0 && bulletCount < 3) {
       results.push({
         severity: 'warning',
         section: 'experience',
         field: exp.id,
-        message: `"${exp.job_title || 'Role'}" has only ${bulletCount} bullet (3-4 recommended)`,
+        message: `Experience '${exp.company || exp.job_title || 'Role'}' has ${bulletCount} bullet${bulletCount === 1 ? '' : 's'} (recommended: 3-6)`,
+        suggestion: 'Add more achievement bullets to demonstrate impact',
       })
     }
 
@@ -149,6 +179,21 @@ export function validateResume(resume: ResumeWithRelations): ValidationResult[] 
         results.push({
           severity: 'warning',
           section: 'experience',
+          field: a.id,
+          message: warning,
+        })
+      }
+    }
+  }
+
+  // Also check project bullets
+  for (const proj of resume.projects) {
+    for (const a of proj.achievements ?? []) {
+      const analysis = analyzeAchievement(a.text)
+      for (const warning of analysis.warnings) {
+        results.push({
+          severity: 'warning',
+          section: 'projects',
           field: a.id,
           message: warning,
         })
@@ -169,6 +214,26 @@ export function validateResume(resume: ResumeWithRelations): ValidationResult[] 
     })
   }
 
+  // === Career Coach Rule: Summary length check ===
+  if (resume.summary?.text && resume.summary.text.trim().length > 0) {
+    const wordCount = resume.summary.text.trim().split(/\s+/).length
+    if (wordCount < 50) {
+      results.push({
+        severity: 'warning',
+        section: 'summary',
+        message: `Summary is too short (${wordCount} words, recommended: 50-200)`,
+        suggestion: 'Expand your summary to 2-4 sentences highlighting experience, skills, and career trajectory',
+      })
+    } else if (wordCount > 200) {
+      results.push({
+        severity: 'warning',
+        section: 'summary',
+        message: `Summary is too long (${wordCount} words, recommended: 50-200)`,
+        suggestion: 'Condense your summary to 2-4 impactful sentences',
+      })
+    }
+  }
+
   return results
 }
 
@@ -187,19 +252,28 @@ export function analyzeAchievement(text: string): AchievementAnalysis {
   const warnings: string[] = []
   const suggestions: string[] = []
 
-  // Check for metrics
-  const hasMetric = /\d+/.test(text)
+  // === Career Coach Rule: XYZ Formula Check ===
+  // Check for metrics (numbers, percentages, dollar amounts)
+  const hasMetric = hasMetricInText(text)
   if (!hasMetric) {
-    warnings.push('No quantifiable metric found. Add numbers for impact.')
+    warnings.push('Bullet lacks quantifiable metrics (XYZ formula)')
+    suggestions.push('Add a number, percentage, or dollar amount to show measurable impact')
   }
 
   // Check first word against strong verbs
   const firstWord = text.trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z]/g, '')
   const startsWithVerb = STRONG_VERBS.has(firstWord)
 
-  // Check for weak verbs
+  // === Career Coach Rule: Weak Action Verb Start ===
+  if (WEAK_VERBS.has(firstWord)) {
+    warnings.push(
+      `Bullet starts with weak verb '${firstWord}'. Consider: Led, Built, Designed, Drove, Implemented, Architected, Delivered, Reduced, Increased`
+    )
+  }
+
+  // Check for weak verb phrases in text
   const lowerText = text.toLowerCase()
-  for (const [weak, replacements] of Object.entries(WEAK_VERBS)) {
+  for (const [weak, replacements] of Object.entries(WEAK_VERB_PHRASES)) {
     if (lowerText.includes(weak)) {
       warnings.push(
         `"${weak}" is passive. Try: ${replacements.join(', ')}`
@@ -207,11 +281,11 @@ export function analyzeAchievement(text: string): AchievementAnalysis {
     }
   }
 
-  // Check for buzzwords
+  // === Career Coach Rule: Buzzword/Cliche Check ===
   for (const buzz of BUZZWORDS) {
     if (lowerText.includes(buzz)) {
       warnings.push(
-        `"${buzz}" is a buzzword. Be specific instead.`
+        `Contains buzzword/cliche: '${buzz}'`
       )
     }
   }
@@ -229,4 +303,9 @@ export function analyzeAchievement(text: string): AchievementAnalysis {
   }
 
   return { hasMetric, startsWithVerb, warnings, suggestions }
+}
+
+/** Check if text contains quantifiable metrics (numbers, %, $, measurement words) */
+export function hasMetricInText(text: string): boolean {
+  return /\d/.test(text) || /\$/.test(text) || /%/.test(text)
 }
