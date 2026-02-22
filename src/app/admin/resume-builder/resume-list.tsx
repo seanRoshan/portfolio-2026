@@ -82,6 +82,12 @@ function getTemplateColor(name: string): string {
   return TEMPLATE_COLORS[name] ?? 'border-l-zinc-500'
 }
 
+const WORK_MODE_STYLES: Record<string, { label: string; dot: string; bg: string; text: string }> = {
+  remote: { label: 'Remote', dot: 'bg-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400' },
+  hybrid: { label: 'Hybrid', dot: 'bg-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-600 dark:text-amber-400' },
+  onsite: { label: 'On-site', dot: 'bg-blue-500', bg: 'bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400' },
+}
+
 interface ResumeListProps {
   resumes: Resume[]
   templates: ResumeTemplate[]
@@ -111,7 +117,9 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
     const q = searchQuery.toLowerCase()
     return (
       r.title.toLowerCase().includes(q) ||
-      (r.target_role?.toLowerCase().includes(q) ?? false)
+      (r.target_role?.toLowerCase().includes(q) ?? false) ||
+      (r.company_name?.toLowerCase().includes(q) ?? false) ||
+      (r.job_location?.toLowerCase().includes(q) ?? false)
     )
   })
 
@@ -236,13 +244,28 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                   <Crown className="h-3 w-3" />
                   Master Resume
                 </Badge>
-                <h2 className="truncate text-xl font-semibold" title={masterResume.title}>
-                  {masterResume.title}
+                <h2 className="truncate text-xl font-semibold" title={masterResume.target_role || masterResume.title}>
+                  {masterResume.target_role || masterResume.title}
                 </h2>
-                {masterResume.target_role && (
+                {(masterResume.company_name || masterResume.job_location) && (
                   <p className="text-muted-foreground mt-0.5 text-sm">
-                    {masterResume.target_role}
+                    {[masterResume.company_name, masterResume.job_location].filter(Boolean).join(' · ')}
                   </p>
+                )}
+                {masterResume.work_mode && WORK_MODE_STYLES[masterResume.work_mode] && (
+                  <div className="mt-1.5">
+                    <span className={cn(
+                      'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium',
+                      WORK_MODE_STYLES[masterResume.work_mode].bg,
+                      WORK_MODE_STYLES[masterResume.work_mode].text,
+                    )}>
+                      <span className={cn('h-1.5 w-1.5 rounded-full', WORK_MODE_STYLES[masterResume.work_mode].dot)} />
+                      {WORK_MODE_STYLES[masterResume.work_mode].label}
+                    </span>
+                  </div>
+                )}
+                {masterResume.target_role && (
+                  <p className="text-muted-foreground mt-1 text-xs italic">{masterResume.title}</p>
                 )}
               </div>
 
@@ -395,19 +418,16 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                     getTemplateColor(templateName),
                   )}
                 >
-                  <Link
-                    href={`/admin/resume-builder/${resume.id}/edit`}
-                    className="block p-5"
-                  >
-                    {/* Header: title + actions */}
-                    <div className="mb-3 flex items-start justify-between gap-2">
+                  <Link href={`/admin/resume-builder/${resume.id}/edit`} className="block p-5">
+                    {/* Primary: Role + Company */}
+                    <div className="mb-1.5 flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-semibold leading-tight" title={resume.title}>
-                          {resume.title}
+                        <h3 className="truncate font-semibold leading-tight" title={resume.target_role || resume.title}>
+                          {resume.target_role || resume.title}
                         </h3>
-                        {resume.target_role && (
-                          <p className="text-muted-foreground mt-0.5 truncate text-xs">
-                            {resume.target_role}
+                        {(resume.company_name || resume.job_location) && (
+                          <p className="text-muted-foreground mt-0.5 truncate text-sm">
+                            {[resume.company_name, resume.job_location].filter(Boolean).join(' · ')}
                           </p>
                         )}
                       </div>
@@ -450,6 +470,27 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                       </DropdownMenu>
                     </div>
 
+                    {/* Work mode pill */}
+                    {resume.work_mode && WORK_MODE_STYLES[resume.work_mode] && (
+                      <div className="mb-2">
+                        <span className={cn(
+                          'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium',
+                          WORK_MODE_STYLES[resume.work_mode].bg,
+                          WORK_MODE_STYLES[resume.work_mode].text,
+                        )}>
+                          <span className={cn('h-1.5 w-1.5 rounded-full', WORK_MODE_STYLES[resume.work_mode].dot)} />
+                          {WORK_MODE_STYLES[resume.work_mode].label}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Resume title (secondary) */}
+                    {resume.target_role && (
+                      <p className="text-muted-foreground mb-2 truncate text-xs italic">
+                        {resume.title}
+                      </p>
+                    )}
+
                     {/* Meta pills */}
                     <div className="mb-3 flex flex-wrap gap-1.5">
                       <span className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium">
@@ -463,7 +504,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                       )}
                     </div>
 
-                    {/* Footer: date + edit button */}
+                    {/* Footer */}
                     <div className="flex items-center justify-between">
                       <div className="text-muted-foreground/60 flex items-center gap-1.5 text-[11px]">
                         <Clock className="h-3 w-3" />
@@ -472,7 +513,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 gap-1 px-2 text-xs opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                        className="h-7 cursor-pointer gap-1 px-2 text-xs opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                         onClick={(e) => {
                           e.preventDefault()
                           e.stopPropagation()

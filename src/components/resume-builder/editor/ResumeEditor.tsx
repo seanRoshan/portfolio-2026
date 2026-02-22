@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useTransition } from 'react'
 import Link from 'next/link'
 import {
   DndContext,
@@ -22,6 +22,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
   ArrowLeft,
+  Briefcase,
   Check,
   Download,
   Eye,
@@ -31,6 +32,8 @@ import {
   Palette,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -41,7 +44,7 @@ import {
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { toast } from 'sonner'
-import { updateResumeTemplate, updateResumeSettings } from '@/app/admin/resume-builder/actions'
+import { updateResumeTemplate, updateResumeSettings, updateResumeMetadata } from '@/app/admin/resume-builder/actions'
 import { ContactInfoSection } from './sections/ContactInfoSection'
 import { SummarySection } from './sections/SummarySection'
 import { WorkExperienceSection } from './sections/WorkExperienceSection'
@@ -72,6 +75,96 @@ function SortableSection({ id, children }: { id: string; children: React.ReactNo
           <GripVertical className="h-3.5 w-3.5" />
         </button>
         <div className="min-w-0 flex-1 pb-1">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+function JobDetailsCard({ resume }: { resume: ResumeWithRelations }) {
+  const [isPending, startTransition] = useTransition()
+
+  function handleBlur(field: string, value: string) {
+    const trimmed = value.trim() || null
+    startTransition(async () => {
+      try {
+        await updateResumeMetadata(resume.id, { [field]: trimmed })
+      } catch {
+        toast.error(`Failed to update ${field.replace('_', ' ')}`)
+      }
+    })
+  }
+
+  return (
+    <div className="rounded-lg border p-4 space-y-3">
+      <h3 className="flex items-center gap-2 text-sm font-semibold">
+        <Briefcase className="h-4 w-4" />
+        Job Details
+      </h3>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="jd-resume-title" className="text-xs">Resume Title</Label>
+          <Input
+            id="jd-resume-title"
+            defaultValue={resume.title}
+            placeholder="e.g., My Google Resume"
+            onBlur={(e) => handleBlur('title', e.target.value)}
+            className="h-8 text-sm"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="jd-target-role" className="text-xs">Target Role</Label>
+          <Input
+            id="jd-target-role"
+            defaultValue={resume.target_role ?? ''}
+            placeholder="e.g., Software Engineer"
+            onBlur={(e) => handleBlur('target_role', e.target.value)}
+            className="h-8 text-sm"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="jd-company" className="text-xs">Company</Label>
+          <Input
+            id="jd-company"
+            defaultValue={resume.company_name ?? ''}
+            placeholder="e.g., Google"
+            onBlur={(e) => handleBlur('company_name', e.target.value)}
+            className="h-8 text-sm"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="jd-location" className="text-xs">Location</Label>
+          <Input
+            id="jd-location"
+            defaultValue={resume.job_location ?? ''}
+            placeholder="e.g., San Francisco, CA"
+            onBlur={(e) => handleBlur('job_location', e.target.value)}
+            className="h-8 text-sm"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="jd-work-mode" className="text-xs">Work Mode</Label>
+          <Select
+            defaultValue={resume.work_mode ?? ''}
+            onValueChange={(v) => {
+              startTransition(async () => {
+                try {
+                  await updateResumeMetadata(resume.id, { work_mode: v || null })
+                } catch {
+                  toast.error('Failed to update work mode')
+                }
+              })
+            }}
+          >
+            <SelectTrigger id="jd-work-mode" className="h-8 text-sm">
+              <SelectValue placeholder="Select..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="remote">Remote</SelectItem>
+              <SelectItem value="hybrid">Hybrid</SelectItem>
+              <SelectItem value="onsite">On-site</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   )
@@ -224,9 +317,16 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
           </Button>
         </Link>
 
-        <h1 className="line-clamp-1 text-sm font-semibold">
-          {resume.title}
-        </h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="line-clamp-1 text-sm font-semibold">
+            {resume.target_role || resume.title}
+          </h1>
+          {resume.company_name && (
+            <p className="text-muted-foreground line-clamp-1 text-[11px]">
+              {resume.company_name}
+            </p>
+          )}
+        </div>
 
         <ScorePanel resume={resume} />
 
@@ -320,6 +420,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
           <Panel defaultSize="50%" minSize="30%">
             <ScrollArea className="h-full border-r">
               <div className="max-w-2xl space-y-6 p-4 md:p-6">
+                <JobDetailsCard resume={resume} />
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
