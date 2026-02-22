@@ -11,13 +11,7 @@ export type ExperienceLevel =
   | 'tech_lead'
   | 'eng_manager'
 
-export type FontFamily =
-  | 'inter'
-  | 'source_sans'
-  | 'lato'
-  | 'georgia'
-  | 'garamond'
-  | 'source_code'
+export type FontFamily = string
 
 export type FontSizePreset = 'compact' | 'comfortable' | 'spacious'
 export type DateFormat = 'full' | 'month_year' | 'year_only'

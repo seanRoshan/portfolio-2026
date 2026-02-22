@@ -12,6 +12,8 @@ import {
   ChevronDown,
   ChevronUp,
   RotateCcw,
+  Check,
+  ChevronsUpDown,
 } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -21,7 +23,11 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { toast } from 'sonner'
+import { GOOGLE_FONTS, googleFontUrl } from '@/lib/resume-builder/fonts'
+import { cn } from '@/lib/utils'
 import {
   updateResumeSettings,
   fetchPromptsByCategory,
@@ -31,15 +37,6 @@ import {
 } from '@/app/admin/resume-builder/actions'
 import type { ResumeSettings } from '@/types/resume-builder'
 import type { AIPrompt, ResumePromptOverride } from '@/types/ai-prompts'
-
-const fontOptions = [
-  { value: 'inter', label: 'Inter', desc: 'Modern Sans' },
-  { value: 'source_sans', label: 'Source Sans', desc: 'Clean Sans' },
-  { value: 'lato', label: 'Lato', desc: 'Friendly Sans' },
-  { value: 'georgia', label: 'Georgia', desc: 'Classic Serif' },
-  { value: 'garamond', label: 'Garamond', desc: 'Elegant Serif' },
-  { value: 'source_code', label: 'Source Code Pro', desc: 'Monospace' },
-]
 
 const densityOptions = [
   { value: 'compact', label: 'Compact', desc: 'Tight spacing, more content per page' },
@@ -110,6 +107,44 @@ const sectionNames: Record<string, string> = {
   extracurriculars: 'Activities',
 }
 
+function FontFamilyPicker({ value, onSelect, disabled }: { value: string; onSelect: (v: string) => void; disabled: boolean }) {
+  const [open, setOpen] = useState(false)
+  const categories = ['sans-serif', 'serif', 'monospace'] as const
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" role="combobox" aria-expanded={open} disabled={disabled} className="h-9 w-full justify-between">
+          <span style={{ fontFamily: `"${value}", sans-serif` }}>{value}</span>
+          <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[280px] p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search fonts..." />
+          <CommandList>
+            <CommandEmpty>No font found.</CommandEmpty>
+            {categories.map((cat) => (
+              <CommandGroup key={cat} heading={cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}>
+                {GOOGLE_FONTS.filter((f) => f.category === cat).map((f) => (
+                  <CommandItem
+                    key={f.family}
+                    value={f.family}
+                    onSelect={() => { onSelect(f.family); setOpen(false) }}
+                  >
+                    <Check className={cn('mr-2 h-3.5 w-3.5', value === f.family ? 'opacity-100' : 'opacity-0')} />
+                    <span style={{ fontFamily: `"${f.family}", ${cat}` }}>{f.family}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            ))}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 export function SettingsPanel({ resumeId, settings, sectionOrder }: Props) {
   const [isPending, startTransition] = useTransition()
 
@@ -162,23 +197,11 @@ export function SettingsPanel({ resumeId, settings, sectionOrder }: Props) {
       </SettingRow>
 
       <SettingRow icon={Type} label="Font Family" description="Typography used throughout the resume">
-        <Select
-          defaultValue={settings?.font_family ?? 'inter'}
-          onValueChange={(v) => handleUpdate('font_family', v)}
+        <FontFamilyPicker
+          value={settings?.font_family ?? 'Inter'}
+          onSelect={(family) => handleUpdate('font_family', family)}
           disabled={isPending}
-        >
-          <SelectTrigger className="h-9">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {fontOptions.map((f) => (
-              <SelectItem key={f.value} value={f.value}>
-                <span>{f.label}</span>
-                <span className="text-muted-foreground ml-2 text-xs">({f.desc})</span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
       </SettingRow>
 
       {/* Layout Section */}
