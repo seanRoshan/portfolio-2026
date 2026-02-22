@@ -38,6 +38,7 @@ import {
   saveResumePromptOverride,
   deleteResumePromptOverride,
 } from '@/app/admin/resume-builder/actions'
+import { DEFAULT_NAME_SIZES, DEFAULT_UPPERCASE } from '@/components/resume-builder/templates/shared'
 import type { ResumeSettings } from '@/types/resume-builder'
 import type { AIPrompt, ResumePromptOverride } from '@/types/ai-prompts'
 
@@ -182,6 +183,8 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
   const hiddenSet = new Set(settings?.hidden_sections ?? [])
   const showBackground = TEMPLATES_WITH_BACKGROUND.has(templateId ?? '')
   const showRightPanel = TEMPLATES_WITH_RIGHT_PANEL.has(templateId ?? '')
+  const nameSizeDefault = DEFAULT_NAME_SIZES[templateId ?? ''] ?? 28
+  const uppercaseDefault = DEFAULT_UPPERCASE[templateId ?? ''] ?? true
 
   return (
     <div className="space-y-4 pt-4">
@@ -380,7 +383,7 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
       <SettingRow icon={Heading1} label="Name Size" description="Font size for your name in the header (18-36px)">
         <div className="flex items-center gap-3">
           <Slider
-            defaultValue={[settings?.name_font_size ?? 28]}
+            defaultValue={[settings?.name_font_size ?? nameSizeDefault]}
             min={18}
             max={36}
             step={1}
@@ -389,14 +392,14 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
             className="flex-1"
           />
           <span className="text-muted-foreground w-10 text-right text-xs tabular-nums">
-            {settings?.name_font_size ?? 28}px
+            {settings?.name_font_size ?? nameSizeDefault}px
           </span>
         </div>
       </SettingRow>
 
       <SettingRow icon={CaseSensitive} label="Uppercase Titles" description="Force section titles to ALL CAPS">
         <Switch
-          checked={settings?.section_title_uppercase ?? true}
+          checked={settings?.section_title_uppercase ?? uppercaseDefault}
           onCheckedChange={(v) => handleUpdate('section_title_uppercase', v)}
           disabled={isPending}
         />

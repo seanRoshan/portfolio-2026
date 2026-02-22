@@ -96,7 +96,7 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   }
 
   if (isTwoColumn && templateId === 'a1b2c3d4-0006-4000-8000-000000000006') {
-    return generateExperiencedHtml(resume, ci, df, accentColor, backgroundColor, fontFamily, fontImportUrl, density, sectionOrder, resolvedNameSize, titleTransform)
+    return generateExperiencedHtml(resume, ci, df, accentColor, backgroundColor, fontFamily, fontImportUrl, density, sectionOrder, resolvedNameSize, titleTransform, margin)
   }
 
   // Single-column templates
@@ -286,7 +286,7 @@ function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations
 </html>`
 }
 
-function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, backgroundColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[], nameSize: number, titleTransform: string): string {
+function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, backgroundColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[], nameSize: number, titleTransform: string, margin: string): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -305,7 +305,7 @@ function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRela
 </style>
 </head>
 <body>
-<div style="padding:0.5in">
+<div style="padding:${margin}">
   <!-- Full-width header -->
   <div style="margin-bottom:16px;border-bottom:1px solid #d1d5db;padding-bottom:12px">
     <h1 style="font-size:${nameSize}px;font-weight:700">${escapeHtml(ci?.full_name || '')}</h1>
