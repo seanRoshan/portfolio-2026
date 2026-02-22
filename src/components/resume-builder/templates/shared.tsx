@@ -1,4 +1,5 @@
 import type { ResumeWithRelations, DateFormat } from '@/types/resume-builder'
+import { findFont, fontFamilyCss } from '@/lib/resume-builder/fonts'
 
 export function formatResumeDate(
   dateStr: string | null | undefined,
@@ -48,13 +49,22 @@ export function getContactLinks(resume: ResumeWithRelations) {
   return links
 }
 
-export const FONT_MAP: Record<string, string> = {
-  inter: '"Inter", system-ui, sans-serif',
+const LEGACY_FONT_MAP: Record<string, string> = {
+  inter: '"Inter", sans-serif',
   source_sans: '"Source Sans 3", sans-serif',
   lato: '"Lato", sans-serif',
   georgia: '"Georgia", serif',
   garamond: '"EB Garamond", serif',
   source_code: '"Source Code Pro", monospace',
+}
+
+// Keep export for backwards compatibility
+export const FONT_MAP = LEGACY_FONT_MAP
+
+function resolveFontFamily(value: string): string {
+  if (LEGACY_FONT_MAP[value]) return LEGACY_FONT_MAP[value]
+  const font = findFont(value)
+  return font ? fontFamilyCss(font.family, font.category) : fontFamilyCss(value)
 }
 
 export const DENSITY_MAP: Record<string, { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }> = {
@@ -65,7 +75,7 @@ export const DENSITY_MAP: Record<string, { body: string; heading: string; sectio
 
 export function getTemplateStyles(settings: { accent_color?: string; font_family?: string; font_size_preset?: string; font_size_base?: number } | null | undefined) {
   const accent = settings?.accent_color || '#000000'
-  const font = FONT_MAP[settings?.font_family ?? 'inter'] ?? FONT_MAP.inter
+  const font = resolveFontFamily(settings?.font_family ?? 'Inter')
   const baseDensity = DENSITY_MAP[settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
 
   // If font_size_base is set, scale all sizes proportionally from the density preset

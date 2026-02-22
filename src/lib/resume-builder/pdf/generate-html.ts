@@ -1,6 +1,7 @@
 import type { ResumeWithRelations, DateFormat } from '@/types/resume-builder'
+import { findFont, fontFamilyCss, googleFontUrl } from '@/lib/resume-builder/fonts'
 
-const FONT_MAP: Record<string, string> = {
+const LEGACY_FONT_MAP: Record<string, string> = {
   inter: '"Inter", system-ui, sans-serif',
   source_sans: '"Source Sans 3", sans-serif',
   lato: '"Lato", sans-serif',
@@ -43,7 +44,12 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   const ci = resume.contact_info
   const df = resume.settings?.date_format ?? 'month_year'
   const templateId = resume.template_id ?? ''
-  const fontFamily = FONT_MAP[resume.settings?.font_family ?? 'inter'] ?? FONT_MAP.inter
+  const fontValue = resume.settings?.font_family ?? 'Inter'
+  const fontFamily = LEGACY_FONT_MAP[fontValue] ?? (() => {
+    const f = findFont(fontValue)
+    return f ? fontFamilyCss(f.family, f.category) : fontFamilyCss(fontValue)
+  })()
+  const fontImportUrl = googleFontUrl(fontValue)
   const baseDensity = DENSITY_MAP[resume.settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
   const accentColor = resume.settings?.accent_color ?? '#000000'
 
@@ -73,11 +79,11 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
     templateId === 'a1b2c3d4-0006-4000-8000-000000000006'
 
   if (isTwoColumn && templateId === 'a1b2c3d4-0005-4000-8000-000000000005') {
-    return generateParkerHtml(resume, ci, df, accentColor, fontFamily, density, sectionOrder)
+    return generateParkerHtml(resume, ci, df, accentColor, fontFamily, fontImportUrl, density, sectionOrder)
   }
 
   if (isTwoColumn && templateId === 'a1b2c3d4-0006-4000-8000-000000000006') {
-    return generateExperiencedHtml(resume, ci, df, accentColor, fontFamily, density, sectionOrder)
+    return generateExperiencedHtml(resume, ci, df, accentColor, fontFamily, fontImportUrl, density, sectionOrder)
   }
 
   // Single-column templates
@@ -85,7 +91,7 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
   const isSmarkdownTemplate = templateId === 'a1b2c3d4-0003-4000-8000-000000000003'
   const isCareerCupTemplate = templateId === 'a1b2c3d4-0004-4000-8000-000000000004'
 
-  const bodyFont = isMonoTemplate ? FONT_MAP.source_code : fontFamily
+  const bodyFont = isMonoTemplate ? LEGACY_FONT_MAP.source_code : fontFamily
   const margin = isCareerCupTemplate ? '0.6in' : isMonoTemplate ? '0.75in' : '1in'
   const headerAlign = isCareerCupTemplate ? 'center' : 'left'
   const dividerStyle = isMonoTemplate ? 'border-top: 1px dashed #999' : isSmarkdownTemplate ? `border-top: 2px solid ${accentColor}` : 'border-top: 1px solid #d1d5db'
@@ -179,6 +185,7 @@ export function generateResumePdfHtml(resume: ResumeWithRelations): string {
 <head>
 <meta charset="UTF-8">
 <style>
+  @import url('${fontImportUrl}');
   * { margin: 0; padding: 0; box-sizing: border-box; }
   @page { size: Letter; margin: 0; }
   body { font-family: ${bodyFont}; font-size: ${density.body}; line-height: ${density.lineHeight}; color: #111827; }
@@ -208,12 +215,13 @@ function sectionBlock(title: string, content: string, headerColor: string, divid
   </div>`
 }
 
-function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, fontFamily: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
+function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <style>
+  @import url('${fontImportUrl}');
   * { margin: 0; padding: 0; box-sizing: border-box; }
   @page { size: Letter; margin: 0; }
   body { font-family: ${fontFamily}; font-size: ${density.body}; line-height: ${density.lineHeight}; }
@@ -262,12 +270,13 @@ function generateParkerHtml(resume: ResumeWithRelations, ci: ResumeWithRelations
 </html>`
 }
 
-function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, fontFamily: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
+function generateExperiencedHtml(resume: ResumeWithRelations, ci: ResumeWithRelations['contact_info'], df: DateFormat, accentColor: string, fontFamily: string, fontImportUrl: string, density: { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }, sectionOrder: string[]): string {
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <style>
+  @import url('${fontImportUrl}');
   * { margin: 0; padding: 0; box-sizing: border-box; }
   @page { size: Letter; margin: 0; }
   body { font-family: ${fontFamily}; font-size: ${density.body}; line-height: ${density.lineHeight}; color: #111827; }

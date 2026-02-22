@@ -11,6 +11,7 @@ import { CareerCupTemplate } from './CareerCupTemplate'
 import { ParkerTemplate } from './ParkerTemplate'
 import { ExperiencedTemplate } from './ExperiencedTemplate'
 import type { ResumeWithRelations } from '@/types/resume-builder'
+import { googleFontUrl } from '@/lib/resume-builder/fonts'
 
 interface Props {
   resume: ResumeWithRelations
@@ -35,8 +36,12 @@ export function ResumePreviewPane({ resume }: Props) {
   const TemplateComponent =
     templateMap[resume.template_id ?? ''] ?? PragmaticTemplate
 
+  const fontFamily = resume.settings?.font_family ?? 'Inter'
+  const fontUrl = googleFontUrl(fontFamily)
+
   return (
     <div className="relative h-full">
+      <link rel="stylesheet" href={fontUrl} />
       <ScrollArea className="h-full">
         <div className="flex justify-center p-6">
           <div
