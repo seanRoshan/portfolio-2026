@@ -12,6 +12,23 @@ export interface SiteSettings {
   contact_form_enabled: boolean
   maintenance_mode: boolean
   link_animations: { header: string; footer: string } | null
+  // Global profile fields
+  full_name: string | null
+  phone: string | null
+  city: string | null
+  state: string | null
+  country: string | null
+  linkedin_url: string | null
+  github_url: string | null
+  portfolio_url: string | null
+  blog_url: string | null
+  // Landing page visibility
+  landing_show_email: boolean
+  landing_show_phone: boolean
+  landing_show_location: boolean
+  landing_show_linkedin: boolean
+  landing_show_github: boolean
+  landing_show_portfolio: boolean
   created_at: string
   updated_at: string
 }
