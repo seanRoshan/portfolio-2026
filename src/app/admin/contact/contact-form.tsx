@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { Plus, Trash2, GripVertical, User, Mail, Phone, MapPin, Loader2 } from "lucide-react"
 import {
@@ -227,6 +227,7 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
       landing_show_availability: data.landing_show_availability ?? false,
     },
   })
+  const showAvailability = useWatch({ control: form.control, name: "landing_show_availability" })
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
@@ -482,7 +483,7 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
             />
           </div>
 
-          {form.watch("landing_show_availability") && (
+          {showAvailability && (
             <div className="space-y-1.5">
               <Label htmlFor="availability_text" className="text-xs font-medium">
                 Status Text
