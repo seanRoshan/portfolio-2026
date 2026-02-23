@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useTransition, useEffect, useRef } from "react"
+import { useState, useCallback, useTransition, useEffect, useRef, useMemo } from "react"
 import Link from "next/link"
 import {
   DndContext,
@@ -429,16 +429,20 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
     }
   }, [resume.id, resume.contact_info?.full_name])
 
-  const sectionOrder = resume.settings?.section_order ?? [
-    "contact",
-    "summary",
-    "experience",
-    "education",
-    "skills",
-    "projects",
-    "certifications",
-    "extracurriculars",
-  ]
+  const sectionOrder = useMemo(
+    () =>
+      resume.settings?.section_order ?? [
+        "contact",
+        "summary",
+        "experience",
+        "education",
+        "skills",
+        "projects",
+        "certifications",
+        "extracurriculars",
+      ],
+    [resume.settings?.section_order],
+  )
   const [hiddenSections, setHiddenSections] = useState(
     () => new Set(resume.settings?.hidden_sections ?? []),
   )

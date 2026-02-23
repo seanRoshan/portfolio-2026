@@ -43,7 +43,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { toast } from "sonner"
-import { GOOGLE_FONTS, googleFontUrl } from "@/lib/resume-builder/fonts"
+import { GOOGLE_FONTS } from "@/lib/resume-builder/fonts"
 import { cn } from "@/lib/utils"
 import {
   updateResumeSettings,

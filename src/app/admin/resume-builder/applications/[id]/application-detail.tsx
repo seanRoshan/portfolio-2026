@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useTransition } from "react"
+import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -173,13 +173,13 @@ export function ApplicationDetail({ application, coverLetters, resumes }: Applic
   const [showDelete, setShowDelete] = useState(false)
   const [notes, setNotes] = useState(application.notes ?? "")
   const [notesSaved, setNotesSaved] = useState(true)
-  const daysSinceApplied = useMemo(() => {
-    if (!application.applied_date) return null
-    // eslint-disable-next-line react-hooks/purity -- computing elapsed days legitimately needs current time
-    return Math.floor(
-      (Date.now() - new Date(application.applied_date).getTime()) / (1000 * 60 * 60 * 24),
-    )
-  }, [application.applied_date])
+  const [daysSinceApplied] = useState(() =>
+    application.applied_date
+      ? Math.floor(
+          (Date.now() - new Date(application.applied_date).getTime()) / (1000 * 60 * 60 * 24),
+        )
+      : null,
+  )
 
   // Edit form state
   const [editData, setEditData] = useState({

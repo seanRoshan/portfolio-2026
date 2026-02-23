@@ -75,21 +75,6 @@ export async function GET(request: NextRequest) {
       skillCategories.get(skill.category)!.push(skill.name)
     }
 
-    const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ]
-
     // Convert to ResumeWithRelations format
     const resumeWithRelations: ResumeWithRelations = {
       id: resume.id,
@@ -132,7 +117,6 @@ export async function GET(request: NextRequest) {
       work_experiences: hiddenSections.includes("experience")
         ? []
         : (experience ?? []).map((e, i) => {
-            const start = new Date(e.start_date)
             const achievements = (e.resume_achievements ?? e.achievements ?? []) as string[]
             return {
               id: `exp-${i}`,

@@ -7,7 +7,6 @@ import { fetchPortfolioData } from "@/lib/resume-builder/ai/portfolio-data"
 import {
   tailorResume,
   getTemplateId,
-  TEMPLATE_MAP,
   type TailorResult,
 } from "@/lib/resume-builder/ai/tailor-resume"
 import { logAIUsage } from "@/lib/resume-builder/ai/usage"
@@ -19,6 +18,12 @@ import type { AIPrompt } from "@/types/ai-prompts"
 
 function generateShortId(): string {
   return Math.random().toString(36).substring(2, 8)
+}
+
+function omit<T extends Record<string, unknown>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
+  const result = { ...obj }
+  for (const key of keys) delete result[key]
+  return result as Omit<T, K>
 }
 
 /** Normalize AI date strings to valid PostgreSQL DATE format (YYYY-MM-DD) */
@@ -151,7 +156,7 @@ export async function generateTailoredResume(formData: {
     throw new Error(err instanceof Error ? err.message : "AI tailoring failed")
   }
 
-  const { data: tailored, jdAnalysis, skillMatch, usage } = result
+  const { data: tailored, jdAnalysis, usage } = result
 
   // 4. Resolve template UUID (has built-in fallback to pragmatic)
   const templateId = getTemplateId(tailored.suggested_template)
@@ -450,27 +455,27 @@ export async function cloneResume(id: string, newTitle: string) {
 
   // Clone contact info
   if (contactInfo.data) {
-    const { id: _id, resume_id: _rid, ...rest } = contactInfo.data
+    const rest = omit(contactInfo.data, ["id", "resume_id"])
     await supabase.from("resume_contact_info").insert({ ...rest, resume_id: newResume.id })
   }
 
   // Clone summary
   if (summary.data) {
-    const { id: _id, resume_id: _rid, ...rest } = summary.data
+    const rest = omit(summary.data, ["id", "resume_id"])
     await supabase.from("resume_summaries").insert({ ...rest, resume_id: newResume.id })
   }
 
   // Clone experiences + achievements
   if (experiences.data?.length) {
     for (const exp of experiences.data) {
-      const {
-        id: oldId,
-        resume_id: _rid,
-        parent_experience_id: _pid,
-        created_at: _ca,
-        updated_at: _ua,
-        ...rest
-      } = exp
+      const oldId = exp.id
+      const rest = omit(exp, [
+        "id",
+        "resume_id",
+        "parent_experience_id",
+        "created_at",
+        "updated_at",
+      ])
       const { data: newExp } = await supabase
         .from("resume_work_experiences")
         .insert({ ...rest, resume_id: newResume.id })
@@ -503,7 +508,7 @@ export async function cloneResume(id: string, newTitle: string) {
   if (education.data?.length) {
     await supabase.from("resume_education").insert(
       education.data.map((e) => {
-        const { id: _id, resume_id: _rid, created_at: _ca, ...rest } = e
+        const rest = omit(e, ["id", "resume_id", "created_at"])
         return { ...rest, resume_id: newResume.id }
       }),
     )
@@ -513,7 +518,7 @@ export async function cloneResume(id: string, newTitle: string) {
   if (skills.data?.length) {
     await supabase.from("resume_skill_categories").insert(
       skills.data.map((s) => {
-        const { id: _id, resume_id: _rid, ...rest } = s
+        const rest = omit(s, ["id", "resume_id"])
         return { ...rest, resume_id: newResume.id }
       }),
     )
@@ -522,7 +527,8 @@ export async function cloneResume(id: string, newTitle: string) {
   // Clone projects + achievements
   if (projects.data?.length) {
     for (const proj of projects.data) {
-      const { id: oldId, resume_id: _rid, created_at: _ca, ...rest } = proj
+      const oldId = proj.id
+      const rest = omit(proj, ["id", "resume_id", "created_at"])
       const { data: newProj } = await supabase
         .from("resume_projects")
         .insert({ ...rest, resume_id: newResume.id })
@@ -555,7 +561,7 @@ export async function cloneResume(id: string, newTitle: string) {
   if (certs.data?.length) {
     await supabase.from("resume_certifications").insert(
       certs.data.map((c) => {
-        const { id: _id, resume_id: _rid, ...rest } = c
+        const rest = omit(c, ["id", "resume_id"])
         return { ...rest, resume_id: newResume.id }
       }),
     )
@@ -565,7 +571,7 @@ export async function cloneResume(id: string, newTitle: string) {
   if (extras.data?.length) {
     await supabase.from("resume_extracurriculars").insert(
       extras.data.map((e) => {
-        const { id: _id, resume_id: _rid, ...rest } = e
+        const rest = omit(e, ["id", "resume_id"])
         return { ...rest, resume_id: newResume.id }
       }),
     )
@@ -573,7 +579,7 @@ export async function cloneResume(id: string, newTitle: string) {
 
   // Clone settings
   if (settings.data) {
-    const { id: _id, resume_id: _rid, ...rest } = settings.data
+    const rest = omit(settings.data, ["id", "resume_id"])
     await supabase.from("resume_settings").insert({ ...rest, resume_id: newResume.id })
   }
 

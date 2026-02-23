@@ -613,42 +613,36 @@ export function ApplicationsBoard({ applications, resumes }: ApplicationsBoardPr
                       label="Company"
                       field="company"
                       currentField={sortField}
-                      direction={sortDir}
                       onSort={handleSort}
                     />
                     <SortableHeader
                       label="Position"
                       field="position"
                       currentField={sortField}
-                      direction={sortDir}
                       onSort={handleSort}
                     />
                     <SortableHeader
                       label="Status"
                       field="status"
                       currentField={sortField}
-                      direction={sortDir}
                       onSort={handleSort}
                     />
                     <SortableHeader
                       label="Applied"
                       field="applied_date"
                       currentField={sortField}
-                      direction={sortDir}
                       onSort={handleSort}
                     />
                     <SortableHeader
                       label="Salary"
                       field="salary_min"
                       currentField={sortField}
-                      direction={sortDir}
                       onSort={handleSort}
                     />
                     <SortableHeader
                       label="Location"
                       field="location"
                       currentField={sortField}
-                      direction={sortDir}
                       onSort={handleSort}
                     />
                     <TableHead className="w-[60px]" />
@@ -1004,13 +998,11 @@ function SortableHeader({
   label,
   field,
   currentField,
-  direction,
   onSort,
 }: {
   label: string
   field: SortField
   currentField: SortField
-  direction: SortDirection
   onSort: (field: SortField) => void
 }) {
   const isActive = currentField === field

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useTransition } from "react"
-import { FileDown, Loader2, LayoutTemplate, Eye, EyeOff, Check } from "lucide-react"
+import { FileDown, Loader2, LayoutTemplate, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -15,7 +15,7 @@ import {
 import { ResumePreviewPane } from "@/components/resume-builder/templates/ResumePreviewPane"
 import { toast } from "sonner"
 import type { AdditionalSectionEntry } from "@/types/database"
-import type { ResumeWithRelations, ResumeTemplate } from "@/types/resume-builder"
+import type { ResumeWithRelations } from "@/types/resume-builder"
 
 // Template metadata (matches the seeded resume_templates rows)
 const TEMPLATES: {
@@ -131,16 +131,6 @@ export function MasterResumePreview({
 
   // Convert old resume data shape into ResumeWithRelations for the template components
   const resumeWithRelations: ResumeWithRelations = useMemo(() => {
-    const sectionOrder = DEFAULT_SECTIONS.filter((s) => s !== "additional").map((s) => {
-      // Map our section names to the resume-builder section names
-      if (s === "skills") return "skills"
-      if (s === "experience") return "experience"
-      if (s === "education") return "education"
-      if (s === "certifications") return "certifications"
-      if (s === "summary") return "summary"
-      return s
-    })
-
     const hidden = Array.from(hiddenSections).map((s) => {
       // Map back for the builder format
       return s
