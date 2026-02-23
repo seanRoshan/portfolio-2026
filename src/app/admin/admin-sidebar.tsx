@@ -27,6 +27,8 @@ import {
   Search,
   Bot,
   Wand2,
+  Blocks,
+  Scissors,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -112,6 +114,16 @@ const navItems: NavItem[] = [
     href: "/admin/resume-builder/career-coach",
     label: "Career Coach",
     icon: Bot,
+  },
+  {
+    href: "/admin/resume-builder/tailor",
+    label: "Resume Tailor",
+    icon: Scissors,
+  },
+  {
+    href: "/admin/architect",
+    label: "Architect",
+    icon: Blocks,
   },
   {
     href: "/admin/prompt-engineer",
