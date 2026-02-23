@@ -1,15 +1,14 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useCallback } from "react"
 import Link from "next/link"
 import {
   ArrowLeft,
-  Send,
-  MessageSquare,
   Briefcase,
   FolderKanban,
   Target,
   BookOpen,
+  MessageSquare,
   FileText,
   X,
   Copy,
@@ -17,7 +16,6 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -28,13 +26,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
-import { updateCoachSessionMessages, updateCoachSessionContent } from "../actions"
-import type {
-  CareerCoachSession,
-  CoachMessage,
-  CoachSessionType,
-  Resume,
-} from "@/types/resume-builder"
+import { AgentChat } from "@/components/agent-chat"
+import { updateCoachSessionMessages } from "../actions"
+import type { CareerCoachSession, CoachSessionType, Resume } from "@/types/resume-builder"
 
 // ===== Constants =====
 
@@ -47,69 +41,9 @@ const SESSION_TYPE_CONFIG: Record<CoachSessionType, { label: string; icon: typeo
     career_narrative: { label: "Career Narrative", icon: BookOpen },
   }
 
-// ===== Helper Functions =====
-
-function formatTimestamp(timestamp: string): string {
-  return new Date(timestamp).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  })
-}
-
-function renderMessageContent(content: string): React.ReactNode[] {
-  return content.split("\n").map((line, i) => {
-    if (line.trim() === "") {
-      return <br key={i} />
-    }
-
-    const parts = line.split(/(\*\*.*?\*\*)/g)
-    const rendered = parts.map((part, j) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
-        return <strong key={j}>{part.slice(2, -2)}</strong>
-      }
-      return part
-    })
-
-    return (
-      <p key={i} className="mb-1 last:mb-0">
-        {rendered}
-      </p>
-    )
-  })
-}
-
-function extractBulletPoints(messages: CoachMessage[]): string[] {
-  const bullets: string[] = []
-  for (const msg of messages) {
-    if (msg.role !== "assistant") continue
-    const lines = msg.content.split("\n")
-    for (const line of lines) {
-      const trimmed = line.trim()
-      if ((trimmed.startsWith("- ") || trimmed.startsWith("* ")) && trimmed.length > 20) {
-        bullets.push(trimmed.slice(2))
-      }
-    }
-  }
-  return bullets
-}
-
 // ===== Sub-Components =====
 
-function LoadingDots() {
-  return (
-    <div className="flex items-center gap-1 px-4 py-3">
-      <span className="bg-muted-foreground/60 h-2 w-2 animate-bounce rounded-full [animation-delay:0ms]" />
-      <span className="bg-muted-foreground/60 h-2 w-2 animate-bounce rounded-full [animation-delay:150ms]" />
-      <span className="bg-muted-foreground/60 h-2 w-2 animate-bounce rounded-full [animation-delay:300ms]" />
-    </div>
-  )
-}
-
-interface BulletItemProps {
-  text: string
-}
-
-function BulletItem({ text }: BulletItemProps) {
+function BulletItem({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
 
   function handleCopy() {
@@ -133,40 +67,6 @@ function BulletItem({ text }: BulletItemProps) {
   )
 }
 
-interface GeneratedContentPanelProps {
-  sessionType: CoachSessionType
-  bullets: string[]
-}
-
-function GeneratedContentPanel({ sessionType, bullets }: GeneratedContentPanelProps) {
-  const title =
-    sessionType === "experience_builder" ? "Generated Bullets" : "Generated Descriptions"
-
-  if (bullets.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center p-6 text-center">
-        <FileText className="text-muted-foreground mb-2 h-8 w-8" />
-        <p className="text-muted-foreground text-sm">
-          {sessionType === "experience_builder"
-            ? "Achievement bullet points will appear here as the coach generates them."
-            : "Project descriptions will appear here as the coach generates them."}
-        </p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="p-4">
-      <h3 className="mb-3 text-sm font-semibold">{title}</h3>
-      <div className="space-y-2">
-        {bullets.map((bullet, i) => (
-          <BulletItem key={i} text={bullet} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
 // ===== Main Component =====
 
 interface ChatInterfaceProps {
@@ -175,107 +75,38 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<CoachMessage[]>(session.messages)
-  const [input, setInput] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedResumeId, setSelectedResumeId] = useState<string>("")
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [selectedResumeId, setSelectedResumeId] = useState<string>(resumes[0]?.id ?? "")
+  const [savedItems, setSavedItems] = useState<string[]>([])
+
+  const config = SESSION_TYPE_CONFIG[session.session_type]
+  const Icon = config.icon
 
   const hasSidebar =
     session.session_type === "experience_builder" || session.session_type === "project_builder"
 
-  const config = SESSION_TYPE_CONFIG[session.session_type]
-  const Icon = config.icon
-  const generatedBullets = extractBulletPoints(messages)
-
-  const scrollToBottom = useCallback(() => {
-    if (!scrollRef.current) return
-    const scrollContainer = scrollRef.current.querySelector("[data-radix-scroll-area-viewport]")
-    if (scrollContainer) {
-      scrollContainer.scrollTop = scrollContainer.scrollHeight
+  // Track tool results for the sidebar
+  const handleToolResult = useCallback((toolName: string, result: unknown) => {
+    const r = result as { success?: boolean; message?: string }
+    if (r?.success && r?.message) {
+      setSavedItems((prev) => [...prev, r.message!])
+      toast.success(r.message)
     }
   }, [])
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages, isLoading, scrollToBottom])
-
-  async function handleSend() {
-    const trimmed = input.trim()
-    if (!trimmed || isLoading) return
-
-    const userMessage: CoachMessage = {
-      role: "user",
-      content: trimmed,
-      timestamp: new Date().toISOString(),
-    }
-
-    const updatedMessages = [...messages, userMessage]
-    setMessages(updatedMessages)
-    setInput("")
-    setIsLoading(true)
-
-    // Resize textarea back to default
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto"
-    }
-
-    try {
-      const response = await fetch("/api/resume-builder/coach", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: session.id,
-          sessionType: session.session_type,
-          messages: updatedMessages.map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-          resumeId: selectedResumeId || undefined,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error ?? "Failed to get response")
-      }
-
-      const data = await response.json()
-      const assistantMessage: CoachMessage = {
-        role: "assistant",
-        content: data.response,
+  // Persist messages to DB
+  const handleMessagesChange = useCallback(
+    (messages: Array<{ role: string; content: string }>) => {
+      const coachMessages = messages.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
         timestamp: new Date().toISOString(),
-      }
-
-      const finalMessages = [...updatedMessages, assistantMessage]
-      setMessages(finalMessages)
-
-      // Persist messages to database
-      await updateCoachSessionMessages(session.id, finalMessages)
-
-      // Update generated content if this is a builder session
-      if (hasSidebar) {
-        const bullets = extractBulletPoints(finalMessages)
-        if (bullets.length > 0) {
-          await updateCoachSessionContent(session.id, { bullets })
-        }
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to send message")
-      // Remove the optimistic user message on failure
-      setMessages(messages)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
+      }))
+      updateCoachSessionMessages(session.id, coachMessages).catch(() => {
+        // Silent persistence failure — messages are still in UI state
+      })
+    },
+    [session.id],
+  )
 
   const selectedResume = resumes.find((r) => r.id === selectedResumeId)
 
@@ -313,7 +144,7 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
             )}
             <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="Add resume context" />
+                <SelectValue placeholder="Select resume" />
               </SelectTrigger>
               <SelectContent>
                 {resumes.map((resume) => (
@@ -326,77 +157,15 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
           </div>
         </div>
 
-        {/* Messages */}
-        <ScrollArea ref={scrollRef} className="flex-1">
-          <div className="mx-auto max-w-3xl space-y-4 p-4">
-            {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <Icon className="text-muted-foreground mb-4 h-12 w-12" />
-                <h3 className="mb-2 text-lg font-semibold">{config.label}</h3>
-                <p className="text-muted-foreground max-w-md text-sm">
-                  {getWelcomeMessage(session.session_type)}
-                </p>
-              </div>
-            )}
-
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-                    msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-                  }`}
-                >
-                  <div className="text-sm leading-relaxed">{renderMessageContent(msg.content)}</div>
-                  <div
-                    className={`mt-1 text-[10px] ${
-                      msg.role === "user" ? "text-primary-foreground/60" : "text-muted-foreground"
-                    }`}
-                  >
-                    {formatTimestamp(msg.timestamp)}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted rounded-2xl">
-                  <LoadingDots />
-                </div>
-              </div>
-            )}
-          </div>
-        </ScrollArea>
-
-        {/* Input Area */}
-        <div className="border-t p-4">
-          <div className="mx-auto flex max-w-3xl items-end gap-2">
-            <Textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type your message..."
-              className="max-h-32 min-h-10 resize-none"
-              rows={1}
-              disabled={isLoading}
-            />
-            <Button
-              onClick={handleSend}
-              disabled={!input.trim() || isLoading}
-              size="icon"
-              className="h-10 w-10 shrink-0"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-          <p className="text-muted-foreground mx-auto mt-2 max-w-3xl text-center text-[10px]">
-            Press Enter to send, Shift+Enter for new line
-          </p>
-        </div>
+        {/* AgentChat — streaming agentic chat */}
+        <AgentChat
+          apiEndpoint="/api/agents/coach"
+          body={{ resumeId: selectedResumeId }}
+          onToolResult={handleToolResult}
+          onMessagesChange={handleMessagesChange}
+          placeholder="Tell me about a role, project, or skill..."
+          emptyMessage={getWelcomeMessage(session.session_type)}
+        />
       </div>
 
       {/* Sidebar for builder sessions */}
@@ -405,21 +174,28 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
           <Separator orientation="vertical" />
           <div className="hidden w-80 flex-col lg:flex">
             <div className="border-b px-4 py-3">
-              <h3 className="text-sm font-semibold">
-                {session.session_type === "experience_builder"
-                  ? "Generated Bullets"
-                  : "Generated Descriptions"}
-              </h3>
+              <h3 className="text-sm font-semibold">Saved Items</h3>
               <p className="text-muted-foreground text-xs">
-                {generatedBullets.length} item
-                {generatedBullets.length !== 1 ? "s" : ""} generated
+                {savedItems.length} item{savedItems.length !== 1 ? "s" : ""} saved to resume
               </p>
             </div>
             <ScrollArea className="flex-1">
-              <GeneratedContentPanel
-                sessionType={session.session_type}
-                bullets={generatedBullets}
-              />
+              <div className="p-4">
+                {savedItems.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <FileText className="text-muted-foreground mb-2 h-8 w-8" />
+                    <p className="text-muted-foreground text-sm">
+                      Items will appear here as the coach saves them to your resume.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {savedItems.map((item, i) => (
+                      <BulletItem key={i} text={item} />
+                    ))}
+                  </div>
+                )}
+              </div>
             </ScrollArea>
           </div>
         </>
@@ -433,14 +209,14 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
 function getWelcomeMessage(sessionType: CoachSessionType): string {
   switch (sessionType) {
     case "experience_builder":
-      return "I'll interview you about your work experience to help generate strong, metrics-driven bullet points for your resume. Tell me about a role or project you'd like to document."
+      return "I'll interview you about your work experience to extract strong, metrics-driven bullet points. Tell me about a role or project you'd like to document."
     case "project_builder":
-      return "Let's document your projects together. Tell me about a project you've worked on, and I'll help you write compelling descriptions and achievement bullets."
+      return "Let's document your projects. Tell me about a project, and I'll help you write compelling descriptions with measurable impact."
     case "interview_prep":
-      return "I'll help you prepare for behavioral interviews using the STAR method. We can practice with questions tailored to your experience. Ready to start?"
+      return "I'll help you prepare for behavioral interviews using the STAR method. Ready to start?"
     case "career_narrative":
-      return "Let's build a cohesive story that connects your experiences. Tell me about your career journey, and I'll help you craft a compelling narrative."
+      return "Let's build a cohesive story that connects your experiences. Tell me about your career journey."
     default:
-      return "I'm your AI career coach. Ask me anything about your career, resume strategy, job search, or professional development."
+      return "I'm your AI career coach. Ask me anything about your career, resume strategy, or professional development."
   }
 }
