@@ -63,3 +63,32 @@ export async function updateCoachSessionContent(
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/resume-builder/career-coach/${id}`)
 }
+
+export async function getAgentConfig(slug: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("ai_prompts")
+    .select("model_id, max_tokens, system_prompt")
+    .eq("slug", slug)
+    .single()
+
+  if (error) return null
+  return data as { model_id: string | null; max_tokens: number | null; system_prompt: string | null }
+}
+
+export async function updateAgentConfig(
+  slug: string,
+  config: { model_id?: string; max_tokens?: number; system_prompt?: string },
+) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("ai_prompts")
+    .update({
+      ...config,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("slug", slug)
+
+  if (error) throw new Error(error.message)
+  revalidatePath("/admin/resume-builder/career-coach")
+}
