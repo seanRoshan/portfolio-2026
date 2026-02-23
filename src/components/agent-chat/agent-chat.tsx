@@ -3,8 +3,9 @@
 import { useRef, useEffect, useState, type ReactNode } from "react"
 import { useChat, type UIMessage } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
-import { Send, Square, MessageSquare } from "lucide-react"
+import { ArrowUp, Square, MessageSquare, type LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { MessageBubble } from "./message-bubble"
@@ -29,6 +30,8 @@ export interface AgentChatProps {
   placeholder?: string
   /** Empty state message */
   emptyMessage?: string
+  /** Custom icon for the empty state (defaults to MessageSquare) */
+  emptyStateIcon?: LucideIcon
   className?: string
 }
 
@@ -133,6 +136,7 @@ export function AgentChat({
   renderCustomBlock,
   placeholder = "Type your message...",
   emptyMessage = "Start a conversation to begin.",
+  emptyStateIcon: EmptyIcon = MessageSquare,
   className,
 }: AgentChatProps) {
   const [input, setInput] = useState("")
@@ -184,7 +188,7 @@ export function AgentChat({
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto"
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 128)}px`
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`
     }
   }, [input])
 
@@ -211,7 +215,9 @@ export function AgentChat({
         <div className="mx-auto max-w-3xl space-y-4 py-4">
           {messages.length === 0 && (
             <div className="text-muted-foreground flex flex-col items-center justify-center py-20 text-center">
-              <MessageSquare className="mb-3 size-10 opacity-40" />
+              <div className="bg-muted/50 mb-4 rounded-full p-4">
+                <EmptyIcon className="size-10 opacity-40" />
+              </div>
               <p className="text-sm">{emptyMessage}</p>
             </div>
           )}
@@ -277,38 +283,59 @@ export function AgentChat({
       </ScrollArea>
 
       {/* Input */}
-      <div className="bg-background border-t px-4 py-3">
-        <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl items-end gap-2">
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            disabled={isLoading}
-            rows={1}
-            className="bg-muted/50 placeholder:text-muted-foreground focus:border-primary flex-1 resize-none rounded-lg border px-4 py-3 text-sm transition-colors outline-none disabled:opacity-50"
-          />
+      <div className="bg-background px-4 pb-4 pt-2">
+        <form onSubmit={handleSubmit} className="mx-auto max-w-3xl">
+          <div
+            className={cn(
+              "bg-muted/30 relative rounded-2xl border transition-all",
+              "focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/40",
+            )}
+          >
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              disabled={isLoading}
+              rows={1}
+              className="w-full resize-none bg-transparent px-4 pt-3 pb-12 text-sm outline-none placeholder:text-muted-foreground disabled:opacity-50"
+            />
 
-          {isLoading ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="size-11 shrink-0"
-              onClick={() => stop()}
-            >
-              <Square className="size-4" />
-            </Button>
-          ) : (
-            <Button type="submit" size="icon" className="size-11 shrink-0" disabled={!input.trim()}>
-              <Send className="size-4" />
-            </Button>
-          )}
+            <div className="absolute right-3 bottom-3">
+              {isLoading ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-8 rounded-lg"
+                      onClick={() => stop()}
+                    >
+                      <Square className="size-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Stop generating</TooltipContent>
+                </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="submit"
+                      size="icon"
+                      className="size-8 rounded-lg"
+                      disabled={!input.trim()}
+                    >
+                      <ArrowUp className="size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Send message (Enter)</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          </div>
         </form>
-        <p className="text-muted-foreground mx-auto mt-1.5 max-w-3xl text-xs">
-          Press Enter to send, Shift+Enter for new line
-        </p>
       </div>
     </div>
   )
