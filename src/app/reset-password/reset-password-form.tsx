@@ -74,11 +74,7 @@ export function ResetPasswordForm() {
                     className="text-muted-foreground/50 hover:text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
                     tabIndex={-1}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </FormControl>

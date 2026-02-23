@@ -155,7 +155,11 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
   // Derive auto-expanded section from pathname
   const autoExpandedHref = useMemo(() => {
     for (const item of navItems) {
-      if (item.children && (pathname === item.href || pathname.startsWith(item.href + "/")) && item.href !== "/admin") {
+      if (
+        item.children &&
+        (pathname === item.href || pathname.startsWith(item.href + "/")) &&
+        item.href !== "/admin"
+      ) {
         return item.href
       }
     }
@@ -265,7 +269,10 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
                       className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
                     >
                       <ChevronRight
-                        className={cn("h-3.5 w-3.5 transition-transform duration-200", isExpanded && "rotate-90")}
+                        className={cn(
+                          "h-3.5 w-3.5 transition-transform duration-200",
+                          isExpanded && "rotate-90",
+                        )}
                       />
                     </button>
                   )}
@@ -273,7 +280,7 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
 
                 {/* Sub-items */}
                 {hasChildren && isExpanded && (
-                  <div className="border-border/50 ml-5 mt-0.5 mb-1 flex flex-col gap-0.5 border-l pl-3">
+                  <div className="border-border/50 mt-0.5 mb-1 ml-5 flex flex-col gap-0.5 border-l pl-3">
                     {item.children!.map((child) => {
                       const isSubActive = active && activeHash === child.hash
                       return (

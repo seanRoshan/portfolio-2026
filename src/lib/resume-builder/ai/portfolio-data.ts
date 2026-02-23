@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from "@/lib/supabase/server"
 
 /**
  * Shape of all portfolio data fetched from Supabase for AI consumption.
@@ -69,57 +69,63 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
 
   // Use Promise.allSettled so one table failure doesn't kill the entire fetch
   const results = await Promise.allSettled([
-    supabase.from('hero_section').select('name').single(),
-    supabase.from('about_section').select('bio').single(),
-    supabase.from('site_settings').select('contact_email, social_links').single(),
+    supabase.from("hero_section").select("name").single(),
+    supabase.from("about_section").select("bio").single(),
+    supabase.from("site_settings").select("contact_email, social_links").single(),
     supabase
-      .from('resume')
-      .select('full_name, email, phone, location, website, linkedin, github')
+      .from("resume")
+      .select("full_name, email, phone, location, website, linkedin, github")
       .maybeSingle(),
     supabase
-      .from('experience')
+      .from("experience")
       .select(
-        'company, role, location, start_date, end_date, achievements, employment_type, via_company, resume_achievements'
+        "company, role, location, start_date, end_date, achievements, employment_type, via_company, resume_achievements",
       )
-      .eq('published', true)
-      .order('start_date', { ascending: false }),
+      .eq("published", true)
+      .order("start_date", { ascending: false }),
+    supabase.from("skills").select("name, category").eq("published", true).order("sort_order"),
     supabase
-      .from('skills')
-      .select('name, category')
-      .eq('published', true)
-      .order('sort_order'),
+      .from("education")
+      .select("school, degree, field, year, details")
+      .eq("published", true)
+      .order("sort_order"),
     supabase
-      .from('education')
-      .select('school, degree, field, year, details')
-      .eq('published', true)
-      .order('sort_order'),
+      .from("certifications")
+      .select("name, issuer, year")
+      .eq("published", true)
+      .order("sort_order"),
     supabase
-      .from('certifications')
-      .select('name, issuer, year')
-      .eq('published', true)
-      .order('sort_order'),
+      .from("projects")
+      .select(
+        "title, short_description, tech_stack, live_url, github_url, highlights, project_role, long_description",
+      )
+      .eq("published", true)
+      .order("sort_order"),
     supabase
-      .from('projects')
-      .select('title, short_description, tech_stack, live_url, github_url, highlights, project_role, long_description')
-      .eq('published', true)
-      .order('sort_order'),
-    supabase
-      .from('ventures')
-      .select('name, role, description, founded_year, url')
-      .eq('published', true)
-      .order('sort_order'),
+      .from("ventures")
+      .select("name, role, description, founded_year, url")
+      .eq("published", true)
+      .order("sort_order"),
   ])
 
   // Extract data safely from settled results
   const getData = <T>(idx: number): T | null => {
     const r = results[idx]
-    if (r.status === 'fulfilled') return (r.value as { data: T }).data
+    if (r.status === "fulfilled") return (r.value as { data: T }).data
     return null
   }
   const hero = getData<{ name: string }>(0)
   const about = getData<{ bio: string }>(1)
   const settings = getData<{ contact_email: string; social_links: Record<string, string> }>(2)
-  const resume = getData<{ full_name: string; email: string; phone: string; location: string; website: string; linkedin: string; github: string }>(3)
+  const resume = getData<{
+    full_name: string
+    email: string
+    phone: string
+    location: string
+    website: string
+    linkedin: string
+    github: string
+  }>(3)
   const experience = getData<Array<Record<string, unknown>>>(4) ?? []
   const skills = getData<Array<Record<string, unknown>>>(5) ?? []
   const education = getData<Array<Record<string, unknown>>>(6) ?? []
@@ -130,7 +136,7 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
   const socialLinks = (settings?.social_links ?? {}) as Record<string, string>
 
   // Prefer resume table data, fall back to hero/settings
-  const name = resume?.full_name ?? hero?.name ?? ''
+  const name = resume?.full_name ?? hero?.name ?? ""
   const emailAddr = resume?.email ?? settings?.contact_email ?? null
 
   return {
@@ -150,7 +156,7 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
       start_date: e.start_date as string,
       end_date: (e.end_date as string | null) ?? null,
       achievements: (e.achievements as string[]) ?? [],
-      employment_type: (e.employment_type as string) ?? 'direct',
+      employment_type: (e.employment_type as string) ?? "direct",
       via_company: (e.via_company as string | null) ?? null,
       resume_achievements: (e.resume_achievements as string[] | null) ?? null,
     })),

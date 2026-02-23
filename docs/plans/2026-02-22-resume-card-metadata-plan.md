@@ -13,6 +13,7 @@
 ### Task 1: Database Migration
 
 **Files:**
+
 - Create: `supabase/migrations/20260222230000_resume_job_metadata.sql`
 
 **Step 1: Write the migration**
@@ -41,6 +42,7 @@ git commit -m "feat: add company_name, job_location, work_mode columns to resume
 ### Task 2: Update TypeScript Types
 
 **Files:**
+
 - Modify: `src/types/resume-builder.ts` (Resume interface, around line 99-111)
 
 **Step 1: Add the 3 new fields to the Resume interface**
@@ -55,9 +57,9 @@ export interface Resume {
   template_id: string | null
   experience_level: ExperienceLevel | null
   target_role: string | null
-  company_name: string | null      // NEW
-  job_location: string | null      // NEW
-  work_mode: RemoteType | null     // NEW (reuses existing RemoteType)
+  company_name: string | null // NEW
+  job_location: string | null // NEW
+  work_mode: RemoteType | null // NEW (reuses existing RemoteType)
   is_master: boolean
   parent_resume_id: string | null
   short_id: string | null
@@ -83,6 +85,7 @@ git commit -m "feat: add job metadata fields to Resume type"
 ### Task 3: Extend JD Analysis to Extract Location and Work Mode
 
 **Files:**
+
 - Modify: `src/lib/resume-builder/ai/tailor-resume.ts`
 
 **Step 1: Update the JDAnalysis interface (around line 29)**
@@ -98,8 +101,8 @@ export interface JDAnalysis {
   key_requirements: string[]
   years_experience: string | null
   domain: string
-  location: string | null       // NEW
-  work_mode: string | null      // NEW: "remote", "hybrid", or "onsite"
+  location: string | null // NEW
+  work_mode: string | null // NEW: "remote", "hybrid", or "onsite"
 }
 ```
 
@@ -123,6 +126,7 @@ Return ONLY valid JSON with this exact structure (no markdown fences):
 ```
 
 Add to rules section:
+
 ```
 - location: The office/work location mentioned in the JD (city, state or city, country). null if not specified.
 - work_mode: "remote" if fully remote, "hybrid" if hybrid/flexible, "onsite" if in-office required. null if unclear.
@@ -145,6 +149,7 @@ git commit -m "feat: extend JD analysis to extract location and work mode"
 ### Task 4: Update Server Actions — Create, Generate, Clone
 
 **Files:**
+
 - Modify: `src/app/admin/resume-builder/actions.ts`
 
 **Step 1: Add `updateResumeMetadata` server action**
@@ -160,17 +165,14 @@ export async function updateResumeMetadata(
     company_name?: string | null
     job_location?: string | null
     work_mode?: string | null
-  }
+  },
 ) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('resumes')
-    .update(data)
-    .eq('id', resumeId)
+  const { error } = await supabase.from("resumes").update(data).eq("id", resumeId)
 
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/resume-builder/${resumeId}/edit`)
-  revalidatePath('/admin/resume-builder')
+  revalidatePath("/admin/resume-builder")
 }
 ```
 
@@ -180,16 +182,16 @@ In `generateTailoredResume` (around line 166-175), find the resume insert block 
 
 ```typescript
 const { data: resume, error: resumeError } = await supabase
-  .from('resumes')
+  .from("resumes")
   .insert({
     user_id: user?.id,
     title: suggestedTitle,
     template_id: templateId,
     experience_level: formData.experience_level,
     target_role: targetRole,
-    company_name: jdAnalysis.company || null,           // NEW
-    job_location: jdAnalysis.location || null,           // NEW
-    work_mode: jdAnalysis.work_mode || null,             // NEW
+    company_name: jdAnalysis.company || null, // NEW
+    job_location: jdAnalysis.location || null, // NEW
+    work_mode: jdAnalysis.work_mode || null, // NEW
     is_master: false,
     short_id: generateShortId(),
   })
@@ -203,16 +205,16 @@ In `cloneResume` (around line 426-439), find the new resume insert and add:
 
 ```typescript
 const { data: newResume, error } = await supabase
-  .from('resumes')
+  .from("resumes")
   .insert({
     user_id: user?.id,
     title: newTitle,
     template_id: original.template_id,
     experience_level: original.experience_level,
     target_role: original.target_role,
-    company_name: original.company_name,     // NEW
-    job_location: original.job_location,     // NEW
-    work_mode: original.work_mode,           // NEW
+    company_name: original.company_name, // NEW
+    job_location: original.job_location, // NEW
+    work_mode: original.work_mode, // NEW
     is_master: false,
     parent_resume_id: original.is_master ? original.id : original.parent_resume_id,
     short_id: generateShortId(),
@@ -263,6 +265,7 @@ git commit -m "feat: add updateResumeMetadata action and populate job fields in 
 ### Task 5: Redesign Resume Cards with Job Metadata
 
 **Files:**
+
 - Modify: `src/app/admin/resume-builder/resume-list.tsx`
 
 **Step 1: Add work mode constants and helper**
@@ -271,9 +274,24 @@ After the `TEMPLATE_COLORS` map, add:
 
 ```typescript
 const WORK_MODE_STYLES: Record<string, { label: string; dot: string; bg: string; text: string }> = {
-  remote: { label: 'Remote', dot: 'bg-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400' },
-  hybrid: { label: 'Hybrid', dot: 'bg-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-600 dark:text-amber-400' },
-  onsite: { label: 'On-site', dot: 'bg-blue-500', bg: 'bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400' },
+  remote: {
+    label: "Remote",
+    dot: "bg-emerald-500",
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-600 dark:text-emerald-400",
+  },
+  hybrid: {
+    label: "Hybrid",
+    dot: "bg-amber-500",
+    bg: "bg-amber-500/10",
+    text: "text-amber-600 dark:text-amber-400",
+  },
+  onsite: {
+    label: "On-site",
+    dot: "bg-blue-500",
+    bg: "bg-blue-500/10",
+    text: "text-blue-600 dark:text-blue-400",
+  },
 }
 ```
 
@@ -282,18 +300,15 @@ const WORK_MODE_STYLES: Record<string, { label: string; dot: string; bg: string;
 Replace the card content inside the `<Link>` block (the section between `<Link href=...>` and `</Link>`) for tailored resumes. New layout:
 
 ```tsx
-<Link
-  href={`/admin/resume-builder/${resume.id}/edit`}
-  className="block p-5"
->
+<Link href={`/admin/resume-builder/${resume.id}/edit`} className="block p-5">
   {/* Primary: Role + Company */}
   <div className="mb-2">
-    <h3 className="truncate font-semibold leading-tight" title={resume.target_role || resume.title}>
+    <h3 className="truncate leading-tight font-semibold" title={resume.target_role || resume.title}>
       {resume.target_role || resume.title}
     </h3>
     {(resume.company_name || resume.job_location) && (
       <p className="text-muted-foreground mt-0.5 truncate text-sm">
-        {[resume.company_name, resume.job_location].filter(Boolean).join(' · ')}
+        {[resume.company_name, resume.job_location].filter(Boolean).join(" · ")}
       </p>
     )}
   </div>
@@ -301,12 +316,14 @@ Replace the card content inside the `<Link>` block (the section between `<Link h
   {/* Work mode pill */}
   {resume.work_mode && WORK_MODE_STYLES[resume.work_mode] && (
     <div className="mb-3">
-      <span className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium',
-        WORK_MODE_STYLES[resume.work_mode].bg,
-        WORK_MODE_STYLES[resume.work_mode].text,
-      )}>
-        <span className={cn('h-1.5 w-1.5 rounded-full', WORK_MODE_STYLES[resume.work_mode].dot)} />
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium",
+          WORK_MODE_STYLES[resume.work_mode].bg,
+          WORK_MODE_STYLES[resume.work_mode].text,
+        )}
+      >
+        <span className={cn("h-1.5 w-1.5 rounded-full", WORK_MODE_STYLES[resume.work_mode].dot)} />
         {WORK_MODE_STYLES[resume.work_mode].label}
       </span>
     </div>
@@ -314,9 +331,7 @@ Replace the card content inside the `<Link>` block (the section between `<Link h
 
   {/* Resume title (secondary, only if target_role exists) */}
   {resume.target_role && (
-    <p className="text-muted-foreground mb-2 truncate text-xs italic">
-      {resume.title}
-    </p>
+    <p className="text-muted-foreground mb-2 truncate text-xs italic">{resume.title}</p>
   )}
 
   {/* Meta pills: template + level */}
@@ -406,6 +421,7 @@ git commit -m "feat: redesign resume cards with role+company hierarchy and work 
 ### Task 6: Add Job Details Section to Resume Editor
 
 **Files:**
+
 - Modify: `src/components/resume-builder/editor/ResumeEditor.tsx`
 
 **Step 1: Add a Job Details card above the section list**
@@ -413,13 +429,15 @@ git commit -m "feat: redesign resume cards with role+company hierarchy and work 
 In ResumeEditor.tsx, import the new action and add a JobDetailsCard component. This goes above the `<DndContext>` section list, inside the editor scroll area.
 
 Add import:
+
 ```typescript
-import { updateResumeMetadata } from '@/app/admin/resume-builder/actions'
+import { updateResumeMetadata } from "@/app/admin/resume-builder/actions"
 ```
 
 Add these lucide icons to the existing import:
+
 ```typescript
-import { Briefcase, MapPin, Building2, Monitor } from 'lucide-react'
+import { Briefcase, MapPin, Building2, Monitor } from "lucide-react"
 ```
 
 Add a `JobDetailsCard` inline component (or define above the main export):
@@ -440,62 +458,72 @@ function JobDetailsCard({ resume }: { resume: ResumeWithRelations }) {
   }
 
   return (
-    <div className="rounded-lg border p-4 space-y-3">
+    <div className="space-y-3 rounded-lg border p-4">
       <h3 className="flex items-center gap-2 text-sm font-semibold">
         <Briefcase className="h-4 w-4" />
         Job Details
       </h3>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="resume-title" className="text-xs">Resume Title</Label>
+          <Label htmlFor="resume-title" className="text-xs">
+            Resume Title
+          </Label>
           <Input
             id="resume-title"
             defaultValue={resume.title}
             placeholder="e.g., My Google Resume"
-            onBlur={(e) => handleBlur('title', e.target.value)}
+            onBlur={(e) => handleBlur("title", e.target.value)}
             className="h-8 text-sm"
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="target-role" className="text-xs">Target Role</Label>
+          <Label htmlFor="target-role" className="text-xs">
+            Target Role
+          </Label>
           <Input
             id="target-role"
-            defaultValue={resume.target_role ?? ''}
+            defaultValue={resume.target_role ?? ""}
             placeholder="e.g., Software Engineer"
-            onBlur={(e) => handleBlur('target_role', e.target.value)}
+            onBlur={(e) => handleBlur("target_role", e.target.value)}
             className="h-8 text-sm"
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="company-name" className="text-xs">Company</Label>
+          <Label htmlFor="company-name" className="text-xs">
+            Company
+          </Label>
           <Input
             id="company-name"
-            defaultValue={resume.company_name ?? ''}
+            defaultValue={resume.company_name ?? ""}
             placeholder="e.g., Google"
-            onBlur={(e) => handleBlur('company_name', e.target.value)}
+            onBlur={(e) => handleBlur("company_name", e.target.value)}
             className="h-8 text-sm"
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="job-location" className="text-xs">Location</Label>
+          <Label htmlFor="job-location" className="text-xs">
+            Location
+          </Label>
           <Input
             id="job-location"
-            defaultValue={resume.job_location ?? ''}
+            defaultValue={resume.job_location ?? ""}
             placeholder="e.g., San Francisco, CA"
-            onBlur={(e) => handleBlur('job_location', e.target.value)}
+            onBlur={(e) => handleBlur("job_location", e.target.value)}
             className="h-8 text-sm"
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="work-mode" className="text-xs">Work Mode</Label>
+          <Label htmlFor="work-mode" className="text-xs">
+            Work Mode
+          </Label>
           <Select
-            defaultValue={resume.work_mode ?? ''}
+            defaultValue={resume.work_mode ?? ""}
             onValueChange={(v) => {
               startTransition(async () => {
                 try {
                   await updateResumeMetadata(resume.id, { work_mode: v || null })
                 } catch {
-                  toast.error('Failed to update work mode')
+                  toast.error("Failed to update work mode")
                 }
               })
             }}
@@ -534,13 +562,9 @@ In the top bar, update the `<h1>` to be richer:
 
 ```tsx
 <div className="min-w-0 flex-1">
-  <h1 className="line-clamp-1 text-sm font-semibold">
-    {resume.target_role || resume.title}
-  </h1>
+  <h1 className="line-clamp-1 text-sm font-semibold">{resume.target_role || resume.title}</h1>
   {resume.company_name && (
-    <p className="text-muted-foreground line-clamp-1 text-[11px]">
-      {resume.company_name}
-    </p>
+    <p className="text-muted-foreground line-clamp-1 text-[11px]">{resume.company_name}</p>
   )}
 </div>
 ```
@@ -569,6 +593,7 @@ Expected: PASS with zero errors
 **Step 2: Visual verification**
 
 In the browser, check:
+
 1. Resume list cards show role+company as primary, work mode pills with correct colors
 2. Master resume hero card shows the same hierarchy
 3. Search works for company name and location

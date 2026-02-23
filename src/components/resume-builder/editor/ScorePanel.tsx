@@ -1,36 +1,32 @@
-'use client'
+"use client"
 
-import { useMemo } from 'react'
-import { AlertCircle, AlertTriangle, ChevronRight, ArrowRight } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { validateResume } from '@/lib/resume-builder/validation/rules'
-import { scoreResume } from '@/lib/resume-builder/ai/services'
-import type { ResumeWithRelations } from '@/types/resume-builder'
+import { useMemo } from "react"
+import { AlertCircle, AlertTriangle, ChevronRight, ArrowRight } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { validateResume } from "@/lib/resume-builder/validation/rules"
+import { scoreResume } from "@/lib/resume-builder/ai/services"
+import type { ResumeWithRelations } from "@/types/resume-builder"
 
 function scoreColor(score: number): string {
-  if (score >= 70) return 'bg-emerald-500'
-  if (score >= 40) return 'bg-amber-500'
-  return 'bg-red-500'
+  if (score >= 70) return "bg-emerald-500"
+  if (score >= 40) return "bg-amber-500"
+  return "bg-red-500"
 }
 
 function scoreTextColor(score: number): string {
-  if (score >= 70) return 'text-emerald-600'
-  if (score >= 40) return 'text-amber-600'
-  return 'text-red-600'
+  if (score >= 70) return "text-emerald-600"
+  if (score >= 40) return "text-amber-600"
+  return "text-red-600"
 }
 
 function scrollToSection(sectionId: string) {
   const el = document.getElementById(sectionId)
   if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    el.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 }
 
@@ -42,15 +38,10 @@ export function ScorePanel({ resume }: ScorePanelProps) {
   const score = useMemo(() => scoreResume(resume), [resume])
   const validationResults = useMemo(() => validateResume(resume), [resume])
 
-  const criticalCount = validationResults.filter(
-    (r) => r.severity === 'critical'
-  ).length
-  const warningCount = validationResults.filter(
-    (r) => r.severity === 'warning'
-  ).length
+  const criticalCount = validationResults.filter((r) => r.severity === "critical").length
+  const warningCount = validationResults.filter((r) => r.severity === "warning").length
 
-  const gradeVariant =
-    score.grade === 'A' || score.grade === 'B' ? 'secondary' : 'destructive'
+  const gradeVariant = score.grade === "A" || score.grade === "B" ? "secondary" : "destructive"
 
   return (
     <Popover>
@@ -58,7 +49,7 @@ export function ScorePanel({ resume }: ScorePanelProps) {
         <button
           type="button"
           aria-label="View resume score and issues"
-          className="flex items-center gap-2 rounded-md px-1 py-0.5 transition-colors hover:bg-accent"
+          className="hover:bg-accent flex items-center gap-2 rounded-md px-1 py-0.5 transition-colors"
         >
           {criticalCount > 0 && (
             <Badge variant="destructive" className="text-xs">
@@ -73,7 +64,7 @@ export function ScorePanel({ resume }: ScorePanelProps) {
           <Badge variant={gradeVariant} className="text-xs">
             {score.grade} &middot; {score.overall}
           </Badge>
-          <ChevronRight className="h-3 w-3 text-muted-foreground" />
+          <ChevronRight className="text-muted-foreground h-3 w-3" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-96 p-0">
@@ -86,22 +77,18 @@ export function ScorePanel({ resume }: ScorePanelProps) {
                 <div key={dim.name}>
                   <div className="mb-1 flex items-center justify-between">
                     <span className="text-xs font-medium">{dim.name}</span>
-                    <span
-                      className={`text-xs font-semibold ${scoreTextColor(dim.score)}`}
-                    >
+                    <span className={`text-xs font-semibold ${scoreTextColor(dim.score)}`}>
                       {dim.score}
                     </span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-muted">
+                  <div className="bg-muted h-1.5 w-full rounded-full">
                     <div
                       className={`h-1.5 rounded-full transition-all ${scoreColor(dim.score)}`}
                       style={{ width: `${Math.min(dim.score, 100)}%` }}
                     />
                   </div>
                   {dim.suggestions[0] && (
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      {dim.suggestions[0]}
-                    </p>
+                    <p className="text-muted-foreground mt-1 text-[11px]">{dim.suggestions[0]}</p>
                   )}
                 </div>
               ))}
@@ -114,7 +101,7 @@ export function ScorePanel({ resume }: ScorePanelProps) {
                 <h4 className="mb-3 text-sm font-semibold">Issues</h4>
                 <div className="space-y-2">
                   {validationResults
-                    .filter((r) => r.severity === 'critical')
+                    .filter((r) => r.severity === "critical")
                     .map((r, i) => (
                       <div
                         key={`c-${i}`}
@@ -143,7 +130,7 @@ export function ScorePanel({ resume }: ScorePanelProps) {
                       </div>
                     ))}
                   {validationResults
-                    .filter((r) => r.severity === 'warning')
+                    .filter((r) => r.severity === "warning")
                     .map((r, i) => (
                       <div
                         key={`w-${i}`}

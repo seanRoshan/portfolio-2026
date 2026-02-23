@@ -42,6 +42,7 @@ Role + Company as primary hierarchy:
 ```
 
 Work mode color pills:
+
 - Remote: emerald (green dot + green text)
 - Hybrid: amber (amber dot + amber text)
 - On-site: blue (blue dot + blue text)
@@ -55,6 +56,7 @@ Same treatment: target_role + company_name prominent, work_mode pill beside loca
 ### Edit Page — Job Details Fields
 
 Group at top of edit page or settings panel:
+
 - Resume Title (existing)
 - Target Role (existing, moved)
 - Company Name (new Input)

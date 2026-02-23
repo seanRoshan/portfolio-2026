@@ -173,9 +173,7 @@ export function ResumeForm({
   function handleToggleAchievement(exp: Experience, achievement: string, checked: boolean) {
     const all = exp.achievements ?? []
     const current = exp.resume_achievements ?? all
-    const updated = checked
-      ? [...current, achievement]
-      : current.filter((a) => a !== achievement)
+    const updated = checked ? [...current, achievement] : current.filter((a) => a !== achievement)
 
     // If all are selected, store null (show-all shorthand)
     const value = updated.length === all.length ? null : updated
@@ -358,7 +356,11 @@ export function ResumeForm({
             </FormSection>
 
             {/* Skills selector */}
-            <FormSection id="skills" title="Skills" description="Select which skills to show on the resume">
+            <FormSection
+              id="skills"
+              title="Skills"
+              description="Select which skills to show on the resume"
+            >
               {Array.from(skillsByCategory.entries()).map(([category, categorySkills]) => (
                 <div key={category}>
                   <p className="mb-2 text-sm font-medium">{categoryLabels[category] ?? category}</p>
@@ -400,9 +402,7 @@ export function ResumeForm({
                     <label className="hover:bg-accent/50 flex cursor-pointer items-start gap-3 p-3">
                       <Checkbox
                         checked={exp.show_on_resume}
-                        onCheckedChange={() =>
-                          handleToggleExperience(exp.id, exp.show_on_resume)
-                        }
+                        onCheckedChange={() => handleToggleExperience(exp.id, exp.show_on_resume)}
                         className="mt-0.5"
                       />
                       <div className="min-w-0 flex-1">
@@ -419,7 +419,7 @@ export function ResumeForm({
                           {allAch.map((ach, j) => (
                             <label
                               key={j}
-                              className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 text-xs hover:bg-accent/50"
+                              className="hover:bg-accent/50 flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 text-xs"
                             >
                               <Checkbox
                                 checked={selectedAch.includes(ach)}

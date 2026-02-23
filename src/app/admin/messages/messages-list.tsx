@@ -226,9 +226,7 @@ export function MessagesList({ messages }: { messages: ContactSubmission[] }) {
               <span className="mx-1">·</span>
               <time>{new Date(msg.created_at).toLocaleString()}</time>
             </div>
-            {msg.subject && (
-              <p className="text-sm font-medium">Subject: {msg.subject}</p>
-            )}
+            {msg.subject && <p className="text-sm font-medium">Subject: {msg.subject}</p>}
             <div className="text-sm leading-relaxed whitespace-pre-wrap">{msg.message}</div>
             <div className="flex items-center gap-2 pt-1">
               <a
@@ -284,9 +282,7 @@ export function MessagesList({ messages }: { messages: ContactSubmission[] }) {
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="read">
-              Read ({messages.length - unreadCount})
-            </TabsTrigger>
+            <TabsTrigger value="read">Read ({messages.length - unreadCount})</TabsTrigger>
           </TabsList>
 
           <div className="flex items-center gap-2">
@@ -300,12 +296,7 @@ export function MessagesList({ messages }: { messages: ContactSubmission[] }) {
               />
             </div>
             {unreadCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleMarkAllRead}
-                disabled={isPending}
-              >
+              <Button variant="outline" size="sm" onClick={handleMarkAllRead} disabled={isPending}>
                 <CheckCheck className="mr-2 h-4 w-4" />
                 Mark all read
               </Button>
@@ -318,9 +309,7 @@ export function MessagesList({ messages }: { messages: ContactSubmission[] }) {
             const filtered = filterMessages(filter)
             return (
               <TabsContent key={filter} value={filter} className="space-y-2">
-                {filtered.length === 0
-                  ? renderEmptyState(filter)
-                  : filtered.map(renderMessage)}
+                {filtered.length === 0 ? renderEmptyState(filter) : filtered.map(renderMessage)}
               </TabsContent>
             )
           })}

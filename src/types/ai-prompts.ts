@@ -2,7 +2,7 @@ export interface AIPrompt {
   id: string
   slug: string
   name: string
-  category: 'bullet' | 'summary' | 'description' | 'general'
+  category: "bullet" | "summary" | "description" | "general"
   description: string | null
   system_prompt: string
   user_prompt_template: string

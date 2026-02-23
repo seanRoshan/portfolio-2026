@@ -1,34 +1,27 @@
-'use client'
+"use client"
 
-import { useState, useMemo, useTransition } from 'react'
-import {
-  Sparkles,
-  AlertTriangle,
-  Check,
-  X,
-  Loader2,
-  SkipForward,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState, useMemo, useTransition } from "react"
+import { Sparkles, AlertTriangle, Check, X, Loader2, SkipForward } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
-import { toast } from 'sonner'
+} from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
 import {
   executeAIPrompt,
   updateAchievementText,
   updateSummaryText,
-} from '@/app/admin/resume-builder/actions'
-import type { ResumeWithRelations } from '@/types/resume-builder'
+} from "@/app/admin/resume-builder/actions"
+import type { ResumeWithRelations } from "@/types/resume-builder"
 
 interface FixableItem {
   id: string
-  type: 'weak_verb' | 'missing_metric' | 'buzzword' | 'missing_summary'
+  type: "weak_verb" | "missing_metric" | "buzzword" | "missing_summary"
   text: string
   label: string
   section: string
@@ -71,9 +64,7 @@ function OptimizeContent({ resume }: { resume: ResumeWithRelations }) {
   const [fixedCount, setFixedCount] = useState(0)
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set())
 
-  const remaining = fixableItems.filter(
-    (item) => !skippedIds.has(item.id)
-  )
+  const remaining = fixableItems.filter((item) => !skippedIds.has(item.id))
 
   const currentItem = remaining[0] ?? null
 
@@ -98,9 +89,7 @@ function OptimizeContent({ resume }: { resume: ResumeWithRelations }) {
       <div className="py-8 text-center">
         <Check className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
         <p className="text-sm font-medium">No fixable issues found</p>
-        <p className="text-muted-foreground text-xs">
-          Your resume is looking good.
-        </p>
+        <p className="text-muted-foreground text-xs">Your resume is looking good.</p>
       </div>
     )
   }
@@ -122,13 +111,11 @@ function OptimizeContent({ resume }: { resume: ResumeWithRelations }) {
         <Badge variant="secondary" className="text-xs">
           {fixedCount + skippedIds.size} / {total} reviewed
         </Badge>
-        <span className="text-muted-foreground text-xs">
-          {fixedCount} fixed
-        </span>
+        <span className="text-muted-foreground text-xs">{fixedCount} fixed</span>
       </div>
 
       {/* Progress bar */}
-      <div className="mb-4 h-1.5 w-full rounded-full bg-muted">
+      <div className="bg-muted mb-4 h-1.5 w-full rounded-full">
         <div
           className="h-1.5 rounded-full bg-emerald-500 transition-all"
           style={{
@@ -137,11 +124,7 @@ function OptimizeContent({ resume }: { resume: ResumeWithRelations }) {
         />
       </div>
 
-      <FixItemCard
-        item={currentItem}
-        onFixed={handleFixed}
-        onSkip={handleSkip}
-      />
+      <FixItemCard item={currentItem} onFixed={handleFixed} onSkip={handleSkip} />
     </div>
   )
 }
@@ -165,9 +148,7 @@ function FixItemCard({
         const text = await executeAIPrompt(item.slug, item.variables)
         setResult(text)
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : 'AI generation failed'
-        )
+        toast.error(err instanceof Error ? err.message : "AI generation failed")
       }
     })
   }
@@ -177,11 +158,11 @@ function FixItemCard({
     startTransition(async () => {
       try {
         await item.save(result)
-        toast.success('Fixed')
+        toast.success("Fixed")
         setResult(null)
         onFixed()
       } catch {
-        toast.error('Failed to save')
+        toast.error("Failed to save")
       }
     })
   }
@@ -197,41 +178,28 @@ function FixItemCard({
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
         <div className="min-w-0 flex-1">
           <p className="text-xs font-medium">{item.label}</p>
-          <p className="text-muted-foreground mt-0.5 text-xs">
-            Section: {item.section}
-          </p>
+          <p className="text-muted-foreground mt-0.5 text-xs">Section: {item.section}</p>
         </div>
       </div>
 
       {/* Current text */}
-      <div className="mb-3 rounded-md bg-muted p-2">
-        <p className="text-muted-foreground text-[10px] font-medium uppercase">
-          Current
-        </p>
+      <div className="bg-muted mb-3 rounded-md p-2">
+        <p className="text-muted-foreground text-[10px] font-medium uppercase">Current</p>
         <p className="mt-0.5 text-xs">{item.text}</p>
       </div>
 
       {/* AI Result */}
       {result && (
         <div className="mb-3 rounded-md border border-blue-200 bg-blue-50 p-2 dark:border-blue-900 dark:bg-blue-950">
-          <p className="text-[10px] font-medium uppercase text-blue-600">
-            Suggested
-          </p>
-          <p className="mt-0.5 text-xs text-blue-800 dark:text-blue-200">
-            {result}
-          </p>
+          <p className="text-[10px] font-medium text-blue-600 uppercase">Suggested</p>
+          <p className="mt-0.5 text-xs text-blue-800 dark:text-blue-200">{result}</p>
         </div>
       )}
 
       <div className="flex gap-2">
         {!result ? (
           <>
-            <Button
-              size="sm"
-              className="h-7 text-xs"
-              onClick={handleGenerate}
-              disabled={isPending}
-            >
+            <Button size="sm" className="h-7 text-xs" onClick={handleGenerate} disabled={isPending}>
               {isPending ? (
                 <Loader2 className="mr-1 h-3 w-3 animate-spin" />
               ) : (
@@ -239,33 +207,18 @@ function FixItemCard({
               )}
               Fix with AI
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs"
-              onClick={handleSkip}
-            >
+            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={handleSkip}>
               <SkipForward className="mr-1 h-3 w-3" />
               Skip
             </Button>
           </>
         ) : (
           <>
-            <Button
-              size="sm"
-              className="h-7 text-xs"
-              onClick={handleAccept}
-              disabled={isPending}
-            >
+            <Button size="sm" className="h-7 text-xs" onClick={handleAccept} disabled={isPending}>
               <Check className="mr-1 h-3 w-3" />
               Accept
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs"
-              onClick={handleSkip}
-            >
+            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={handleSkip}>
               <X className="mr-1 h-3 w-3" />
               Skip
             </Button>
@@ -290,26 +243,35 @@ function buildFixableItems(resume: ResumeWithRelations): FixableItem[] {
         .trim()
         .split(/\s+/)[0]
         ?.toLowerCase()
-        .replace(/[^a-z]/g, '')
+        .replace(/[^a-z]/g, "")
       const weakVerbs = new Set([
-        'was', 'did', 'used', 'worked', 'helped', 'made', 'got',
-        'went', 'had', 'been', 'responsible', 'participated',
+        "was",
+        "did",
+        "used",
+        "worked",
+        "helped",
+        "made",
+        "got",
+        "went",
+        "had",
+        "been",
+        "responsible",
+        "participated",
       ])
       if (firstWord && weakVerbs.has(firstWord)) {
         items.push({
           id: `weak-${ach.id}`,
-          type: 'weak_verb',
+          type: "weak_verb",
           text: ach.text,
           label: `Weak verb "${firstWord}" — replace with a strong action verb`,
-          section: 'Experience',
-          slug: 'bullet_fix_verb',
+          section: "Experience",
+          slug: "bullet_fix_verb",
           variables: {
             bullet: ach.text,
             job_title: exp.job_title,
             company: exp.company,
           },
-          save: (newText: string) =>
-            updateAchievementText(ach.id, newText, resume.id),
+          save: (newText: string) => updateAchievementText(ach.id, newText, resume.id),
         })
       }
     }
@@ -323,18 +285,17 @@ function buildFixableItems(resume: ResumeWithRelations): FixableItem[] {
         if (items.some((i) => i.id === `weak-${ach.id}`)) continue
         items.push({
           id: `metric-${ach.id}`,
-          type: 'missing_metric',
+          type: "missing_metric",
           text: ach.text,
-          label: 'Missing quantifiable metrics — add numbers for impact',
-          section: 'Experience',
-          slug: 'bullet_add_metrics',
+          label: "Missing quantifiable metrics — add numbers for impact",
+          section: "Experience",
+          slug: "bullet_add_metrics",
           variables: {
             bullet: ach.text,
             job_title: exp.job_title,
             company: exp.company,
           },
-          save: (newText: string) =>
-            updateAchievementText(ach.id, newText, resume.id),
+          save: (newText: string) => updateAchievementText(ach.id, newText, resume.id),
         })
       }
     }
@@ -346,18 +307,17 @@ function buildFixableItems(resume: ResumeWithRelations): FixableItem[] {
       if (!/\d/.test(ach.text) && ach.text.length > 10) {
         items.push({
           id: `metric-proj-${ach.id}`,
-          type: 'missing_metric',
+          type: "missing_metric",
           text: ach.text,
-          label: 'Missing quantifiable metrics',
-          section: 'Projects',
-          slug: 'bullet_add_metrics',
+          label: "Missing quantifiable metrics",
+          section: "Projects",
+          slug: "bullet_add_metrics",
           variables: {
             bullet: ach.text,
             job_title: proj.name,
-            company: '',
+            company: "",
           },
-          save: (newText: string) =>
-            updateAchievementText(ach.id, newText, resume.id),
+          save: (newText: string) => updateAchievementText(ach.id, newText, resume.id),
         })
       }
     }
@@ -366,28 +326,28 @@ function buildFixableItems(resume: ResumeWithRelations): FixableItem[] {
   // Missing summary
   if (!resume.summary?.text || resume.summary.text.length < 20) {
     items.push({
-      id: 'missing-summary',
-      type: 'missing_summary',
-      text: resume.summary?.text || '(empty)',
-      label: 'Professional summary is missing or too short',
-      section: 'Summary',
-      slug: 'summary_generate',
+      id: "missing-summary",
+      type: "missing_summary",
+      text: resume.summary?.text || "(empty)",
+      label: "Professional summary is missing or too short",
+      section: "Summary",
+      slug: "summary_generate",
       variables: {
-        name: resume.contact_info?.full_name ?? '',
-        experience_level: resume.experience_level ?? 'mid',
+        name: resume.contact_info?.full_name ?? "",
+        experience_level: resume.experience_level ?? "mid",
         skills: resume.skill_categories
           .flatMap((c) => c.skills)
           .slice(0, 10)
-          .join(', '),
+          .join(", "),
         titles: resume.work_experiences
           .map((e) => e.job_title)
           .slice(0, 3)
-          .join(', '),
+          .join(", "),
         companies: resume.work_experiences
           .map((e) => e.company)
           .slice(0, 3)
-          .join(', '),
-        context: '',
+          .join(", "),
+        context: "",
       },
       save: (newText: string) => updateSummaryText(resume.id, newText),
     })

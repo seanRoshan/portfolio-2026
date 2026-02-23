@@ -13,6 +13,7 @@
 ### Task 1: Update page.tsx — Remove AdminHeader, Add Mobile Menu
 
 **Files:**
+
 - Modify: `src/app/admin/resume-builder/page.tsx`
 
 **Step 1: Replace page.tsx content**
@@ -20,15 +21,12 @@
 Replace the entire file with a server component that passes data directly and includes its own mobile menu trigger:
 
 ```tsx
-import { getResumes } from '@/lib/resume-builder/queries'
-import { getTemplates } from '@/lib/resume-builder/queries'
-import { ResumeList } from './resume-list'
+import { getResumes } from "@/lib/resume-builder/queries"
+import { getTemplates } from "@/lib/resume-builder/queries"
+import { ResumeList } from "./resume-list"
 
 export default async function ResumeBuilderPage() {
-  const [resumes, templates] = await Promise.all([
-    getResumes(),
-    getTemplates(),
-  ])
+  const [resumes, templates] = await Promise.all([getResumes(), getTemplates()])
 
   return (
     <div className="p-4 md:p-6">
@@ -57,6 +55,7 @@ git commit -m "refactor: remove AdminHeader from resume builder page"
 ### Task 2: Rewrite ResumeList — Template Color Map + Helper Constants
 
 **Files:**
+
 - Modify: `src/app/admin/resume-builder/resume-list.tsx`
 
 **Step 1: Add template color map and helper at the top of the file**
@@ -66,16 +65,16 @@ Add these constants after the existing `experienceLevels` array (around line 58)
 ```tsx
 /** Accent colors per template name for card left-border */
 const TEMPLATE_COLORS: Record<string, string> = {
-  Pragmatic: 'border-l-blue-500',
-  Mono: 'border-l-zinc-400',
-  Smarkdown: 'border-l-emerald-500',
-  CareerCup: 'border-l-orange-500',
-  Parker: 'border-l-violet-500',
-  Experienced: 'border-l-teal-500',
+  Pragmatic: "border-l-blue-500",
+  Mono: "border-l-zinc-400",
+  Smarkdown: "border-l-emerald-500",
+  CareerCup: "border-l-orange-500",
+  Parker: "border-l-violet-500",
+  Experienced: "border-l-teal-500",
 }
 
 function getTemplateColor(name: string): string {
-  return TEMPLATE_COLORS[name] ?? 'border-l-zinc-500'
+  return TEMPLATE_COLORS[name] ?? "border-l-zinc-500"
 }
 ```
 
@@ -91,6 +90,7 @@ git commit -m "feat: add template color map for resume cards"
 ### Task 3: Rewrite ResumeList — Inline Page Header with Mobile Menu
 
 **Files:**
+
 - Modify: `src/app/admin/resume-builder/resume-list.tsx`
 
 **Step 1: Add mobile menu imports**
@@ -98,9 +98,9 @@ git commit -m "feat: add template color map for resume cards"
 Add these to the import block:
 
 ```tsx
-import { Menu, Search } from 'lucide-react'
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
-import { AdminSidebar } from '../admin-sidebar'
+import { Menu, Search } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
+import { AdminSidebar } from "../admin-sidebar"
 ```
 
 **Step 2: Replace the outer wrapper and header section**
@@ -140,6 +140,7 @@ return (
 ```
 
 Key changes:
+
 - `max-w-5xl` → `max-w-[1600px]` for full-width usage
 - Mobile hamburger menu inline (Sheet component)
 - Title is now `h1` not `h2`, and describes the whole page
@@ -161,6 +162,7 @@ git commit -m "feat: inline page header with mobile menu for resume list"
 ### Task 4: Master Resume Hero Card
 
 **Files:**
+
 - Modify: `src/app/admin/resume-builder/resume-list.tsx`
 
 **Step 1: Add master resume hero section**
@@ -176,93 +178,96 @@ const tailoredResumes = resumes.filter((r) => !r.is_master)
 Then render the hero card:
 
 ```tsx
-{/* Master Resume Hero */}
-{masterResume ? (
-  <Card className="mb-8 overflow-hidden border-l-4 border-l-primary bg-gradient-to-r from-primary/5 via-transparent to-transparent">
-    <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center">
-      {/* Left: PDF thumbnail placeholder */}
-      <div className="bg-muted/50 flex h-[200px] w-[155px] shrink-0 items-center justify-center rounded-md border">
-        <FileText className="text-muted-foreground/40 h-12 w-12" />
-      </div>
+{
+  /* Master Resume Hero */
+}
+{
+  masterResume ? (
+    <Card className="border-l-primary from-primary/5 mb-8 overflow-hidden border-l-4 bg-gradient-to-r via-transparent to-transparent">
+      <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center">
+        {/* Left: PDF thumbnail placeholder */}
+        <div className="bg-muted/50 flex h-[200px] w-[155px] shrink-0 items-center justify-center rounded-md border">
+          <FileText className="text-muted-foreground/40 h-12 w-12" />
+        </div>
 
-      {/* Right: Metadata + Actions */}
-      <div className="flex-1 space-y-4">
-        <div>
-          <div className="mb-1 flex items-center gap-2">
-            <Badge variant="secondary" className="gap-1 text-xs">
-              <Crown className="h-3 w-3" />
-              Master Resume
-            </Badge>
+        {/* Right: Metadata + Actions */}
+        <div className="flex-1 space-y-4">
+          <div>
+            <div className="mb-1 flex items-center gap-2">
+              <Badge variant="secondary" className="gap-1 text-xs">
+                <Crown className="h-3 w-3" />
+                Master Resume
+              </Badge>
+            </div>
+            <h2 className="text-xl font-semibold">{masterResume.title}</h2>
+            {masterResume.target_role && (
+              <p className="text-muted-foreground text-sm">{masterResume.target_role}</p>
+            )}
           </div>
-          <h2 className="text-xl font-semibold">{masterResume.title}</h2>
-          {masterResume.target_role && (
-            <p className="text-muted-foreground text-sm">{masterResume.target_role}</p>
-          )}
-        </div>
 
-        <div className="flex flex-wrap gap-2">
-          <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium">
-            <FileText className="h-3.5 w-3.5" />
-            {getTemplateName(masterResume.template_id)}
-          </span>
-          {getLevelLabel(masterResume.experience_level) && (
-            <span className="bg-muted text-muted-foreground inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium">
-              {getLevelLabel(masterResume.experience_level)}
+          <div className="flex flex-wrap gap-2">
+            <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium">
+              <FileText className="h-3.5 w-3.5" />
+              {getTemplateName(masterResume.template_id)}
             </span>
+            {getLevelLabel(masterResume.experience_level) && (
+              <span className="bg-muted text-muted-foreground inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium">
+                {getLevelLabel(masterResume.experience_level)}
+              </span>
+            )}
+            <span className="text-muted-foreground/60 inline-flex items-center gap-1.5 text-xs">
+              <Clock className="h-3.5 w-3.5" />
+              Updated {formatDate(masterResume.updated_at)}
+            </span>
+          </div>
+
+          {masterResume.short_id && (
+            <p className="text-muted-foreground text-xs">
+              Public URL:{" "}
+              <code className="bg-muted rounded px-1.5 py-0.5">/r/{masterResume.short_id}</code>
+            </p>
           )}
-          <span className="text-muted-foreground/60 inline-flex items-center gap-1.5 text-xs">
-            <Clock className="h-3.5 w-3.5" />
-            Updated {formatDate(masterResume.updated_at)}
-          </span>
-        </div>
 
-        {masterResume.short_id && (
-          <p className="text-muted-foreground text-xs">
-            Public URL: <code className="bg-muted rounded px-1.5 py-0.5">/r/{masterResume.short_id}</code>
-          </p>
-        )}
-
-        <div className="flex flex-wrap gap-2">
-          <Button asChild>
-            <Link href={`/admin/resume-builder/${masterResume.id}/edit`}>
-              Edit Resume
-            </Link>
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem
-                onClick={() => {
-                  setCloneTitle(`${masterResume.title} (Copy)`)
-                  setShowClone(masterResume.id)
-                }}
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                Clone
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild>
+              <Link href={`/admin/resume-builder/${masterResume.id}/edit`}>Edit Resume</Link>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setCloneTitle(`${masterResume.title} (Copy)`)
+                    setShowClone(masterResume.id)
+                  }}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  Clone
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
-    </div>
-  </Card>
-) : (
-  <Card className="mb-8 flex flex-col items-center justify-center border-dashed py-12">
-    <Crown className="text-muted-foreground mb-3 h-10 w-10" />
-    <h3 className="mb-1 text-lg font-semibold">No Master Resume</h3>
-    <p className="text-muted-foreground mb-4 max-w-md text-center text-sm">
-      Create your master resume — it powers your public resume page and PDF downloads.
-    </p>
-    <Button onClick={() => setShowCreate(true)}>
-      <Plus className="mr-2 h-4 w-4" />
-      Create Master Resume
-    </Button>
-  </Card>
-)}
+    </Card>
+  ) : (
+    <Card className="mb-8 flex flex-col items-center justify-center border-dashed py-12">
+      <Crown className="text-muted-foreground mb-3 h-10 w-10" />
+      <h3 className="mb-1 text-lg font-semibold">No Master Resume</h3>
+      <p className="text-muted-foreground mb-4 max-w-md text-center text-sm">
+        Create your master resume — it powers your public resume page and PDF downloads.
+      </p>
+      <Button onClick={() => setShowCreate(true)}>
+        <Plus className="mr-2 h-4 w-4" />
+        Create Master Resume
+      </Button>
+    </Card>
+  )
+}
 ```
 
 **Step 2: Verify hero card renders**
@@ -282,6 +287,7 @@ git commit -m "feat: master resume hero card with gradient accent and actions"
 ### Task 5: Tailored Resumes Section — Header with Search + Grid
 
 **Files:**
+
 - Modify: `src/app/admin/resume-builder/resume-list.tsx`
 
 **Step 1: Add search state**
@@ -289,7 +295,7 @@ git commit -m "feat: master resume hero card with gradient accent and actions"
 Add to the component state declarations:
 
 ```tsx
-const [searchQuery, setSearchQuery] = useState('')
+const [searchQuery, setSearchQuery] = useState("")
 ```
 
 **Step 2: Add filtered resumes logic**
@@ -298,10 +304,7 @@ const [searchQuery, setSearchQuery] = useState('')
 const filteredTailored = tailoredResumes.filter((r) => {
   if (!searchQuery.trim()) return true
   const q = searchQuery.toLowerCase()
-  return (
-    r.title.toLowerCase().includes(q) ||
-    (r.target_role?.toLowerCase().includes(q) ?? false)
-  )
+  return r.title.toLowerCase().includes(q) || (r.target_role?.toLowerCase().includes(q) ?? false)
 })
 ```
 
@@ -310,8 +313,10 @@ const filteredTailored = tailoredResumes.filter((r) => {
 Remove the existing `resumes.length === 0` empty state and the `grid gap-4 sm:grid-cols-2 lg:grid-cols-3` block. Replace with:
 
 ```tsx
-{/* Tailored Resumes Section */}
-<div>
+{
+  /* Tailored Resumes Section */
+}
+;<div>
   <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div className="flex items-center gap-2">
       <h2 className="text-lg font-semibold">Tailored Resumes</h2>
@@ -324,7 +329,7 @@ Remove the existing `resumes.length === 0` empty state and the `grid gap-4 sm:gr
     <div className="flex items-center gap-2">
       {tailoredResumes.length > 0 && (
         <div className="relative">
-          <Search className="text-muted-foreground absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+          <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Search by title or role..."
             value={searchQuery}
@@ -366,17 +371,14 @@ Remove the existing `resumes.length === 0` empty state and the `grid gap-4 sm:gr
           <Card
             key={resume.id}
             className={cn(
-              'group relative overflow-hidden border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5',
-              colorClass
+              "group relative overflow-hidden border-l-4 transition-all hover:-translate-y-0.5 hover:shadow-md",
+              colorClass,
             )}
           >
-            <Link
-              href={`/admin/resume-builder/${resume.id}/edit`}
-              className="block p-5"
-            >
+            <Link href={`/admin/resume-builder/${resume.id}/edit`} className="block p-5">
               <div className="mb-3 flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate font-semibold leading-tight" title={resume.title}>
+                  <h3 className="truncate leading-tight font-semibold" title={resume.title}>
                     {resume.title}
                   </h3>
                   {resume.target_role && (
@@ -452,12 +454,13 @@ Remove the existing `resumes.length === 0` empty state and the `grid gap-4 sm:gr
 Make sure `cn` is imported from `@/lib/utils`:
 
 ```tsx
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 ```
 
 **Step 5: Verify search and grid**
 
 Run dev server, verify:
+
 - Grid shows 4 columns on wide screens
 - Search filters cards in real-time
 - Empty state shows when no tailored resumes exist
@@ -479,6 +482,7 @@ git commit -m "feat: tailored resumes grid with search filter and template color
 **Step 1: Visual verification**
 
 Run `npm run dev` and check:
+
 1. Page fills available width (no narrow column)
 2. Master resume hero card has gradient accent, crown badge, metadata, edit button
 3. Tailored resumes grid is responsive (1 → 2 → 3 → 4 columns)

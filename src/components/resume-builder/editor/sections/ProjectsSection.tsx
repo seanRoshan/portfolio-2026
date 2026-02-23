@@ -1,12 +1,12 @@
-'use client'
+"use client"
 
-import { useTransition, useState, useCallback } from 'react'
-import { FolderKanban, Plus, Trash2, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
+import { useTransition, useState, useCallback } from "react"
+import { FolderKanban, Plus, Trash2, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,8 +17,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
+} from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
 import {
   addProject,
   updateProject,
@@ -26,11 +26,11 @@ import {
   addAchievement,
   updateAchievement,
   deleteAchievement,
-} from '@/app/admin/resume-builder/actions'
-import { EditorSection } from '../EditorSection'
-import { AIAssistButton } from '../AIAssistButton'
-import { analyzeAchievement } from '@/lib/resume-builder/validation/rules'
-import type { ResumeProject } from '@/types/resume-builder'
+} from "@/app/admin/resume-builder/actions"
+import { EditorSection } from "../EditorSection"
+import { AIAssistButton } from "../AIAssistButton"
+import { analyzeAchievement } from "@/lib/resume-builder/validation/rules"
+import type { ResumeProject } from "@/types/resume-builder"
 
 interface Props {
   resumeId: string
@@ -39,9 +39,7 @@ interface Props {
 
 export function ProjectsSection({ resumeId, projects }: Props) {
   const [isPending, startTransition] = useTransition()
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    new Set(projects.map((p) => p.id))
-  )
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(projects.map((p) => p.id)))
 
   const toggleExpand = useCallback((id: string) => {
     setExpandedIds((prev) => {
@@ -57,9 +55,9 @@ export function ProjectsSection({ resumeId, projects }: Props) {
       try {
         const data = await addProject(resumeId)
         setExpandedIds((prev) => new Set(prev).add(data.id))
-        toast.success('Project added')
+        toast.success("Project added")
       } catch {
-        toast.error('Failed to add project')
+        toast.error("Failed to add project")
       }
     })
   }
@@ -70,7 +68,13 @@ export function ProjectsSection({ resumeId, projects }: Props) {
       icon={FolderKanban}
       id="projects"
       action={
-        <Button variant="ghost" size="sm" onClick={handleAdd} disabled={isPending} className="h-5 px-1.5 text-[11px]">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleAdd}
+          disabled={isPending}
+          className="h-5 px-1.5 text-[11px]"
+        >
           <Plus className="mr-0.5 h-3 w-3" />
           Add Project
         </Button>
@@ -115,7 +119,7 @@ function ProjectCard({
       try {
         await updateProject(project.id, resumeId, { [field]: value })
       } catch {
-        toast.error('Failed to update')
+        toast.error("Failed to update")
       }
     })
   }
@@ -124,9 +128,9 @@ function ProjectCard({
     startTransition(async () => {
       try {
         await deleteProject(project.id, resumeId)
-        toast.success('Project removed')
+        toast.success("Project removed")
       } catch {
-        toast.error('Failed to delete')
+        toast.error("Failed to delete")
       }
     })
   }
@@ -134,19 +138,27 @@ function ProjectCard({
   function handleAddBullet() {
     startTransition(async () => {
       try {
-        await addAchievement(project.id, 'project', resumeId)
+        await addAchievement(project.id, "project", resumeId)
       } catch {
-        toast.error('Failed to add bullet')
+        toast.error("Failed to add bullet")
       }
     })
   }
 
   return (
     <div className="rounded-lg border">
-      <button type="button" className="flex w-full items-center gap-3 p-3 text-left" onClick={onToggle}>
+      <button
+        type="button"
+        className="flex w-full items-center gap-3 p-3 text-left"
+        onClick={onToggle}
+      >
         <div className="flex-1">
-          <div className="text-sm font-medium text-foreground">{project.name || 'Untitled Project'}</div>
-          <div className="text-foreground/60 text-xs">{project.description?.slice(0, 60) || 'No description'}</div>
+          <div className="text-foreground text-sm font-medium">
+            {project.name || "Untitled Project"}
+          </div>
+          <div className="text-foreground/60 text-xs">
+            {project.description?.slice(0, 60) || "No description"}
+          </div>
         </div>
         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </button>
@@ -155,17 +167,29 @@ function ProjectCard({
         <div className="space-y-3 border-t p-3">
           <div className="space-y-2">
             <Label className="text-xs">Project Name *</Label>
-            <Input defaultValue={project.name} onBlur={(e) => handleUpdate('name', e.target.value)} placeholder="My Awesome Project" />
+            <Input
+              defaultValue={project.name}
+              onBlur={(e) => handleUpdate("name", e.target.value)}
+              placeholder="My Awesome Project"
+            />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label className="text-xs">Live URL</Label>
-              <Input defaultValue={project.project_url ?? ''} onBlur={(e) => handleUpdate('project_url', e.target.value || null)} placeholder="https://myproject.com" />
+              <Input
+                defaultValue={project.project_url ?? ""}
+                onBlur={(e) => handleUpdate("project_url", e.target.value || null)}
+                placeholder="https://myproject.com"
+              />
             </div>
             <div className="space-y-2">
               <Label className="text-xs">Source Code</Label>
-              <Input defaultValue={project.source_url ?? ''} onBlur={(e) => handleUpdate('source_url', e.target.value || null)} placeholder="https://github.com/..." />
+              <Input
+                defaultValue={project.source_url ?? ""}
+                onBlur={(e) => handleUpdate("source_url", e.target.value || null)}
+                placeholder="https://github.com/..."
+              />
             </div>
           </div>
 
@@ -174,13 +198,19 @@ function ProjectCard({
               <Label className="text-xs">Description</Label>
               <AIAssistButton
                 category="description"
-                currentText={project.description ?? ''}
+                currentText={project.description ?? ""}
                 context={{ name: project.name }}
                 resumeId={resumeId}
-                onAccept={(text) => handleUpdate('description', text)}
+                onAccept={(text) => handleUpdate("description", text)}
               />
             </div>
-            <Textarea defaultValue={project.description ?? ''} onBlur={(e) => handleUpdate('description', e.target.value)} placeholder="Brief description of the project..." rows={2} className="resize-none text-sm" />
+            <Textarea
+              defaultValue={project.description ?? ""}
+              onBlur={(e) => handleUpdate("description", e.target.value)}
+              placeholder="Brief description of the project..."
+              rows={2}
+              className="resize-none text-sm"
+            />
           </div>
 
           {/* Achievement Bullets */}
@@ -188,10 +218,21 @@ function ProjectCard({
             <Label className="mb-2 text-xs font-medium">Achievement Bullets</Label>
             <div className="space-y-2">
               {project.achievements?.map((achievement) => (
-                <ProjectAchievementRow key={achievement.id} achievement={achievement} resumeId={resumeId} projectName={project.name} />
+                <ProjectAchievementRow
+                  key={achievement.id}
+                  achievement={achievement}
+                  resumeId={resumeId}
+                  projectName={project.name}
+                />
               ))}
             </div>
-            <Button variant="ghost" size="sm" onClick={handleAddBullet} disabled={isPending} className="mt-2 h-7 text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleAddBullet}
+              disabled={isPending}
+              className="mt-2 h-7 text-xs"
+            >
               <Plus className="mr-1 h-3 w-3" />
               Add Bullet
             </Button>
@@ -200,7 +241,12 @@ function ProjectCard({
           <div className="flex justify-end">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" disabled={isPending} className="text-destructive h-7 text-xs">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={isPending}
+                  className="text-destructive h-7 text-xs"
+                >
                   <Trash2 className="mr-1 h-3 w-3" />
                   Remove
                 </Button>
@@ -242,7 +288,7 @@ function ProjectAchievementRow({
       try {
         await updateAchievement(achievement.id, resumeId, { text })
       } catch {
-        toast.error('Failed to save')
+        toast.error("Failed to save")
       }
     })
   }
@@ -252,7 +298,7 @@ function ProjectAchievementRow({
       try {
         await deleteAchievement(achievement.id, resumeId)
       } catch {
-        toast.error('Failed to delete')
+        toast.error("Failed to delete")
       }
     })
   }
@@ -262,9 +308,9 @@ function ProjectAchievementRow({
     startTransition(async () => {
       try {
         await updateAchievement(achievement.id, resumeId, { text: newText })
-        toast.success('Bullet updated')
+        toast.success("Bullet updated")
       } catch {
-        toast.error('Failed to save')
+        toast.error("Failed to save")
       }
     })
   }
@@ -272,7 +318,14 @@ function ProjectAchievementRow({
   return (
     <div className="group flex gap-2">
       <div className="flex-1">
-        <Textarea value={text} onChange={(e) => setText(e.target.value)} onBlur={handleSave} placeholder="Built X using Y, resulting in Z..." rows={2} className="resize-none text-sm" />
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={handleSave}
+          placeholder="Built X using Y, resulting in Z..."
+          rows={2}
+          className="resize-none text-sm"
+        />
         {analysis.warnings.length > 0 && (
           <div className="mt-1 space-y-0.5">
             {analysis.warnings.map((w, i) => (
@@ -286,14 +339,19 @@ function ProjectAchievementRow({
         <AIAssistButton
           category="bullet"
           currentText={text}
-          context={{ name: projectName, job_title: projectName, company: '' }}
+          context={{ name: projectName, job_title: projectName, company: "" }}
           resumeId={resumeId}
           onAccept={handleAIAccept}
         />
       </div>
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="ghost" size="icon" disabled={isPending} className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100">
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={isPending}
+            className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100"
+          >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </AlertDialogTrigger>

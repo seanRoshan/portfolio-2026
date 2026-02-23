@@ -1,7 +1,7 @@
-'use server'
+"use server"
 
-import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { createClient } from "@/lib/supabase/server"
+import { revalidatePath } from "next/cache"
 
 export async function saveJobDescription(data: {
   title: string
@@ -18,7 +18,7 @@ export async function saveJobDescription(data: {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { error } = await supabase.from('job_descriptions').insert({
+  const { error } = await supabase.from("job_descriptions").insert({
     user_id: user?.id,
     title: data.title,
     company: data.company || null,
@@ -31,16 +31,13 @@ export async function saveJobDescription(data: {
   })
 
   if (error) throw new Error(error.message)
-  revalidatePath('/admin/resume-builder/jd-analyzer')
+  revalidatePath("/admin/resume-builder/jd-analyzer")
 }
 
 export async function deleteJobDescription(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('job_descriptions')
-    .delete()
-    .eq('id', id)
+  const { error } = await supabase.from("job_descriptions").delete().eq("id", id)
 
   if (error) throw new Error(error.message)
-  revalidatePath('/admin/resume-builder/jd-analyzer')
+  revalidatePath("/admin/resume-builder/jd-analyzer")
 }

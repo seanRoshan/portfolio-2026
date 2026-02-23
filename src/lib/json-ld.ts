@@ -15,13 +15,7 @@ export function personAndWebsiteJsonLd(config: SiteConfig) {
       alternateName: "Shahriyar Valielahiroshan",
       url: config.siteUrl,
       jobTitle: "Software Engineer",
-      knowsAbout: [
-        "Software Engineering",
-        "Web Development",
-        "TypeScript",
-        "React",
-        "Next.js",
-      ],
+      knowsAbout: ["Software Engineering", "Web Development", "TypeScript", "React", "Next.js"],
       image: `${config.siteUrl}/images/profile-1000x1333.jpg`,
       ...(config.siteDescription && { description: config.siteDescription }),
       ...(sameAs.length > 0 && { sameAs }),
@@ -116,10 +110,7 @@ export function profilePageJsonLd(config: SiteConfig) {
  * BreadcrumbList schema for site hierarchy.
  * "Home" is always position 1, followed by the provided items.
  */
-export function breadcrumbJsonLd(
-  siteUrl: string,
-  items: { name: string; path: string }[],
-) {
+export function breadcrumbJsonLd(siteUrl: string, items: { name: string; path: string }[]) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

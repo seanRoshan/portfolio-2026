@@ -18,6 +18,7 @@ The current "Your Resumes" page wastes screen real estate (`max-w-5xl` constrain
 ### 1. Master Resume Hero Card
 
 Full-width card at the top. Distinguished by:
+
 - Crown badge + "Master Resume" label
 - Subtle gradient left border or top accent line (primary color)
 - Two-column layout inside:
@@ -33,6 +34,7 @@ If no master resume exists, show an invitation card: "Create your master resume 
 **Card grid:** `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
 
 Each card features:
+
 - Template color accent strip (left edge, unique color per template)
 - Title (truncated), target role subtitle
 - Template name badge + experience level badge
@@ -45,6 +47,7 @@ Each card features:
 ### 3. Template Color Map
 
 Each template gets a unique accent color for the card left-border:
+
 - Pragmatic: blue
 - Mono: gray
 - Smarkdown: green

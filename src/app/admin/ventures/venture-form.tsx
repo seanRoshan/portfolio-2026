@@ -48,9 +48,7 @@ export function VentureForm({ data }: VentureFormProps) {
 
   function onSubmit(values: VentureFormValues) {
     startTransition(async () => {
-      const result = isEdit
-        ? await updateVenture(data.id, values)
-        : await createVenture(values)
+      const result = isEdit ? await updateVenture(data.id, values) : await createVenture(values)
 
       if (result?.error) {
         toast.error(result.error)
@@ -118,11 +116,7 @@ export function VentureForm({ data }: VentureFormProps) {
               <FormItem>
                 <FormLabel>Founded Year</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="2024"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
+                  <Input placeholder="2024" {...field} value={field.value ?? ""} />
                 </FormControl>
               </FormItem>
             )}
@@ -189,11 +183,7 @@ export function VentureForm({ data }: VentureFormProps) {
           <Button type="submit" disabled={isPending}>
             {isPending ? "Saving..." : isEdit ? "Save Changes" : "Create Venture"}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push("/admin/ventures")}
-          >
+          <Button type="button" variant="outline" onClick={() => router.push("/admin/ventures")}>
             Cancel
           </Button>
         </div>

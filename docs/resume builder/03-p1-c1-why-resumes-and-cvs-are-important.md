@@ -17,7 +17,7 @@ For a week in May 2020, I carefully reviewed more than 300 resumes, spending far
 
 **The majority of developer resumes I have seen did a poor job representing the person behind the profile**. As a hiring manager in a hurry, with more than a hundred resumes to go through, I would have passed on many of the otherwise strong and qualified candidates. This was because their potential did not come across on the resume. Recruiters, who often are less technical, would have passed on even more of them.
 
-You write a resume when you are *proactively* applying for a company: when you are actively searching for a job. And when you apply directly, you want a resume that represents you well, on the first glance. If you don’t put in the time and effort, don’t be surprised if you’ll be passed over for someone who is just as qualified, but has a resume that sells them better for that specific position.
+You write a resume when you are _proactively_ applying for a company: when you are actively searching for a job. And when you apply directly, you want a resume that represents you well, on the first glance. If you don’t put in the time and effort, don’t be surprised if you’ll be passed over for someone who is just as qualified, but has a resume that sells them better for that specific position.
 
 ## The Goal of a Resume
 
@@ -33,9 +33,9 @@ The goal of the resume is to sell you for that specific position—and do this i
 
 **Good resumes** are ones that represent you in the fairest possible way, maximizing your chances of getting through the resume screening process—assuming you are qualified. However, even with a good resume, you won’t win over a recruiter every time. This could be for a variety of reasons, the main ones being that your profile doesn’t match what the company is looking for, or there are stronger profiles competing with yours. However, with a good tech resume, you won’t miss opportunities due to not representing yourself well enough.
 
-**Great resumes** are ones where you grab the attention of the recruiter or the hiring manager, and they immediately want to talk to you. Unfortunately, this has little to do with the format, and all to do with the content. Great tech resumes are ones that showcase rare and valuable experience or skills that are *exactly* what the job needs. If you happen to be an engineer who is an expert in a niche framework, and you apply directly to a small company who sees few applications, and who are rebuilding their product using this same framework, the recruiter won’t believe their luck.
+**Great resumes** are ones where you grab the attention of the recruiter or the hiring manager, and they immediately want to talk to you. Unfortunately, this has little to do with the format, and all to do with the content. Great tech resumes are ones that showcase rare and valuable experience or skills that are _exactly_ what the job needs. If you happen to be an engineer who is an expert in a niche framework, and you apply directly to a small company who sees few applications, and who are rebuilding their product using this same framework, the recruiter won’t believe their luck.
 
-Great resumes are not generic: they are great for *that* specific role. While it’s tempting to think that having worked at Google makes your resume great, this won’t be the case for all positions. Going back to the previous example: if you’ve worked at a senior frontend developer at Google, your resume won’t necessarily count as great for a backend position that is looking for deep expertise building developer tooling.
+Great resumes are not generic: they are great for _that_ specific role. While it’s tempting to think that having worked at Google makes your resume great, this won’t be the case for all positions. Going back to the previous example: if you’ve worked at a senior frontend developer at Google, your resume won’t necessarily count as great for a backend position that is looking for deep expertise building developer tooling.
 
 **A good resume is the first step towards having a great resume.** A good resume—one that represents you as fairly as possible—helps you get a good job. And a good job is the stepping stone to having the experience for a great resume. This guide will help you craft that good tech resume, building on your current experience.
 
@@ -51,33 +51,33 @@ If you have a resume that reads like a journeyman resume, think about why this i
 
 Several developers I talked with have no resumes. They have a LinkedIn profile that has served them well until now. When applying for a job, they just export this profile as PDF and send it off. While this approach will work in the cases where there are few applicants, or you have standout experience, it won’t serve you well in all cases.
 
-**LinkedIn is a tool for getting sourced when you are in demand: it is a poor tool for directly applying.** It has poor use of space, does not optimize for recruiters to scan it. And frankly, it shows you’re not *really* interested in that particular job you applied for.
+**LinkedIn is a tool for getting sourced when you are in demand: it is a poor tool for directly applying.** It has poor use of space, does not optimize for recruiters to scan it. And frankly, it shows you’re not _really_ interested in that particular job you applied for.
 
 There are other downsides when using LinkedIn as your resume:
 
--   **Not able to tailor to a specific position.** In many cases, your background and experience make you qualified for multiple positions. For example, a developer with fullstack experience can decide to apply to frontend, backend, or fullstack roles. For each of these roles, you’ll want a tailored resume. With LinkedIn, you are stuck with a generic one that will not do as well as if you customized it.
--   **Lack of history** or versioning. With resumes, you can have resume versions stored that you iterate on. With LinkedIn, there is no versioning.
--   **Overly verbose** generalization. The page count is high for resumes generated with LinkedIn. The design wastes a lot of space.
--   **Lock-in** with LinkedIn. There is no guarantee that the LinkedIn resume generation feature will be there in the future, or that it will work as it does today. When using a text editor, you have less lock-in. When using a resume generator, you have lock-in, but can reasonably expect the functionality to work in the future as well.
+- **Not able to tailor to a specific position.** In many cases, your background and experience make you qualified for multiple positions. For example, a developer with fullstack experience can decide to apply to frontend, backend, or fullstack roles. For each of these roles, you’ll want a tailored resume. With LinkedIn, you are stuck with a generic one that will not do as well as if you customized it.
+- **Lack of history** or versioning. With resumes, you can have resume versions stored that you iterate on. With LinkedIn, there is no versioning.
+- **Overly verbose** generalization. The page count is high for resumes generated with LinkedIn. The design wastes a lot of space.
+- **Lock-in** with LinkedIn. There is no guarantee that the LinkedIn resume generation feature will be there in the future, or that it will work as it does today. When using a text editor, you have less lock-in. When using a resume generator, you have lock-in, but can reasonably expect the functionality to work in the future as well.
 
 To be clear: LinkedIn resumes work at times when it’s a developers’ job market. They also work when companies struggle to get anyone interested in applying. Heck, in those times, you can skip this guide, put a text file together with your name, email, years of experience, and you could easily get invited for a technical interview. That’s how things went in the late ’90s, before the Dotcom bust. To some extent, the same happened around early to mid-2010s, when huge amounts of VC money poured into many startups, who had to hire fast. If you’re in this kind of a market, you need to worry far less about resume formatting. If not—that is where this book can help you.
 
-If you want to get a job via a direct application, build that resume and customize it for *that* job. And do keep your LinkedIn up to date: see the [LinkedIn Profile section](./p2-c7-beyond-the-resume.md#linkedin-profile) for more advice.
+If you want to get a job via a direct application, build that resume and customize it for _that_ job. And do keep your LinkedIn up to date: see the [LinkedIn Profile section](./p2-c7-beyond-the-resume.md#linkedin-profile) for more advice.
 
 ## A Resume Is (Still) Not Enough
 
 I have gotten several messages, where people think that the format of their resume is the only thing that is getting in the way of getting that recruiter call. Messages such as this one:
 
-*“I have been applying to Facebook in London, Stripe in New York, and Snap in LA. I haven’t heard back from any of them. Can you help me fix my resume so I get an interview?”*
+_“I have been applying to Facebook in London, Stripe in New York, and Snap in LA. I haven’t heard back from any of them. Can you help me fix my resume so I get an interview?”_
 
 **A well-written resume is required, but it is not sufficient** to get a recruiter call. There are several other factors that are outside your control. These include:
 
--   **If the position is still open.** The position you submit your application to might have already been filled—without you knowing about it.
--   **Your competition.** You might think you have a strong profile, but what if there are dozens of people with more experience, with stronger skills applying for the same position? You won’t get an interview. Also, for remote-friendly and remote-only jobs, the competition will be far more intense.
--   **Being local vs needing relocation.** If a position sees hundreds of applications, the local candidates might get preference. They won’t need relocation, which means they could start faster. Also, the lack of relocation makes this cheaper for the company.
--   **Your visa status.** When a company has to apply for a visa for you to work in the country, this takes time and money. Companies usually only sponsor visas for senior positions, where they cannot find candidates without needing visas. Even many of the big tech companies only sponsor visas for senior or above positions.
--   **Your seniority.** Certain positions only look for people with certain seniority—even if they do not advertise this externally. You might be considered not having enough experience for a position. This is frequently the case when you are a new grad, or have less than two years of experience, applying for positions that do not consider people without a few years of industry work behind them. In more rare cases, the recruiter might decide you seem to be overqualified for the position, with all your experience.
--   **Luck.** Blind chance also plays a role, especially when your resume competes with hundreds of others. There are ways to make luck less of a factor—see [the section on referrals](./p1-c2-the-hiring-pipeline.md#referrals), which can make the biggest difference in eliminating this factor and getting to a recruiter screen.
+- **If the position is still open.** The position you submit your application to might have already been filled—without you knowing about it.
+- **Your competition.** You might think you have a strong profile, but what if there are dozens of people with more experience, with stronger skills applying for the same position? You won’t get an interview. Also, for remote-friendly and remote-only jobs, the competition will be far more intense.
+- **Being local vs needing relocation.** If a position sees hundreds of applications, the local candidates might get preference. They won’t need relocation, which means they could start faster. Also, the lack of relocation makes this cheaper for the company.
+- **Your visa status.** When a company has to apply for a visa for you to work in the country, this takes time and money. Companies usually only sponsor visas for senior positions, where they cannot find candidates without needing visas. Even many of the big tech companies only sponsor visas for senior or above positions.
+- **Your seniority.** Certain positions only look for people with certain seniority—even if they do not advertise this externally. You might be considered not having enough experience for a position. This is frequently the case when you are a new grad, or have less than two years of experience, applying for positions that do not consider people without a few years of industry work behind them. In more rare cases, the recruiter might decide you seem to be overqualified for the position, with all your experience.
+- **Luck.** Blind chance also plays a role, especially when your resume competes with hundreds of others. There are ways to make luck less of a factor—see [the section on referrals](./p1-c2-the-hiring-pipeline.md#referrals), which can make the biggest difference in eliminating this factor and getting to a recruiter screen.
 
 This book will help you craft a resume that represents you fairly. While following the advice will hopefully help you see higher response rates, there is no “magic formula” for getting that next call. At the same time, the more you know about what is happening behind the scenes, the more you can write your resume for the people who will be reading them. To understand who the key people are, let’s dive into how the hiring process typically works at tech companies, and who might be reading your resume.
 
@@ -86,5 +86,4 @@ This book will help you craft a resume that represents you fairly. While followi
 ## Footnotes
 
 1.  CV stands for Curriculum Vitae. In Latin, this means “course of life”. [↩](./p1-c1-why-resumes-and-cvs-are-important.md#user-content-fnref-2)
-    
 2.  Source: HR Drive [Eye tracking study shows recruiters look at resumes for 7 seconds](http://pragmaticurl.com/eye-tracking) [↩](./p1-c1-why-resumes-and-cvs-are-important.md#user-content-fnref-3)

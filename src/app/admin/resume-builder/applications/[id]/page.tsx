@@ -1,19 +1,13 @@
-import { notFound } from 'next/navigation'
-import { AdminHeader } from '../../../admin-header'
-import {
-  getJobApplication,
-  getCoverLetters,
-  getResumes,
-} from '@/lib/resume-builder/queries'
-import { ApplicationDetail } from './application-detail'
+import { notFound } from "next/navigation"
+import { AdminHeader } from "../../../admin-header"
+import { getJobApplication, getCoverLetters, getResumes } from "@/lib/resume-builder/queries"
+import { ApplicationDetail } from "./application-detail"
 
 interface ApplicationDetailPageProps {
   params: Promise<{ id: string }>
 }
 
-export default async function ApplicationDetailPage({
-  params,
-}: ApplicationDetailPageProps) {
+export default async function ApplicationDetailPage({ params }: ApplicationDetailPageProps) {
   const { id } = await params
 
   const [application, allCoverLetters, resumes] = await Promise.all([
@@ -26,9 +20,7 @@ export default async function ApplicationDetailPage({
     notFound()
   }
 
-  const coverLetters = allCoverLetters.filter(
-    (cl) => cl.application_id === id
-  )
+  const coverLetters = allCoverLetters.filter((cl) => cl.application_id === id)
 
   return (
     <>

@@ -93,7 +93,9 @@ function dotSpin(dot: HTMLSpanElement) {
     rotation: 360,
     duration: 0.8,
     ease: "power2.inOut",
-    onComplete: () => { gsap.set(dot, { rotation: 0 }) },
+    onComplete: () => {
+      gsap.set(dot, { rotation: 0 })
+    },
   })
 }
 
@@ -200,7 +202,7 @@ export function AnimatedLogo({ name, size = "sm" }: AnimatedLogoProps) {
     <Link
       ref={containerRef}
       href="/"
-      className={`${fontSize} font-bold tracking-tight transition-colors hover:text-primary`}
+      className={`${fontSize} hover:text-primary font-bold tracking-tight transition-colors`}
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

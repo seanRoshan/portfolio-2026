@@ -125,7 +125,6 @@ export function About({ aboutData: aboutDataProp }: AboutProps) {
             </StaggerChildren>
           </div>
         </div>
-
       </div>
     </section>
   )

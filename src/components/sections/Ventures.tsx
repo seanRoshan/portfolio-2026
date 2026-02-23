@@ -41,9 +41,7 @@ export function Ventures({ venturesData }: VenturesProps) {
           </TextReveal>
 
           <RevealOnScroll delay={0.2}>
-            <p className="text-muted-foreground mb-12">
-              What I have shipped on my own terms.
-            </p>
+            <p className="text-muted-foreground mb-12">What I have shipped on my own terms.</p>
           </RevealOnScroll>
         </div>
 
@@ -84,7 +82,7 @@ export function Ventures({ venturesData }: VenturesProps) {
                           />
                         </div>
                       </>
-                    ) : (venture.iconUrl || venture.iconUrlDark) ? (
+                    ) : venture.iconUrl || venture.iconUrlDark ? (
                       <Image
                         src={(venture.iconUrl || venture.iconUrlDark)!}
                         alt={venture.name}
@@ -115,9 +113,7 @@ export function Ventures({ venturesData }: VenturesProps) {
 
                   {/* Founded year */}
                   {venture.foundedYear && (
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      Est. {venture.foundedYear}
-                    </p>
+                    <p className="text-muted-foreground mt-1 text-xs">Est. {venture.foundedYear}</p>
                   )}
                 </div>
               </motion.div>
@@ -125,12 +121,7 @@ export function Ventures({ venturesData }: VenturesProps) {
 
             if (venture.url) {
               return (
-                <a
-                  key={venture.name}
-                  href={venture.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a key={venture.name} href={venture.url} target="_blank" rel="noopener noreferrer">
                   {CardContent}
                 </a>
               )

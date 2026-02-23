@@ -201,11 +201,7 @@ export function ExperienceForm({ data }: ExperienceFormProps) {
                   <FormItem>
                     <FormLabel>Via Company</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="e.g. LucidCo Inc."
-                        {...field}
-                        value={field.value ?? ""}
-                      />
+                      <Input placeholder="e.g. LucidCo Inc." {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormDescription>The company you contracted through</FormDescription>
                     <FormMessage />

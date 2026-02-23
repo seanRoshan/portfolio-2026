@@ -51,9 +51,9 @@ I’ve searched extensively among resume generator sites, and most do not satisf
 
 This resume site was founded by a group of techies working together at a SF startup. They used the MVP of the product to apply for jobs, and got offers from Dropbox and Metalab. In building the early version of Standard Resume, they wanted to solve for problems that no other resume generator on the market had an answer for:
 
--   **Generate both a web resume and a pdf one**. Sending over a PDF can be a hassle, especially when you are reaching out on LinkedIn. Standard Resume was built so you can send a link that renders your resume with the same layout as the PDF.
--   **Track views of your (web) resume**. How can you tell if someone has read your resume? By tracking if they visited the link you sent over.
--   **Import your details from LinkedIn** to your resume to make it quicker to build your CV.
+- **Generate both a web resume and a pdf one**. Sending over a PDF can be a hassle, especially when you are reaching out on LinkedIn. Standard Resume was built so you can send a link that renders your resume with the same layout as the PDF.
+- **Track views of your (web) resume**. How can you tell if someone has read your resume? By tracking if they visited the link you sent over.
+- **Import your details from LinkedIn** to your resume to make it quicker to build your CV.
 
 I recommend using either [Standard Resume](http://pragmaticurl.com/standardresume-ttr), or one of the templates below to build your resume. While Standard Resume is a paid subscription, the biggest benefits of it are these:
 
@@ -70,31 +70,31 @@ Resume templates from Standard Resume. Note that all but one follow the top-down
 
 <table class="inside-out"><tbody><tr><td><p><strong>From the inside out: lessons learned from the founders of Standard Resume</strong></p><p>Riley Tomasek is a software engineer and a cofounder of Standard Resume. After users have created more than 100,000 resumes - much of this for software developers - he shares lessons he’s learned about what makes for a good resume in tech:</p><p><em><strong>“One of the most common mistakes is cramming a ton of content into a single page.</strong> This is the number one issue I see with software engineering resumes. Removing the whitespace between paragraphs and sections makes your resume harder to scan and read. So do tiny font sizes.</em></p><p><em><strong>The most important part of a resume is that it's easy to read.</strong> If the recruiter skips your resume because it's hard to read, nothing else—including the contents of your resume—matters. Either focus on the critical parts or make it two pages.</em></p><p><em><strong>Resume typography is particularly important</strong> when applying for jobs in tech, especially for design-heavy companies. Since resumes are mostly text, typography is responsible for a large part of your resume's first impression. Take the time to get the correct line length, font sizes, line heights, etc. — or let professionals handle it.”</em></p></td></tr></tbody></table>
 
-I came across Standard Resume while researching resume generator sites. I was about to close with the recommendation of *not* recommending any resume generators for tech resumes. However, the clean approach Standard Resume takes, and the easy to read templates made me change my mind. I reached out to the team, offering feedback on the resume templates, and listed things I missed from the existing ones. We collaborated and helped them create the Parker and Venables themes based on my existing resume templates. These two themes are ones that I would recommend for software engineers - and we’ll review them in this chapter.
+I came across Standard Resume while researching resume generator sites. I was about to close with the recommendation of _not_ recommending any resume generators for tech resumes. However, the clean approach Standard Resume takes, and the easy to read templates made me change my mind. I reached out to the team, offering feedback on the resume templates, and listed things I missed from the existing ones. We collaborated and helped them create the Parker and Venables themes based on my existing resume templates. These two themes are ones that I would recommend for software engineers - and we’ll review them in this chapter.
 
 ## Template Reviews
 
 In the second half of the chapter, we’ll review both resume templates created for the book, as well as popular resume templates. The reviews all follow this format:
 
--   **Link** to the template or site that provides the template.
--   **Rating for software developers**: assessment on how well the template follows principles for good developer templates.
--   **The good**: positive highlights on the resume format. Even if you don’t use the template, you could take inspiration from the good parts.
--   **The bad**: characteristics that could be a disadvantage when working with the template.
--   **Ways to improve it:** ideas and suggestions on either improving or customizing the template.
+- **Link** to the template or site that provides the template.
+- **Rating for software developers**: assessment on how well the template follows principles for good developer templates.
+- **The good**: positive highlights on the resume format. Even if you don’t use the template, you could take inspiration from the good parts.
+- **The bad**: characteristics that could be a disadvantage when working with the template.
+- **Ways to improve it:** ideas and suggestions on either improving or customizing the template.
 
-Keep in mind that as most of these templates are popular, people likely had success with all of them, with the right content when applying for a position where they were a match for. The *content* of your resume is more important than the template itself.
+Keep in mind that as most of these templates are popular, people likely had success with all of them, with the right content when applying for a position where they were a match for. The _content_ of your resume is more important than the template itself.
 
 ## Recommended Resume Templates
 
 The following resume templates are all solid—and proven—choices for software engineers and engineering managers:
 
--   The Pragmatic Engineer’s resume template
--   Standard Resume: Parker template
--   The Mono Engineers’ resume template
--   Markdown to PDF resume template
--   The Experienced Engineer’s resume template
--   Standard Resume: Venables template
--   CareerCup resume template
+- The Pragmatic Engineer’s resume template
+- Standard Resume: Parker template
+- The Mono Engineers’ resume template
+- Markdown to PDF resume template
+- The Experienced Engineer’s resume template
+- Standard Resume: Venables template
+- CareerCup resume template
 
 Let’s take a closer look at each of them.
 
@@ -144,14 +144,14 @@ The CareerCup resume template is common to see used both for Silicon Valley soft
 
 There are other resume templates that are not great choices for a developer or engineering manager resume for different reasons. We’ll look at the ones that I’ve seen most frequently used by people:
 
--   Google Docs: Serif resume template
--   Google Docs: Swiss resume template
--   Canva resume templates
--   Resume.io: software engineer template
--   Resume.io: web developer template with skill points
--   VisualCV: Standard template
--   EnhanCV: software engineer template
--   Europass CV
+- Google Docs: Serif resume template
+- Google Docs: Swiss resume template
+- Canva resume templates
+- Resume.io: software engineer template
+- Resume.io: web developer template with skill points
+- VisualCV: Standard template
+- EnhanCV: software engineer template
+- Europass CV
 
 Although I hesitate to recommend these templates, they could work well enough when addressing their drawbacks, or for certain use cases. Don’t forget that the resume contents matter more than the template itself.
 
@@ -207,7 +207,7 @@ I do not recommend the EnhanCV [Software Engineer resume](https://enhancv.com/re
 
 **EuroPass CV**
 
-Avoid this CV template in applying for tech jobs. The biggest sin of this format is encouraging adding all the details that lead to biases: photos, birth dates, gender, and so on. The Europass format is also *not* required to apply to jobs in Europe—contrary to what some people incorrectly assume.
+Avoid this CV template in applying for tech jobs. The biggest sin of this format is encouraging adding all the details that lead to biases: photos, birth dates, gender, and so on. The Europass format is also _not_ required to apply to jobs in Europe—contrary to what some people incorrectly assume.
 
 **Every tech recruiter I’ve spoken with advised to not use this format** - and I advise the same. The Europass format was created by a working group within the European Commission. Though I could not confirm this officially, several recruiters mentioned hearing that there was no recruiter, HR specialist or job seeker in this committee.
 

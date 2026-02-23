@@ -1,18 +1,22 @@
 # AI-Powered Resume Tailoring — Design
 
 ## Problem
+
 The resume builder requires manual re-entry of all career data (experience, skills, education, etc.) that already exists in the portfolio database. This is tedious and defeats the purpose of having a centralized data source.
 
 ## Solution
+
 AI-powered "Tailor for a Job" flow: paste a job description, AI drafts a complete tailored resume from existing portfolio data, then the user reviews and edits.
 
 ## Create Resume Dialog (Redesigned)
 
 ### Step 1 — Choose mode
+
 - **"Tailor for a Job"** (primary, default) — large card with AI icon
 - **"Start from Scratch"** — secondary option, current empty-resume behavior
 
 ### Step 2 — Job Description input (Tailor mode only)
+
 - Resume title field (auto-suggested from JD company/role)
 - Experience level selector
 - Large textarea for pasting the full JD
@@ -21,7 +25,9 @@ AI-powered "Tailor for a Job" flow: paste a job description, AI drafts a complet
 ## Generation Pipeline
 
 ### Data Collection
+
 Fetch ALL portfolio data in parallel:
+
 - `hero_section` → name
 - `about_section` → bio (for summary basis)
 - `site_settings` → contact email, social links
@@ -33,9 +39,11 @@ Fetch ALL portfolio data in parallel:
 - `ventures` → all published (map to extracurriculars)
 
 ### AI Call
+
 Single Claude API call (`claude-sonnet-4-5`, ~4096 max tokens):
 
 **System prompt** instructs the AI to:
+
 - Analyze the JD for required skills, experience level, and key requirements
 - Select the most relevant entries from each portfolio section
 - Rewrite experience bullets using XYZ formula targeting the JD
@@ -47,6 +55,7 @@ Single Claude API call (`claude-sonnet-4-5`, ~4096 max tokens):
 - Return structured JSON matching the resume builder schema
 
 **Response format** (JSON):
+
 ```json
 {
   "suggested_title": "Senior Backend Engineer — Acme Corp",
@@ -63,7 +72,9 @@ Single Claude API call (`claude-sonnet-4-5`, ~4096 max tokens):
 ```
 
 ### Database Population
+
 After AI response, insert all records into resume_builder tables:
+
 1. Create resume record with suggested template
 2. Insert contact_info, summary, settings
 3. Insert work_experiences + their achievements
@@ -73,23 +84,28 @@ After AI response, insert all records into resume_builder tables:
 ## Editor Improvements
 
 ### Label spacing fix
+
 Add `space-y-2` to all Label+Input wrapper divs across all section editors (ContactInfoSection, WorkExperienceSection, etc.) — same pattern as the create dialog fix.
 
 ### Post-generation editing
+
 All AI-generated content is fully editable in the existing section editors. No special "locked" or "AI-only" states — the user owns the content immediately.
 
 ## Files to Create/Modify
 
 ### New files
+
 - `src/lib/resume-builder/ai/tailor-resume.ts` — AI prompt + response parsing for tailoring
 - `src/app/admin/resume-builder/actions.ts` — new `generateTailoredResume` server action
 - `src/app/admin/resume-builder/resume-list.tsx` — redesigned create dialog
 
 ### Modified files
+
 - `src/components/resume-builder/editor/sections/*.tsx` — label spacing fixes
 - `src/lib/resume-builder/queries.ts` — new query to fetch all portfolio data for AI
 
 ## Error Handling
+
 - AI API unavailable: show error, offer "Start from Scratch" fallback
 - Partial AI response: populate what's available, leave rest empty for manual entry
 - JD too short: validate minimum length before sending to AI

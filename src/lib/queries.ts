@@ -268,7 +268,20 @@ export async function getSkillsData() {
 function formatDate(d: string) {
   // Parse YYYY-MM-DD directly to avoid timezone shift (UTC midnight → local previous day)
   const [year, month] = d.split("-").map(Number)
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ]
   return `${months[month - 1]} ${year}`
 }
 

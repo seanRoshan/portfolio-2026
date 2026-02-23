@@ -1,11 +1,8 @@
-import { getResumes, getTemplates } from '@/lib/resume-builder/queries'
-import { ResumeList } from './resume-list'
+import { getResumes, getTemplates } from "@/lib/resume-builder/queries"
+import { ResumeList } from "./resume-list"
 
 export default async function ResumeBuilderPage() {
-  const [resumes, templates] = await Promise.all([
-    getResumes(),
-    getTemplates(),
-  ])
+  const [resumes, templates] = await Promise.all([getResumes(), getTemplates()])
 
   return (
     <div className="p-4 md:p-6">

@@ -38,6 +38,7 @@ Layer 6: PDF (Puppeteer pipeline)
 ### File: `src/lib/resume-builder/ai/portfolio-data.ts`
 
 ### Current Gaps
+
 - `resume_achievements` field on experience table is ignored (curated bullets for resume)
 - `employment_type`, `via_company` not included (contract vs direct not distinguished)
 - Project `highlights` (JSONB {metric, value}), `project_role`, `long_description` not fetched
@@ -49,6 +50,7 @@ Layer 6: PDF (Puppeteer pipeline)
 ### Fix
 
 **Enhanced PortfolioData interface:**
+
 ```typescript
 export interface PortfolioData {
   // Contact (unchanged)
@@ -70,9 +72,9 @@ export interface PortfolioData {
     start_date: string
     end_date: string | null
     achievements: string[]
-    resume_achievements: string[] | null  // NEW: curated subset
-    employment_type: string               // NEW: direct/contract/freelance
-    via_company: string | null            // NEW: contracting company
+    resume_achievements: string[] | null // NEW: curated subset
+    employment_type: string // NEW: direct/contract/freelance
+    via_company: string | null // NEW: contracting company
   }>
 
   // Enhanced skills (unchanged shape, but filtered by show_on_resume)
@@ -84,7 +86,7 @@ export interface PortfolioData {
     degree: string
     field: string | null
     year: string | null
-    details: string | null  // NEW: GPA, honors, coursework
+    details: string | null // NEW: GPA, honors, coursework
   }>
 
   certifications: Array<{
@@ -97,13 +99,13 @@ export interface PortfolioData {
   projects: Array<{
     title: string
     short_description: string
-    long_description: string | null       // NEW
+    long_description: string | null // NEW
     tech_stack: string[]
     live_url: string | null
     github_url: string | null
     highlights: { metric: string; value: string }[]
-    project_role: string | null           // NEW: specific contribution
-    related_experience_ids: string[]      // NEW: from junction table
+    project_role: string | null // NEW: specific contribution
+    related_experience_ids: string[] // NEW: from junction table
   }>
 
   ventures: Array<{
@@ -117,6 +119,7 @@ export interface PortfolioData {
 ```
 
 **Key changes:**
+
 1. Add `resume_achievements`, `employment_type`, `via_company` to experience SELECT
 2. Add `long_description`, `project_role` to projects SELECT
 3. Add `details` to education SELECT
@@ -142,6 +145,7 @@ Output format: Markdown document with all sections, including metadata (employme
 ### File: `src/lib/resume-builder/ai/tailor-resume.ts`
 
 ### Current Issues
+
 - `max_tokens: 16384` causes output truncation for large portfolios
 - AI silently drops experiences (warns in console but doesn't fix)
 - No completeness validation after AI response
@@ -152,12 +156,14 @@ Output format: Markdown document with all sections, including metadata (employme
 
 1. **Increase max_tokens to 32,768**
 2. **Add post-generation completeness check:**
+
    ```typescript
    function validateAndFillGaps(
      aiOutput: TailoredResumeData,
-     portfolio: PortfolioData
+     portfolio: PortfolioData,
    ): TailoredResumeData
    ```
+
    - Compare AI experience count vs portfolio count
    - For any missing experience, insert it with `resume_achievements ?? achievements`
    - For experiences with 0 bullets, insert original bullets
@@ -193,32 +199,34 @@ Output format: Markdown document with all sections, including metadata (employme
 
 ### Scoring Dimensions (from docs/resume builder/ guide)
 
-| Dimension | Weight | Criteria |
-|-----------|--------|----------|
-| Content Completeness | 20% | All sections populated, 3-5 bullets per experience, summary present |
-| Metric Coverage | 20% | % of bullets containing quantifiable metrics (numbers, percentages) |
-| Action Verb Quality | 15% | Strong verbs (Led, Built, Designed) vs weak (Worked on, Responsible for) |
-| ATS Keyword Match | 15% | JD keyword density in resume (requires JD context) |
-| Length Appropriateness | 10% | Page count matches experience level (1 page for <5yr, 2 for 5-15yr) |
-| Buzzword-Free | 10% | No cliches, filler, or passive voice |
-| Formatting Quality | 10% | Consistent dates, no orphan sections, balanced page fill |
+| Dimension              | Weight | Criteria                                                                 |
+| ---------------------- | ------ | ------------------------------------------------------------------------ |
+| Content Completeness   | 20%    | All sections populated, 3-5 bullets per experience, summary present      |
+| Metric Coverage        | 20%    | % of bullets containing quantifiable metrics (numbers, percentages)      |
+| Action Verb Quality    | 15%    | Strong verbs (Led, Built, Designed) vs weak (Worked on, Responsible for) |
+| ATS Keyword Match      | 15%    | JD keyword density in resume (requires JD context)                       |
+| Length Appropriateness | 10%    | Page count matches experience level (1 page for <5yr, 2 for 5-15yr)      |
+| Buzzword-Free          | 10%    | No cliches, filler, or passive voice                                     |
+| Formatting Quality     | 10%    | Consistent dates, no orphan sections, balanced page fill                 |
 
 ### Output Interface
+
 ```typescript
 export interface ResumeScore {
-  overall: number  // 0-100
+  overall: number // 0-100
   dimensions: {
     name: string
-    score: number  // 0-100
+    score: number // 0-100
     weight: number
-    feedback: string  // e.g., "3 of 8 bullets lack metrics"
+    feedback: string // e.g., "3 of 8 bullets lack metrics"
     suggestions: string[]
   }[]
-  grade: 'A' | 'B' | 'C' | 'D' | 'F'
+  grade: "A" | "B" | "C" | "D" | "F"
 }
 ```
 
 ### UI Integration
+
 - Score badge in ResumeEditor toolbar (colored by grade)
 - Expandable scorecard in settings sidebar
 - Per-dimension feedback with actionable suggestions
@@ -231,11 +239,13 @@ export interface ResumeScore {
 ### Files: All 6 template components + `generate-html.ts`
 
 ### Current Issue
+
 Templates use hardcoded colors, fonts, and spacing. Settings panel changes have no effect.
 
 ### Fix: Wire Settings to Templates
 
 **Font family mapping:**
+
 ```typescript
 const FONT_MAP = {
   inter: '"Inter", sans-serif',
@@ -248,15 +258,29 @@ const FONT_MAP = {
 ```
 
 **Density/font size presets:**
+
 ```typescript
 const DENSITY_MAP = {
-  compact:     { body: '9px',  heading: '11px', section: '13px', lineHeight: '1.3', sectionGap: '8px' },
-  comfortable: { body: '10px', heading: '12px', section: '14px', lineHeight: '1.4', sectionGap: '12px' },
-  spacious:    { body: '11px', heading: '13px', section: '15px', lineHeight: '1.5', sectionGap: '16px' },
+  compact: { body: "9px", heading: "11px", section: "13px", lineHeight: "1.3", sectionGap: "8px" },
+  comfortable: {
+    body: "10px",
+    heading: "12px",
+    section: "14px",
+    lineHeight: "1.4",
+    sectionGap: "12px",
+  },
+  spacious: {
+    body: "11px",
+    heading: "13px",
+    section: "15px",
+    lineHeight: "1.5",
+    sectionGap: "16px",
+  },
 }
 ```
 
 **Changes per template:**
+
 1. Replace hardcoded `color: '#...'` with `settings.accent_color` where applicable
 2. Replace hardcoded font-family with `FONT_MAP[settings.font_family]`
 3. Replace hardcoded font sizes with `DENSITY_MAP[settings.font_size_preset]`
@@ -271,6 +295,7 @@ const DENSITY_MAP = {
 ### Files: `ResumeEditor.tsx`, `SettingsPanel.tsx`, section components
 
 ### 5.1 Section Drag-and-Drop Reordering
+
 - Use `@dnd-kit` (already in deps) in `ResumeEditor.tsx`
 - Wrap section list in `DndContext` + `SortableContext`
 - Each `EditorSection` becomes draggable
@@ -278,20 +303,24 @@ const DENSITY_MAP = {
 - Preview updates in real-time
 
 ### 5.2 Section Visibility Controls
+
 - Add toggle switch per section in `SettingsPanel.tsx`
 - Maps to `resume_settings.hidden_sections`
 - Hidden sections show as dimmed/collapsed in editor
 - Hidden sections don't render in preview or PDF
 
 ### 5.3 Delete Confirmations
+
 - Add `AlertDialog` (shadcn/ui) before all destructive actions
 - Work experience delete, education delete, skill category delete, etc.
 
 ### 5.4 Auto-Save Indicator
+
 - Add save status to editor toolbar: "All changes saved" / "Saving..." / "Unsaved changes"
 - Use `useTransition` isPending state to show status
 
 ### 5.5 Mobile Preview
+
 - Add full-screen preview sheet on mobile (triggered by preview button)
 - Uses same `ResumePreviewPane` component in a `Sheet` (shadcn/ui)
 
@@ -304,16 +333,25 @@ const DENSITY_MAP = {
 ### Fixes
 
 1. **Page break control:**
+
    ```css
-   .resume-section { page-break-inside: avoid; }
-   .experience-entry { page-break-inside: avoid; }
+   .resume-section {
+     page-break-inside: avoid;
+   }
+   .experience-entry {
+     page-break-inside: avoid;
+   }
    ```
 
 2. **Self-hosted fonts:** Embed font data as base64 `@font-face` instead of Google Fonts CDN link. Prevents Puppeteer timeout on font loading.
 
 3. **Two-column layout fix:** Replace `display: flex` with CSS Grid for Parker and Experienced templates:
+
    ```css
-   .two-column { display: grid; grid-template-columns: 30% 70%; }
+   .two-column {
+     display: grid;
+     grid-template-columns: 30% 70%;
+   }
    ```
 
 4. **Page count indicator:** Add hidden element that Puppeteer reads to report actual page count.
@@ -325,6 +363,7 @@ const DENSITY_MAP = {
 ### Existing: `/resume` tab already displays resume data
 
 ### Enhancement:
+
 - Add template preview selector (visual grid of 6 templates)
 - Add section visibility checkboxes
 - Preview resume with selected template before PDF download
@@ -337,6 +376,7 @@ const DENSITY_MAP = {
 ### Post-build validation against `docs/resume builder/` guide
 
 Run automated checks:
+
 1. XYZ formula compliance for achievement bullets
 2. No cliches/buzzwords (from validation rules)
 3. Length appropriate for experience level
@@ -367,10 +407,12 @@ The implementation will be tracked as GitHub issues:
 ## Files Changed
 
 ### New Files
+
 - `src/lib/resume-builder/ai/generate-source-file.ts`
 - `src/lib/resume-builder/scoring/score-resume.ts`
 
 ### Modified Files
+
 - `src/lib/resume-builder/ai/portfolio-data.ts`
 - `src/lib/resume-builder/ai/tailor-resume.ts`
 - `src/app/admin/resume-builder/actions.ts`

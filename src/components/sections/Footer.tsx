@@ -50,7 +50,14 @@ const defaultSiteConfig: NonNullable<FooterProps["siteConfig"]> = {
   linkedinUrl: "",
   githubUrl: "",
   portfolioUrl: "",
-  visibility: { email: true, phone: false, location: true, linkedin: true, github: true, portfolio: true },
+  visibility: {
+    email: true,
+    phone: false,
+    location: true,
+    linkedin: true,
+    github: true,
+    portfolio: true,
+  },
   linkAnimations: { header: "underline-slide", footer: "underline-slide" },
 }
 
@@ -122,7 +129,11 @@ export function Footer({ siteConfig: siteConfigProp, navLinks, venturesData = []
               </p>
               <nav className="flex flex-col gap-2.5">
                 {navLinks.slice(0, 3).map((link) => (
-                  <FooterNavLink key={link.href} link={link} animation={siteConfig.linkAnimations.footer} />
+                  <FooterNavLink
+                    key={link.href}
+                    link={link}
+                    animation={siteConfig.linkAnimations.footer}
+                  />
                 ))}
               </nav>
             </div>
@@ -132,7 +143,11 @@ export function Footer({ siteConfig: siteConfigProp, navLinks, venturesData = []
               </p>
               <nav className="flex flex-col gap-2.5">
                 {navLinks.slice(3).map((link) => (
-                  <FooterNavLink key={link.href} link={link} animation={siteConfig.linkAnimations.footer} />
+                  <FooterNavLink
+                    key={link.href}
+                    link={link}
+                    animation={siteConfig.linkAnimations.footer}
+                  />
                 ))}
               </nav>
             </div>
@@ -174,10 +189,7 @@ export function Footer({ siteConfig: siteConfigProp, navLinks, venturesData = []
                         {v.name}
                       </AnimatedLink>
                     ) : (
-                      <span
-                        key={v.name}
-                        className="text-muted-foreground text-sm"
-                      >
+                      <span key={v.name} className="text-muted-foreground text-sm">
                         {v.name}
                       </span>
                     ),

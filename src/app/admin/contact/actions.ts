@@ -7,18 +7,33 @@ import { z } from "zod"
 
 const contactInfoSchema = z.object({
   // Identity
-  full_name: z.string().optional().transform((v) => v?.trim() || null),
+  full_name: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
   contact_email: z
     .string()
     .email()
     .nullable()
     .or(z.literal(""))
     .transform((v) => v || null),
-  phone: z.string().optional().transform((v) => v?.trim() || null),
+  phone: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
   // Location
-  city: z.string().optional().transform((v) => v?.trim() || null),
-  state: z.string().optional().transform((v) => v?.trim() || null),
-  country: z.string().optional().transform((v) => v?.trim() || null),
+  city: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
+  state: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
+  country: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
   // Settings
   contact_form_enabled: z.boolean(),
   social_links: z.record(z.string(), z.string()),
@@ -30,7 +45,10 @@ const contactInfoSchema = z.object({
   landing_show_github: z.boolean().optional().default(true),
   landing_show_portfolio: z.boolean().optional().default(true),
   // Availability
-  availability_text: z.string().optional().transform((v) => v?.trim() || null),
+  availability_text: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
   landing_show_availability: z.boolean().optional().default(false),
 })
 
@@ -44,10 +62,7 @@ export async function updateContactInfo(data: ContactInfoFormValues) {
   const { data: current } = await supabase.from("site_settings").select("id").single()
   if (!current) return { error: "Site settings not found" }
 
-  const { error } = await supabase
-    .from("site_settings")
-    .update(validated)
-    .eq("id", current.id)
+  const { error } = await supabase.from("site_settings").update(validated).eq("id", current.id)
 
   if (error) return { error: error.message }
 

@@ -1,9 +1,9 @@
-'use server'
+"use server"
 
-import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
-import { jobApplicationSchema } from '@/lib/schemas/resume-builder'
-import type { ApplicationStatus } from '@/types/resume-builder'
+import { createClient } from "@/lib/supabase/server"
+import { revalidatePath } from "next/cache"
+import { jobApplicationSchema } from "@/lib/schemas/resume-builder"
+import type { ApplicationStatus } from "@/types/resume-builder"
 
 export async function createApplication(formData: {
   company: string
@@ -16,14 +16,14 @@ export async function createApplication(formData: {
   salary_max?: number | null
   salary_currency?: string
   location?: string
-  remote_type?: 'remote' | 'hybrid' | 'onsite' | null
+  remote_type?: "remote" | "hybrid" | "onsite" | null
   contact_name?: string
   contact_email?: string
   resume_id?: string | null
 }) {
   const parsed = jobApplicationSchema.safeParse(formData)
   if (!parsed.success) {
-    throw new Error(parsed.error.issues.map((i) => i.message).join(', '))
+    throw new Error(parsed.error.issues.map((i) => i.message).join(", "))
   }
 
   const supabase = await createClient()
@@ -35,8 +35,8 @@ export async function createApplication(formData: {
     user_id: user?.id,
     company: parsed.data.company,
     position: parsed.data.position,
-    status: parsed.data.status ?? 'saved',
-    salary_currency: parsed.data.salary_currency ?? 'USD',
+    status: parsed.data.status ?? "saved",
+    salary_currency: parsed.data.salary_currency ?? "USD",
   }
 
   if (parsed.data.url) insertData.url = parsed.data.url
@@ -50,12 +50,10 @@ export async function createApplication(formData: {
   if (parsed.data.contact_email) insertData.contact_email = parsed.data.contact_email
   if (parsed.data.resume_id) insertData.resume_id = parsed.data.resume_id
 
-  const { error } = await supabase
-    .from('job_applications')
-    .insert(insertData)
+  const { error } = await supabase.from("job_applications").insert(insertData)
 
   if (error) throw new Error(error.message)
-  revalidatePath('/admin/resume-builder/applications')
+  revalidatePath("/admin/resume-builder/applications")
 }
 
 export async function updateApplication(
@@ -72,61 +70,49 @@ export async function updateApplication(
     salary_max?: number | null
     salary_currency?: string
     location?: string | null
-    remote_type?: 'remote' | 'hybrid' | 'onsite' | null
+    remote_type?: "remote" | "hybrid" | "onsite" | null
     contact_name?: string | null
     contact_email?: string | null
     resume_id?: string | null
-  }
+  },
 ) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('job_applications')
-    .update(data)
-    .eq('id', id)
+  const { error } = await supabase.from("job_applications").update(data).eq("id", id)
 
   if (error) throw new Error(error.message)
-  revalidatePath('/admin/resume-builder/applications')
+  revalidatePath("/admin/resume-builder/applications")
   revalidatePath(`/admin/resume-builder/applications/${id}`)
 }
 
-export async function updateApplicationStatus(
-  id: string,
-  status: ApplicationStatus
-) {
+export async function updateApplicationStatus(id: string, status: ApplicationStatus) {
   const supabase = await createClient()
 
   const updateData: Record<string, unknown> = { status }
 
   // Auto-set response_date when moving to a response status
-  if (['phone_screen', 'technical', 'onsite', 'offer', 'accepted', 'rejected'].includes(status)) {
+  if (["phone_screen", "technical", "onsite", "offer", "accepted", "rejected"].includes(status)) {
     const { data: existing } = await supabase
-      .from('job_applications')
-      .select('response_date')
-      .eq('id', id)
+      .from("job_applications")
+      .select("response_date")
+      .eq("id", id)
       .single()
 
     if (existing && !existing.response_date) {
-      updateData.response_date = new Date().toISOString().split('T')[0]
+      updateData.response_date = new Date().toISOString().split("T")[0]
     }
   }
 
-  const { error } = await supabase
-    .from('job_applications')
-    .update(updateData)
-    .eq('id', id)
+  const { error } = await supabase.from("job_applications").update(updateData).eq("id", id)
 
   if (error) throw new Error(error.message)
-  revalidatePath('/admin/resume-builder/applications')
+  revalidatePath("/admin/resume-builder/applications")
   revalidatePath(`/admin/resume-builder/applications/${id}`)
 }
 
 export async function deleteApplication(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('job_applications')
-    .delete()
-    .eq('id', id)
+  const { error } = await supabase.from("job_applications").delete().eq("id", id)
 
   if (error) throw new Error(error.message)
-  revalidatePath('/admin/resume-builder/applications')
+  revalidatePath("/admin/resume-builder/applications")
 }

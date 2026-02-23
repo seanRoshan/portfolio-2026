@@ -1,42 +1,42 @@
-import { getAnthropicClient } from './client'
+import { getAnthropicClient } from "./client"
 import type {
   AIRewriteResponse,
   ResumeScore,
   ResumeScoreDimension,
   JDMatchResult,
   ResumeWithRelations,
-} from '@/types/resume-builder'
+} from "@/types/resume-builder"
 import {
   BUZZWORDS as CAREER_COACH_BUZZWORDS,
   WEAK_VERBS as CAREER_COACH_WEAK_VERBS,
   STRONG_VERBS as CAREER_COACH_STRONG_VERBS,
   hasMetricInText,
-} from '@/lib/resume-builder/validation/rules'
+} from "@/lib/resume-builder/validation/rules"
 
 async function callClaude(
   systemPrompt: string,
   userMessage: string,
-  maxTokens: number = 2048
+  maxTokens: number = 2048,
 ): Promise<string> {
   const client = getAnthropicClient()
-  if (!client) throw new Error('AI not available: ANTHROPIC_API_KEY not set')
+  if (!client) throw new Error("AI not available: ANTHROPIC_API_KEY not set")
 
   const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
+    model: "claude-sonnet-4-6",
     max_tokens: maxTokens,
     system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
+    messages: [{ role: "user", content: userMessage }],
   })
 
-  const textBlock = response.content.find((b) => b.type === 'text')
-  return textBlock?.text ?? ''
+  const textBlock = response.content.find((b) => b.type === "text")
+  return textBlock?.text ?? ""
 }
 
 // ===== Bullet Point Rewriter =====
 export async function rewriteBullet(
   bullet: string,
   jobTitle: string,
-  company: string
+  company: string,
 ): Promise<AIRewriteResponse> {
   const system = `You are a resume writing expert. Rewrite resume bullet points to follow the XYZ formula:
 "Accomplished [X impact] as measured by [Y metric] by doing [Z action]"
@@ -52,7 +52,7 @@ Respond in JSON format: { "rewritten": "...", "improvements": ["..."] }`
 
   const result = await callClaude(
     system,
-    `Original bullet: "${bullet}"\nRole: ${jobTitle} at ${company}\n\nRewrite this bullet point.`
+    `Original bullet: "${bullet}"\nRole: ${jobTitle} at ${company}\n\nRewrite this bullet point.`,
   )
 
   try {
@@ -67,14 +67,14 @@ Respond in JSON format: { "rewritten": "...", "improvements": ["..."] }`
     return {
       original: bullet,
       rewritten: result.trim(),
-      improvements: ['Rewritten using XYZ formula'],
+      improvements: ["Rewritten using XYZ formula"],
     }
   }
 }
 
 // ===== Cliche Detector =====
 export async function detectCliches(
-  text: string
+  text: string,
 ): Promise<{ cliches: Array<{ phrase: string; suggestion: string }> }> {
   const system = `You are a resume writing expert. Detect clichés, buzzwords, and weak language in resume text.
 For each issue found, suggest a specific, actionable alternative.
@@ -83,7 +83,7 @@ Respond in JSON: { "cliches": [{ "phrase": "found phrase", "suggestion": "do thi
 
   const result = await callClaude(
     system,
-    `Analyze this resume text for clichés and buzzwords:\n\n"${text}"`
+    `Analyze this resume text for clichés and buzzwords:\n\n"${text}"`,
   )
 
   try {
@@ -96,7 +96,7 @@ Respond in JSON: { "cliches": [{ "phrase": "found phrase", "suggestion": "do thi
 // ===== Summary Generator =====
 export async function generateSummary(
   resume: ResumeWithRelations,
-  targetJobDescription?: string
+  targetJobDescription?: string,
 ): Promise<string> {
   const system = `You are a resume writing expert. Generate a professional summary (2-3 sentences max) for a tech professional.
 The summary should:
@@ -108,15 +108,18 @@ The summary should:
 
 Respond with ONLY the summary text, no quotes or formatting.`
 
-  const experienceYears = resume.work_experiences.length > 0
-    ? Math.max(
-        ...resume.work_experiences.map((e) => {
-          const start = e.start_date ? new Date(e.start_date).getFullYear() : new Date().getFullYear()
-          const end = e.end_date ? new Date(e.end_date).getFullYear() : new Date().getFullYear()
-          return end - start
-        })
-      )
-    : 0
+  const experienceYears =
+    resume.work_experiences.length > 0
+      ? Math.max(
+          ...resume.work_experiences.map((e) => {
+            const start = e.start_date
+              ? new Date(e.start_date).getFullYear()
+              : new Date().getFullYear()
+            const end = e.end_date ? new Date(e.end_date).getFullYear() : new Date().getFullYear()
+            return end - start
+          }),
+        )
+      : 0
 
   const allSkills = resume.skill_categories.flatMap((c) => c.skills)
   const companies = resume.work_experiences.map((e) => e.company).filter(Boolean)
@@ -124,11 +127,11 @@ Respond with ONLY the summary text, no quotes or formatting.`
 
   let userMsg = `Generate a professional summary for:
 - Name: ${resume.contact_info?.full_name}
-- Experience Level: ${resume.experience_level ?? 'mid'}
+- Experience Level: ${resume.experience_level ?? "mid"}
 - Approximate years: ${experienceYears}+
-- Key skills: ${allSkills.slice(0, 15).join(', ')}
-- Companies: ${companies.slice(0, 5).join(', ')}
-- Recent titles: ${titles.slice(0, 3).join(', ')}`
+- Key skills: ${allSkills.slice(0, 15).join(", ")}
+- Companies: ${companies.slice(0, 5).join(", ")}
+- Recent titles: ${titles.slice(0, 3).join(", ")}`
 
   if (targetJobDescription) {
     userMsg += `\n\nTarget job description:\n${targetJobDescription.slice(0, 1000)}`
@@ -144,17 +147,15 @@ Respond with ONLY the summary text, no quotes or formatting.`
 const BUZZWORDS = CAREER_COACH_BUZZWORDS
 const STRONG_ACTION_VERBS = CAREER_COACH_STRONG_VERBS
 
-function computeGrade(score: number): 'A' | 'B' | 'C' | 'D' | 'F' {
-  if (score >= 85) return 'A'
-  if (score >= 70) return 'B'
-  if (score >= 55) return 'C'
-  if (score >= 40) return 'D'
-  return 'F'
+function computeGrade(score: number): "A" | "B" | "C" | "D" | "F" {
+  if (score >= 85) return "A"
+  if (score >= 70) return "B"
+  if (score >= 55) return "C"
+  if (score >= 40) return "D"
+  return "F"
 }
 
-export function scoreResume(
-  resume: ResumeWithRelations
-): ResumeScore {
+export function scoreResume(resume: ResumeWithRelations): ResumeScore {
   const allBullets = [
     ...resume.work_experiences.flatMap((e) => e.achievements ?? []),
     ...resume.projects.flatMap((p) => p.achievements ?? []),
@@ -164,143 +165,149 @@ export function scoreResume(
 
   // === 1. Content Completeness (20%) ===
   const allSections = [
-    { name: 'Contact', filled: !!resume.contact_info?.full_name },
-    { name: 'Summary', filled: !!(resume.summary?.text && resume.summary.text.length > 0) },
-    { name: 'Experience', filled: resume.work_experiences.length > 0 },
-    { name: 'Education', filled: resume.education.length > 0 },
-    { name: 'Skills', filled: resume.skill_categories.length > 0 },
-    { name: 'Projects', filled: resume.projects.length > 0 },
-    { name: 'Certifications', filled: resume.certifications.length > 0 },
-    { name: 'Extracurriculars', filled: resume.extracurriculars.length > 0 },
+    { name: "Contact", filled: !!resume.contact_info?.full_name },
+    { name: "Summary", filled: !!(resume.summary?.text && resume.summary.text.length > 0) },
+    { name: "Experience", filled: resume.work_experiences.length > 0 },
+    { name: "Education", filled: resume.education.length > 0 },
+    { name: "Skills", filled: resume.skill_categories.length > 0 },
+    { name: "Projects", filled: resume.projects.length > 0 },
+    { name: "Certifications", filled: resume.certifications.length > 0 },
+    { name: "Extracurriculars", filled: resume.extracurriculars.length > 0 },
   ]
   const filledCount = allSections.filter((s) => s.filled).length
   const totalSections = allSections.length
 
   const experiencesWithFewBullets = resume.work_experiences.filter(
-    (e) => (e.achievements?.length ?? 0) < 3
+    (e) => (e.achievements?.length ?? 0) < 3,
   )
   const hasSummary = !!(resume.summary?.text && resume.summary.text.length >= 20)
 
   const completenessDeductions: string[] = []
-  if (!hasSummary) completenessDeductions.push('Summary is missing or too short')
+  if (!hasSummary) completenessDeductions.push("Summary is missing or too short")
   if (experiencesWithFewBullets.length > 0) {
     completenessDeductions.push(
-      `${experiencesWithFewBullets.length} experience${experiencesWithFewBullets.length > 1 ? 's' : ''} ha${experiencesWithFewBullets.length > 1 ? 've' : 's'} fewer than 3 bullets`
+      `${experiencesWithFewBullets.length} experience${experiencesWithFewBullets.length > 1 ? "s" : ""} ha${experiencesWithFewBullets.length > 1 ? "ve" : "s"} fewer than 3 bullets`,
     )
   }
 
   const completenessScore = Math.round(
     (filledCount / totalSections) * 70 +
-    (hasSummary ? 15 : 0) +
-    (experiencesWithFewBullets.length === 0 && resume.work_experiences.length > 0 ? 15 : 0)
+      (hasSummary ? 15 : 0) +
+      (experiencesWithFewBullets.length === 0 && resume.work_experiences.length > 0 ? 15 : 0),
   )
 
   dimensions.push({
-    name: 'Content Completeness',
+    name: "Content Completeness",
     score: Math.min(completenessScore, 100),
-    weight: 0.20,
+    weight: 0.2,
     feedback: `${filledCount} of ${totalSections} sections populated`,
     suggestions: completenessDeductions,
   })
 
   // === 2. Metric Coverage (20%) — uses XYZ formula check ===
-  const bulletsWithMetrics = allBullets.filter((b) =>
-    hasMetricInText(b.text)
-  ).length
-  const metricScore = totalBullets > 0
-    ? Math.round((bulletsWithMetrics / totalBullets) * 100)
-    : 0
+  const bulletsWithMetrics = allBullets.filter((b) => hasMetricInText(b.text)).length
+  const metricScore = totalBullets > 0 ? Math.round((bulletsWithMetrics / totalBullets) * 100) : 0
 
   const metricSuggestions: string[] = []
   if (totalBullets > 0 && bulletsWithMetrics < totalBullets) {
     const missing = totalBullets - bulletsWithMetrics
     metricSuggestions.push(
-      `${missing} bullet${missing > 1 ? 's lack' : ' lacks'} quantifiable metrics (XYZ formula: Accomplished [X] as measured by [Y] by doing [Z])`
+      `${missing} bullet${missing > 1 ? "s lack" : " lacks"} quantifiable metrics (XYZ formula: Accomplished [X] as measured by [Y] by doing [Z])`,
     )
   }
   if (totalBullets === 0) {
-    metricSuggestions.push('Add achievement bullets to your experiences and projects')
+    metricSuggestions.push("Add achievement bullets to your experiences and projects")
   }
 
   dimensions.push({
-    name: 'Metric Coverage',
+    name: "Metric Coverage",
     score: metricScore,
-    weight: 0.20,
+    weight: 0.2,
     feedback: `${bulletsWithMetrics} of ${totalBullets} bullets include quantifiable metrics`,
     suggestions: metricSuggestions,
   })
 
   // === 3. Action Verb Quality (15%) — enhanced with weak verb detection ===
   const bulletsWithStrongVerbs = allBullets.filter((b) => {
-    const firstWord = b.text.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '')
-    return STRONG_ACTION_VERBS.has(firstWord ?? '')
+    const firstWord = b.text
+      .trim()
+      .split(/\s+/)[0]
+      ?.toLowerCase()
+      .replace(/[^a-z]/g, "")
+    return STRONG_ACTION_VERBS.has(firstWord ?? "")
   }).length
   const bulletsWithWeakVerbs = allBullets.filter((b) => {
-    const firstWord = b.text.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '')
-    return CAREER_COACH_WEAK_VERBS.has(firstWord ?? '')
+    const firstWord = b.text
+      .trim()
+      .split(/\s+/)[0]
+      ?.toLowerCase()
+      .replace(/[^a-z]/g, "")
+    return CAREER_COACH_WEAK_VERBS.has(firstWord ?? "")
   }).length
   // Penalize weak verbs more heavily than just missing strong verbs
-  const verbScore = totalBullets > 0
-    ? Math.max(0, Math.round(
-        ((bulletsWithStrongVerbs / totalBullets) * 100) -
-        (bulletsWithWeakVerbs * 10)
-      ))
-    : 0
+  const verbScore =
+    totalBullets > 0
+      ? Math.max(
+          0,
+          Math.round((bulletsWithStrongVerbs / totalBullets) * 100 - bulletsWithWeakVerbs * 10),
+        )
+      : 0
 
   const verbSuggestions: string[] = []
   if (totalBullets > 0 && bulletsWithStrongVerbs < totalBullets) {
     const nonStrong = totalBullets - bulletsWithStrongVerbs
     verbSuggestions.push(
-      `${nonStrong} bullet${nonStrong > 1 ? 's' : ''} could start with stronger action verbs (Led, Built, Improved, etc.)`
+      `${nonStrong} bullet${nonStrong > 1 ? "s" : ""} could start with stronger action verbs (Led, Built, Improved, etc.)`,
     )
   }
   if (bulletsWithWeakVerbs > 0) {
     verbSuggestions.push(
-      `${bulletsWithWeakVerbs} bullet${bulletsWithWeakVerbs > 1 ? 's start' : ' starts'} with a weak verb (was, did, used, worked, helped). Replace with impactful verbs.`
+      `${bulletsWithWeakVerbs} bullet${bulletsWithWeakVerbs > 1 ? "s start" : " starts"} with a weak verb (was, did, used, worked, helped). Replace with impactful verbs.`,
     )
   }
 
   dimensions.push({
-    name: 'Action Verb Quality',
+    name: "Action Verb Quality",
     score: Math.min(verbScore, 100),
     weight: 0.15,
-    feedback: `${bulletsWithStrongVerbs} of ${totalBullets} bullets start with strong action verbs${bulletsWithWeakVerbs > 0 ? ` (${bulletsWithWeakVerbs} start with weak verbs)` : ''}`,
+    feedback: `${bulletsWithStrongVerbs} of ${totalBullets} bullets start with strong action verbs${bulletsWithWeakVerbs > 0 ? ` (${bulletsWithWeakVerbs} start with weak verbs)` : ""}`,
     suggestions: verbSuggestions,
   })
 
   // === 4. Buzzword-Free (15%) ===
-  const allText = [
-    resume.summary?.text ?? '',
-    ...allBullets.map((b) => b.text),
-  ].join(' ').toLowerCase()
+  const allText = [resume.summary?.text ?? "", ...allBullets.map((b) => b.text)]
+    .join(" ")
+    .toLowerCase()
 
   const foundBuzzwords = BUZZWORDS.filter((bw) => allText.includes(bw))
-  const buzzwordScore = foundBuzzwords.length === 0
-    ? 100
-    : Math.max(0, 100 - foundBuzzwords.length * 20)
+  const buzzwordScore =
+    foundBuzzwords.length === 0 ? 100 : Math.max(0, 100 - foundBuzzwords.length * 20)
 
   const buzzSuggestions: string[] = []
   if (foundBuzzwords.length > 0) {
-    buzzSuggestions.push(
-      `Replace buzzwords with specific, measurable descriptions`
-    )
+    buzzSuggestions.push(`Replace buzzwords with specific, measurable descriptions`)
   }
 
   dimensions.push({
-    name: 'Buzzword-Free',
+    name: "Buzzword-Free",
     score: buzzwordScore,
     weight: 0.15,
-    feedback: foundBuzzwords.length === 0
-      ? 'No buzzwords detected'
-      : `Found ${foundBuzzwords.length} buzzword${foundBuzzwords.length > 1 ? 's' : ''}: ${foundBuzzwords.map((b) => "'" + b + "'").join(', ')}`,
+    feedback:
+      foundBuzzwords.length === 0
+        ? "No buzzwords detected"
+        : `Found ${foundBuzzwords.length} buzzword${foundBuzzwords.length > 1 ? "s" : ""}: ${foundBuzzwords.map((b) => "'" + b + "'").join(", ")}`,
     suggestions: buzzSuggestions,
   })
 
   // === 5. Length Appropriateness (10%) ===
-  const totalChars = allBullets.reduce((sum, b) => sum + b.text.length, 0) +
+  const totalChars =
+    allBullets.reduce((sum, b) => sum + b.text.length, 0) +
     (resume.summary?.text?.length ?? 0) +
-    resume.skill_categories.reduce((sum, c) => sum + c.skills.join(', ').length, 0) +
-    resume.education.reduce((sum, e) => sum + (e.degree?.length ?? 0) + (e.institution?.length ?? 0), 0)
+    resume.skill_categories.reduce((sum, c) => sum + c.skills.join(", ").length, 0) +
+    resume.education.reduce(
+      (sum, e) => sum + (e.degree?.length ?? 0) + (e.institution?.length ?? 0),
+      0,
+    )
 
   const pageLimit = resume.settings?.page_limit ?? 1
   // Rough estimate: ~2500 chars per page of a resume
@@ -314,20 +321,23 @@ export function scoreResume(
   if (totalChars < expectedMinChars) {
     lengthScore = Math.round((totalChars / expectedMinChars) * 60)
     lengthFeedback = `Content is thin for a ${pageLimit}-page resume`
-    lengthSuggestions.push('Add more detail to experiences and projects to fill the page')
+    lengthSuggestions.push("Add more detail to experiences and projects to fill the page")
   } else if (totalChars > expectedMaxChars * 1.3) {
-    lengthScore = Math.max(30, 100 - Math.round(((totalChars - expectedMaxChars) / expectedMaxChars) * 100))
+    lengthScore = Math.max(
+      30,
+      100 - Math.round(((totalChars - expectedMaxChars) / expectedMaxChars) * 100),
+    )
     lengthFeedback = `Content may overflow a ${pageLimit}-page resume`
-    lengthSuggestions.push('Trim bullet points or increase page limit to fit content')
+    lengthSuggestions.push("Trim bullet points or increase page limit to fit content")
   } else {
     lengthScore = 100
     lengthFeedback = `Content length appropriate for ${pageLimit}-page resume`
   }
 
   dimensions.push({
-    name: 'Length Appropriateness',
+    name: "Length Appropriateness",
     score: Math.min(lengthScore, 100),
-    weight: 0.10,
+    weight: 0.1,
     feedback: lengthFeedback,
     suggestions: lengthSuggestions,
   })
@@ -335,14 +345,21 @@ export function scoreResume(
   // === 6. Section Balance (10%) ===
   const sectionCharCounts: Record<string, number> = {
     Experience: resume.work_experiences.reduce(
-      (sum, e) => sum + (e.achievements ?? []).reduce((s, a) => s + a.text.length, 0), 0
+      (sum, e) => sum + (e.achievements ?? []).reduce((s, a) => s + a.text.length, 0),
+      0,
     ),
     Projects: resume.projects.reduce(
-      (sum, p) => sum + (p.description?.length ?? 0) + (p.achievements ?? []).reduce((s, a) => s + a.text.length, 0), 0
+      (sum, p) =>
+        sum +
+        (p.description?.length ?? 0) +
+        (p.achievements ?? []).reduce((s, a) => s + a.text.length, 0),
+      0,
     ),
-    Skills: resume.skill_categories.reduce((sum, c) => sum + c.skills.join(', ').length, 0),
+    Skills: resume.skill_categories.reduce((sum, c) => sum + c.skills.join(", ").length, 0),
     Education: resume.education.reduce(
-      (sum, e) => sum + (e.degree?.length ?? 0) + (e.institution?.length ?? 0) + (e.honors?.length ?? 0), 0
+      (sum, e) =>
+        sum + (e.degree?.length ?? 0) + (e.institution?.length ?? 0) + (e.honors?.length ?? 0),
+      0,
     ),
     Summary: resume.summary?.text?.length ?? 0,
   }
@@ -350,7 +367,7 @@ export function scoreResume(
   const totalContentChars = Object.values(sectionCharCounts).reduce((a, b) => a + b, 0)
   let balanceScore = 100
   const balanceSuggestions: string[] = []
-  let balanceFeedback = 'Section content is well balanced'
+  let balanceFeedback = "Section content is well balanced"
 
   if (totalContentChars > 0) {
     for (const [section, chars] of Object.entries(sectionCharCounts)) {
@@ -365,9 +382,9 @@ export function scoreResume(
   }
 
   dimensions.push({
-    name: 'Section Balance',
+    name: "Section Balance",
     score: balanceScore,
-    weight: 0.10,
+    weight: 0.1,
     feedback: balanceFeedback,
     suggestions: balanceSuggestions,
   })
@@ -378,7 +395,7 @@ export function scoreResume(
     .filter(Boolean) as string[]
 
   let formattingScore = 100
-  let formattingFeedback = 'All dates use consistent format'
+  let formattingFeedback = "All dates use consistent format"
   const formattingSuggestions: string[] = []
 
   // Check for empty visible sections
@@ -389,20 +406,20 @@ export function scoreResume(
   for (const section of sectionOrder) {
     if (hiddenSet.has(section)) continue
     const isEmpty =
-      (section === 'experience' && resume.work_experiences.length === 0) ||
-      (section === 'skills' && resume.skill_categories.length === 0) ||
-      (section === 'education' && resume.education.length === 0) ||
-      (section === 'projects' && resume.projects.length === 0) ||
-      (section === 'certifications' && resume.certifications.length === 0) ||
-      (section === 'extracurriculars' && resume.extracurriculars.length === 0) ||
-      (section === 'summary' && !resume.summary?.text)
+      (section === "experience" && resume.work_experiences.length === 0) ||
+      (section === "skills" && resume.skill_categories.length === 0) ||
+      (section === "education" && resume.education.length === 0) ||
+      (section === "projects" && resume.projects.length === 0) ||
+      (section === "certifications" && resume.certifications.length === 0) ||
+      (section === "extracurriculars" && resume.extracurriculars.length === 0) ||
+      (section === "summary" && !resume.summary?.text)
     if (isEmpty) emptyVisibleSections.push(section)
   }
 
   if (emptyVisibleSections.length > 0) {
     formattingScore -= emptyVisibleSections.length * 15
     formattingSuggestions.push(
-      `${emptyVisibleSections.length} visible section${emptyVisibleSections.length > 1 ? 's are' : ' is'} empty: ${emptyVisibleSections.join(', ')}`
+      `${emptyVisibleSections.length} visible section${emptyVisibleSections.length > 1 ? "s are" : " is"} empty: ${emptyVisibleSections.join(", ")}`,
     )
   }
 
@@ -410,22 +427,20 @@ export function scoreResume(
   const invalidDates = dates.filter((d) => isNaN(new Date(d).getTime()))
   if (invalidDates.length > 0) {
     formattingScore -= 20
-    formattingFeedback = `${invalidDates.length} date${invalidDates.length > 1 ? 's' : ''} may have formatting issues`
-    formattingSuggestions.push('Review date formatting for consistency')
+    formattingFeedback = `${invalidDates.length} date${invalidDates.length > 1 ? "s" : ""} may have formatting issues`
+    formattingSuggestions.push("Review date formatting for consistency")
   }
 
   dimensions.push({
-    name: 'Formatting',
+    name: "Formatting",
     score: Math.max(0, Math.min(formattingScore, 100)),
-    weight: 0.10,
+    weight: 0.1,
     feedback: formattingFeedback,
     suggestions: formattingSuggestions,
   })
 
   // === Calculate Overall Score ===
-  const overall = Math.round(
-    dimensions.reduce((sum, d) => sum + d.score * d.weight, 0)
-  )
+  const overall = Math.round(dimensions.reduce((sum, d) => sum + d.score * d.weight, 0))
 
   return {
     overall,
@@ -436,7 +451,7 @@ export function scoreResume(
 // ===== Job Description Matcher =====
 export async function matchJobDescription(
   resume: ResumeWithRelations,
-  jobDescription: string
+  jobDescription: string,
 ): Promise<JDMatchResult> {
   const system = `You are a resume optimization expert. Analyze a job description against a resume and provide matching insights.
 
@@ -451,15 +466,15 @@ Respond in JSON format:
 
   const allSkills = resume.skill_categories.flatMap((c) => c.skills)
   const allBullets = resume.work_experiences.flatMap((e) =>
-    (e.achievements ?? []).map((a) => a.text)
+    (e.achievements ?? []).map((a) => a.text),
   )
 
   const userMsg = `Job Description:\n${jobDescription.slice(0, 2000)}
 
-Resume Skills: ${allSkills.join(', ')}
+Resume Skills: ${allSkills.join(", ")}
 
 Resume Bullet Points:
-${allBullets.slice(0, 10).join('\n')}
+${allBullets.slice(0, 10).join("\n")}
 
 Analyze the match between this job description and resume.`
 
@@ -472,7 +487,7 @@ Analyze the match between this job description and resume.`
       matchRate: 0,
       presentKeywords: [],
       missingKeywords: [],
-      suggestions: ['Unable to parse AI response'],
+      suggestions: ["Unable to parse AI response"],
       reorderSuggestions: [],
     }
   }
@@ -480,7 +495,7 @@ Analyze the match between this job description and resume.`
 
 // ===== Jargon Translator =====
 export async function translateJargon(
-  text: string
+  text: string,
 ): Promise<{ original: string; translated: string }[]> {
   const system = `You are a resume writing expert. Find internal project names, acronyms, and jargon in resume text and suggest generic descriptions that recruiters can understand.
 
@@ -488,7 +503,7 @@ Respond in JSON: [{ "original": "Project Phoenix", "translated": "a company-wide
 
   const result = await callClaude(
     system,
-    `Find jargon in this text and suggest generic replacements:\n\n"${text}"`
+    `Find jargon in this text and suggest generic replacements:\n\n"${text}"`,
   )
 
   try {
@@ -504,7 +519,7 @@ export async function generateCoverLetter(
   company: string,
   position: string,
   jobDescription?: string,
-  tone: string = 'professional'
+  tone: string = "professional",
 ): Promise<string> {
   const system = `You are a cover letter writing expert. Write a personalized cover letter following the company-first approach:
 1. Show genuine interest in the company before talking about yourself
@@ -523,9 +538,9 @@ Respond with ONLY the cover letter text.`
 - Applicant: ${resume.contact_info?.full_name}
 - Company: ${company}
 - Position: ${position}
-- Key Skills: ${allSkills.slice(0, 10).join(', ')}
+- Key Skills: ${allSkills.slice(0, 10).join(", ")}
 - Recent Experience:
-${recentExp.map((e) => `  - ${e.job_title} at ${e.company}`).join('\n')}`
+${recentExp.map((e) => `  - ${e.job_title} at ${e.company}`).join("\n")}`
 
   if (jobDescription) {
     userMsg += `\n\nJob Description:\n${jobDescription.slice(0, 1500)}`
@@ -537,8 +552,8 @@ ${recentExp.map((e) => `  - ${e.job_title} at ${e.company}`).join('\n')}`
 // ===== Career Coach =====
 export async function coachChat(
   sessionType: string,
-  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
-  resumeContext?: string
+  messages: Array<{ role: "user" | "assistant"; content: string }>,
+  resumeContext?: string,
 ): Promise<string> {
   const systemPrompts: Record<string, string> = {
     general: `You are an expert career coach for software engineers. Help the user with their career questions. Be specific, actionable, and encouraging.`,
@@ -567,10 +582,10 @@ Generate a professional summary that ties everything together.`,
     : system
 
   const client = getAnthropicClient()
-  if (!client) throw new Error('AI not available')
+  if (!client) throw new Error("AI not available")
 
   const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
+    model: "claude-sonnet-4-6",
     max_tokens: 2048,
     system: fullSystem,
     messages: messages.map((m) => ({
@@ -579,14 +594,12 @@ Generate a professional summary that ties everything together.`,
     })),
   })
 
-  const textBlock = response.content.find((b) => b.type === 'text')
-  return textBlock?.text ?? ''
+  const textBlock = response.content.find((b) => b.type === "text")
+  return textBlock?.text ?? ""
 }
 
 // ===== JD Analyzer =====
-export async function analyzeJobDescription(
-  rawText: string
-): Promise<{
+export async function analyzeJobDescription(rawText: string): Promise<{
   skills: string[]
   requirements: string[]
   qualifications: string[]
@@ -608,7 +621,7 @@ Respond in JSON:
 
   const result = await callClaude(
     system,
-    `Analyze this job description:\n\n${rawText.slice(0, 3000)}`
+    `Analyze this job description:\n\n${rawText.slice(0, 3000)}`,
   )
 
   try {
@@ -618,9 +631,9 @@ Respond in JSON:
       skills: [],
       requirements: [],
       qualifications: [],
-      experienceLevel: 'unknown',
+      experienceLevel: "unknown",
       redFlags: [],
-      summary: 'Unable to parse analysis',
+      summary: "Unable to parse analysis",
     }
   }
 }

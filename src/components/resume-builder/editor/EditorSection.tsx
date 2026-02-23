@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import type { LucideIcon } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import type { LucideIcon } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 interface EditorSectionProps {
   title: string
@@ -25,7 +25,7 @@ export function EditorSection({
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Icon className="text-foreground h-4 w-4" />
-          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+          <h2 className="text-foreground text-sm font-semibold">{title}</h2>
           {badge && (
             <Badge variant="outline" className="text-[10px]">
               {badge}

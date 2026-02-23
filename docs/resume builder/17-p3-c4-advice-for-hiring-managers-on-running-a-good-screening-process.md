@@ -19,14 +19,14 @@ This chapter is for all fellow current or future hiring managers. I realize most
 
 People who read this book and apply the advice to their resume will likely fare better in their job search process, and progress through more resume screens. You might end up hiring one of these people, who turn out to be a great hire. And you would have missed out on them if they had a poor resume that you or your recruiter would have rejected.
 
-In the book [*Smart and Gets Things Done*](http://pragmaticurl.com/smart-and-gets-things-done-ttr), Joel Spolsky says the same:  
-*“The standard job application, a cover letter and a resume, is a phenomenally weak way to introduce a candidate. It gives you only the faintest clue as to the quality of an applicant. Sometimes, though a resume gives pretty strong negative clues as to the quality of an applicant (...) Other than that, though, it can be extremely hard to tell much about a candidate from a resume.”*
+In the book [_Smart and Gets Things Done_](http://pragmaticurl.com/smart-and-gets-things-done-ttr), Joel Spolsky says the same:  
+_“The standard job application, a cover letter and a resume, is a phenomenally weak way to introduce a candidate. It gives you only the faintest clue as to the quality of an applicant. Sometimes, though a resume gives pretty strong negative clues as to the quality of an applicant (...) Other than that, though, it can be extremely hard to tell much about a candidate from a resume.”_
 
 **As long as you have resume screening in place, you will always reject good people with poor resumes.** This is a fact that you won’t be able to change—unless you relax, or drop the resume screening requirement.
 
-However, the resume filter has a good reason to be in place: it reduces the number of applicants, filtering out people who are likely not a fit. As you are doing resume screening, make conscious choices on whether the resume is in the “Yes”, “Maybe” or “No” piles. Following this approach, you can avoid early rejection. As [Johanna Rothman](https://www.jrothman.com/) explains in the book [*Hiring Geeks That Fit*](http://pragmaticurl.com/hiring-geeks-that-fit-ttr):
+However, the resume filter has a good reason to be in place: it reduces the number of applicants, filtering out people who are likely not a fit. As you are doing resume screening, make conscious choices on whether the resume is in the “Yes”, “Maybe” or “No” piles. Following this approach, you can avoid early rejection. As [Johanna Rothman](https://www.jrothman.com/) explains in the book [_Hiring Geeks That Fit_](http://pragmaticurl.com/hiring-geeks-that-fit-ttr):
 
-*“Because I deal primarily with hiring technical people who may not know how to best present themselves in a resume, I read resumes with an eye to giving each person a benefit of the doubt—which leads to the Maybe pile. I re-read the Maybe resumes after I’ve phone-screened the Yes candidates but still have not filled the opening, to see if I’ve missed a diamond in the rough.”*
+_“Because I deal primarily with hiring technical people who may not know how to best present themselves in a resume, I read resumes with an eye to giving each person a benefit of the doubt—which leads to the Maybe pile. I re-read the Maybe resumes after I’ve phone-screened the Yes candidates but still have not filled the opening, to see if I’ve missed a diamond in the rough.”_
 
 This observation is what is fueling several startups to switch from a resume-based first screen to an assessment-based first screen. Triplebyte, Hackerrank and [Woven](https://www.woventeams.com/) are good examples of each, and you should consider if you want to invest in a similar approach.
 
@@ -38,10 +38,10 @@ This observation is what is fueling several startups to switch from a resume-bas
 
 **Even when you don’t have additional budget to invest**, you still should aim to minimize rejecting otherwise great applicants purely based on their resume. A few things that you can implement to help with this are the following.
 
--   **Involve at least one other person in screening resumes**, and screen the same set of resumes independently. What is the overlap between your and the other person’s “Yes” pile? This exercise can be useful both to calibrate expectations, as well as to reduce bias.
--   **Budget dedicated time for hiring**—either for you or for someone else\*\*.\*\* When you don’t have dedicated time for hiring activities, you’ll be rushed and have poor results. Have dedicated time from resume reviews, to building the interview loop, all the way to preparing for interviews. If you don’t have this time, delegate the process to someone who does have it.
--   **Adjust the time allocated for hiring relative to the number and importance of open roles.** You’ll want to spend far more time with hiring when you are about to double the team than when hiring one junior developer. Be mindful of creating the attention the hiring process should have—including screening of resumes.
--   **Be aware of your cultural biases**. You will most likely have a [self-selection bias](https://en.wikipedia.org/wiki/Self-selection_bias), subconsciously favoring people who are similar to yourself. Acknowledge this bias, and aim to select profiles that don’t resemble your background and experience.
+- **Involve at least one other person in screening resumes**, and screen the same set of resumes independently. What is the overlap between your and the other person’s “Yes” pile? This exercise can be useful both to calibrate expectations, as well as to reduce bias.
+- **Budget dedicated time for hiring**—either for you or for someone else\*\*.\*\* When you don’t have dedicated time for hiring activities, you’ll be rushed and have poor results. Have dedicated time from resume reviews, to building the interview loop, all the way to preparing for interviews. If you don’t have this time, delegate the process to someone who does have it.
+- **Adjust the time allocated for hiring relative to the number and importance of open roles.** You’ll want to spend far more time with hiring when you are about to double the team than when hiring one junior developer. Be mindful of creating the attention the hiring process should have—including screening of resumes.
+- **Be aware of your cultural biases**. You will most likely have a [self-selection bias](https://en.wikipedia.org/wiki/Self-selection_bias), subconsciously favoring people who are similar to yourself. Acknowledge this bias, and aim to select profiles that don’t resemble your background and experience.
 
 Consider implementing the advice in the rest of the chapter for an even better recruitment process, starting with partnering with your recruitment function.
 
@@ -63,7 +63,7 @@ Be curious: talk about sourcing strategies, key signals your recruitment team lo
 
 **Be involved** in writing and iterating on the job description. Some hiring managers end up copy-pasting existing job descriptions and calling it a day. This will be a poor experience for candidates, recruiters and interviewers.
 
-**Challenge yourself on what is *really* needed for the job.** Before writing the job description, sit with your recruiters and hash out what you are *really* looking for. What would this person do in their first month, and their first year? What skills and experience are absolutely non-negotiable, and what can they pick up on the job?
+**Challenge yourself on what is _really_ needed for the job.** Before writing the job description, sit with your recruiters and hash out what you are _really_ looking for. What would this person do in their first month, and their first year? What skills and experience are absolutely non-negotiable, and what can they pick up on the job?
 
 For example, if you’re looking to hire for a tech lead on the ads team where the team uses Node.js, having led a small team in some capacity is probably a must-have, but having worked in the ads industry is probably not. And the language or framework might be negotiable, when talking about someone who is a fast learner, has backend experience and is motivated in picking up Node.js. By removing this constraint, you’ll also have a larger pool of qualified candidates to work with. This is the reason most of the big tech companies don’t specify a specific language: hiring someone who has done similar work on a different stack can work just as well as hiring someone with deep domain expertise.
 
@@ -89,5 +89,5 @@ Short, informal retrospectives after successful and failed onsites are also a go
 
 This book is not about how to hire developers well, but several books cover this in detail. I recommend the following reading:
 
--   [*Smart and Gets Things Done*](http://pragmaticurl.com/smart-and-gets-things-done-ttr) by Joel Spolsky is a concise, opinionated and good guide on how to hire good developers. Though it was written in 2007, there are not many things that are dated about the book’s contents.
--   [*Hiring Geeks that Fit*](http://pragmaticurl.com/hiring-geeks-that-fit-ttr) by Joanna Rothman. A must-read if you’re hiring for the first time, or if you don’t yet have an organized hiring strategy. The book guides you through defining a hiring strategy, analyzing the job and planning and executing all parts of the process. It ends with reference checks, making an offer and creating a great first day for the newly hired person.
+- [_Smart and Gets Things Done_](http://pragmaticurl.com/smart-and-gets-things-done-ttr) by Joel Spolsky is a concise, opinionated and good guide on how to hire good developers. Though it was written in 2007, there are not many things that are dated about the book’s contents.
+- [_Hiring Geeks that Fit_](http://pragmaticurl.com/hiring-geeks-that-fit-ttr) by Joanna Rothman. A must-read if you’re hiring for the first time, or if you don’t yet have an organized hiring strategy. The book guides you through defining a hiring strategy, analyzing the job and planning and executing all parts of the process. It ends with reference checks, making an offer and creating a great first day for the newly hired person.

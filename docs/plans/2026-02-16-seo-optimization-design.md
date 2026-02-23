@@ -79,14 +79,14 @@
 
 ## Files Modified
 
-| File | Change |
-| --- | --- |
-| `src/lib/seo.ts` | Add canonical URL to alternates |
-| `src/lib/json-ld.ts` | Enhanced Person, BreadcrumbList, @id linking |
-| `src/app/sitemap.ts` | lastModified + image entries |
-| `src/app/(public)/page.tsx` | Page-level canonical, enhanced JSON-LD |
-| `src/app/(public)/blog/page.tsx` | Canonical URL |
-| `src/app/(public)/blog/[slug]/page.tsx` | Canonical URL, breadcrumb JSON-LD |
-| `src/app/(public)/resume/page.tsx` | Canonical URL, enhanced ProfilePage JSON-LD |
-| `public/images/` | Optimized profile images (new) |
-| `vercel.json` | No code changes needed (domain config via dashboard) |
+| File                                    | Change                                               |
+| --------------------------------------- | ---------------------------------------------------- |
+| `src/lib/seo.ts`                        | Add canonical URL to alternates                      |
+| `src/lib/json-ld.ts`                    | Enhanced Person, BreadcrumbList, @id linking         |
+| `src/app/sitemap.ts`                    | lastModified + image entries                         |
+| `src/app/(public)/page.tsx`             | Page-level canonical, enhanced JSON-LD               |
+| `src/app/(public)/blog/page.tsx`        | Canonical URL                                        |
+| `src/app/(public)/blog/[slug]/page.tsx` | Canonical URL, breadcrumb JSON-LD                    |
+| `src/app/(public)/resume/page.tsx`      | Canonical URL, enhanced ProfilePage JSON-LD          |
+| `public/images/`                        | Optimized profile images (new)                       |
+| `vercel.json`                           | No code changes needed (domain config via dashboard) |

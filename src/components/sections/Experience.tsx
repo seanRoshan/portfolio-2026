@@ -93,9 +93,7 @@ function TimelineEntry({ entry, index }: { entry: ExperienceGroup; index: number
     : entry.phases[0].period
 
   // Find the latest via company logo (for the overlapping badge)
-  const viaLogo = [...entry.phases]
-    .reverse()
-    .find((p) => p.viaCompanyLogoUrl)?.viaCompanyLogoUrl
+  const viaLogo = [...entry.phases].reverse().find((p) => p.viaCompanyLogoUrl)?.viaCompanyLogoUrl
 
   return (
     <div
@@ -165,7 +163,9 @@ function TimelineEntry({ entry, index }: { entry: ExperienceGroup; index: number
                       <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover/link:opacity-100" />
                     </a>
                   ) : (
-                    <span>{hasMultiplePhases ? `${entry.phases.length} roles` : entry.company}</span>
+                    <span>
+                      {hasMultiplePhases ? `${entry.phases.length} roles` : entry.company}
+                    </span>
                   )}
                   {!hasMultiplePhases &&
                     entry.phases[0].employmentType === "contract" &&
@@ -218,10 +218,7 @@ function TimelineEntry({ entry, index }: { entry: ExperienceGroup; index: number
               {entry.phases[0].achievements.length > 0 && (
                 <ul className="space-y-2">
                   {entry.phases[0].achievements.map((achievement, i) => (
-                    <li
-                      key={i}
-                      className="text-muted-foreground flex items-start gap-2.5 text-sm"
-                    >
+                    <li key={i} className="text-muted-foreground flex items-start gap-2.5 text-sm">
                       <span className="bg-primary mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" />
                       <span className="leading-relaxed">{achievement}</span>
                     </li>
