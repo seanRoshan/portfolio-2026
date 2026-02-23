@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import { useTransition, useState, useEffect } from 'react'
+import { useTransition, useState, useEffect } from "react"
 import {
   Palette,
   Type,
@@ -18,56 +18,74 @@ import {
   Heading1,
   CaseSensitive,
   AlertTriangle,
-} from 'lucide-react'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Slider } from '@/components/ui/slider'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
-import { toast } from 'sonner'
-import { GOOGLE_FONTS, googleFontUrl } from '@/lib/resume-builder/fonts'
-import { cn } from '@/lib/utils'
+} from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import { Slider } from "@/components/ui/slider"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import { toast } from "sonner"
+import { GOOGLE_FONTS } from "@/lib/resume-builder/fonts"
+import { cn } from "@/lib/utils"
 import {
   updateResumeSettings,
   fetchPromptsByCategory,
   getResumePromptOverrides,
   saveResumePromptOverride,
   deleteResumePromptOverride,
-} from '@/app/admin/resume-builder/actions'
-import { DEFAULT_NAME_SIZES, DEFAULT_UPPERCASE, getContrastTextColor, getContrastRatio } from '@/components/resume-builder/templates/shared'
-import type { ResumeSettings } from '@/types/resume-builder'
-import type { AIPrompt, ResumePromptOverride } from '@/types/ai-prompts'
+} from "@/app/admin/resume-builder/actions"
+import {
+  DEFAULT_NAME_SIZES,
+  DEFAULT_UPPERCASE,
+  getContrastTextColor,
+  getContrastRatio,
+} from "@/components/resume-builder/templates/shared"
+import type { ResumeSettings } from "@/types/resume-builder"
+import type { AIPrompt, ResumePromptOverride } from "@/types/ai-prompts"
 
 const densityOptions = [
-  { value: 'compact', label: 'Compact', desc: 'Tight spacing, more content per page' },
-  { value: 'comfortable', label: 'Comfortable', desc: 'Balanced spacing (recommended)' },
-  { value: 'spacious', label: 'Spacious', desc: 'Generous whitespace, easier to scan' },
+  { value: "compact", label: "Compact", desc: "Tight spacing, more content per page" },
+  { value: "comfortable", label: "Comfortable", desc: "Balanced spacing (recommended)" },
+  { value: "spacious", label: "Spacious", desc: "Generous whitespace, easier to scan" },
 ]
 
 const dateFormatOptions = [
-  { value: 'full', label: 'September 2024' },
-  { value: 'month_year', label: 'Sep 2024' },
-  { value: 'year_only', label: '2024' },
+  { value: "full", label: "September 2024" },
+  { value: "month_year", label: "Sep 2024" },
+  { value: "year_only", label: "2024" },
 ]
 
 const marginOptions = [
-  { value: 'compact', label: 'Compact' },
-  { value: 'normal', label: 'Normal' },
-  { value: 'wide', label: 'Wide' },
+  { value: "compact", label: "Compact" },
+  { value: "normal", label: "Normal" },
+  { value: "wide", label: "Wide" },
 ]
 
 const TEMPLATES_WITH_BACKGROUND = new Set([
-  'a1b2c3d4-0005-4000-8000-000000000005', // Parker
-  'a1b2c3d4-0006-4000-8000-000000000006', // Experienced
+  "a1b2c3d4-0005-4000-8000-000000000005", // Parker
+  "a1b2c3d4-0006-4000-8000-000000000006", // Experienced
 ])
 
 const TEMPLATES_WITH_RIGHT_PANEL = new Set([
-  'a1b2c3d4-0005-4000-8000-000000000005', // Parker
+  "a1b2c3d4-0005-4000-8000-000000000005", // Parker
 ])
 
 interface Props {
@@ -95,9 +113,7 @@ function SettingRow({
         <div>
           <Label className="text-sm font-medium">{label}</Label>
           {description && (
-            <p className="text-muted-foreground text-[11px] leading-tight">
-              {description}
-            </p>
+            <p className="text-muted-foreground text-[11px] leading-tight">{description}</p>
           )}
         </div>
       </div>
@@ -109,7 +125,7 @@ function SettingRow({
 function SectionHeader({ title }: { title: string }) {
   return (
     <div className="flex items-center gap-2 pt-2">
-      <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">
+      <span className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
         {title}
       </span>
       <div className="bg-border h-px flex-1" />
@@ -118,24 +134,38 @@ function SectionHeader({ title }: { title: string }) {
 }
 
 const sectionNames: Record<string, string> = {
-  contact: 'Contact Info',
-  summary: 'Summary',
-  experience: 'Work Experience',
-  skills: 'Skills',
-  education: 'Education',
-  projects: 'Projects',
-  certifications: 'Certifications',
-  extracurriculars: 'Activities',
+  contact: "Contact Info",
+  summary: "Summary",
+  experience: "Work Experience",
+  skills: "Skills",
+  education: "Education",
+  projects: "Projects",
+  certifications: "Certifications",
+  extracurriculars: "Activities",
 }
 
-function FontFamilyPicker({ value, onSelect, disabled }: { value: string; onSelect: (v: string) => void; disabled: boolean }) {
+function FontFamilyPicker({
+  value,
+  onSelect,
+  disabled,
+}: {
+  value: string
+  onSelect: (v: string) => void
+  disabled: boolean
+}) {
   const [open, setOpen] = useState(false)
-  const categories = ['sans-serif', 'serif', 'monospace'] as const
+  const categories = ["sans-serif", "serif", "monospace"] as const
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} disabled={disabled} className="h-9 w-full justify-between">
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          disabled={disabled}
+          className="h-9 w-full justify-between"
+        >
           <span style={{ fontFamily: `"${value}", sans-serif` }}>{value}</span>
           <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
         </Button>
@@ -146,14 +176,25 @@ function FontFamilyPicker({ value, onSelect, disabled }: { value: string; onSele
           <CommandList>
             <CommandEmpty>No font found.</CommandEmpty>
             {categories.map((cat) => (
-              <CommandGroup key={cat} heading={cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}>
+              <CommandGroup
+                key={cat}
+                heading={cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
+              >
                 {GOOGLE_FONTS.filter((f) => f.category === cat).map((f) => (
                   <CommandItem
                     key={f.family}
                     value={f.family}
-                    onSelect={() => { onSelect(f.family); setOpen(false) }}
+                    onSelect={() => {
+                      onSelect(f.family)
+                      setOpen(false)
+                    }}
                   >
-                    <Check className={cn('mr-2 h-3.5 w-3.5', value === f.family ? 'opacity-100' : 'opacity-0')} />
+                    <Check
+                      className={cn(
+                        "mr-2 h-3.5 w-3.5",
+                        value === f.family ? "opacity-100" : "opacity-0",
+                      )}
+                    />
                     <span style={{ fontFamily: `"${f.family}", ${cat}` }}>{f.family}</span>
                   </CommandItem>
                 ))}
@@ -173,20 +214,20 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
     startTransition(async () => {
       try {
         await updateResumeSettings(resumeId, { [field]: value })
-        toast.success('Settings saved')
+        toast.success("Settings saved")
       } catch {
-        toast.error('Failed to update')
+        toast.error("Failed to update")
       }
     })
   }
 
-  const accentColor = settings?.accent_color ?? '#000000'
+  const accentColor = settings?.accent_color ?? "#000000"
   const hiddenSet = new Set(settings?.hidden_sections ?? [])
-  const showBackground = TEMPLATES_WITH_BACKGROUND.has(templateId ?? '')
-  const showRightPanel = TEMPLATES_WITH_RIGHT_PANEL.has(templateId ?? '')
-  const nameSizeDefault = DEFAULT_NAME_SIZES[templateId ?? ''] ?? 28
-  const uppercaseDefault = DEFAULT_UPPERCASE[templateId ?? ''] ?? true
-  const resolvedBg = settings?.background_color ?? '#374151'
+  const showBackground = TEMPLATES_WITH_BACKGROUND.has(templateId ?? "")
+  const showRightPanel = TEMPLATES_WITH_RIGHT_PANEL.has(templateId ?? "")
+  const nameSizeDefault = DEFAULT_NAME_SIZES[templateId ?? ""] ?? 28
+  const uppercaseDefault = DEFAULT_UPPERCASE[templateId ?? ""] ?? true
+  const resolvedBg = settings?.background_color ?? "#374151"
   const resolvedSidebarText = settings?.sidebar_text_color ?? getContrastTextColor(resolvedBg)
   const contrastRatio = getContrastRatio(resolvedSidebarText, resolvedBg)
 
@@ -201,7 +242,7 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
             <Input
               type="color"
               defaultValue={accentColor}
-              onChange={(e) => handleUpdate('accent_color', e.target.value)}
+              onChange={(e) => handleUpdate("accent_color", e.target.value)}
               className="h-9 w-12 cursor-pointer border-2 p-0.5"
             />
           </div>
@@ -211,7 +252,7 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
             onBlur={(e) => {
               const val = e.target.value.trim()
               if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-                handleUpdate('accent_color', val)
+                handleUpdate("accent_color", val)
               }
             }}
             className="h-9 w-24 font-mono text-xs uppercase"
@@ -225,23 +266,27 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
       </SettingRow>
 
       {showBackground && (
-        <SettingRow icon={Palette} label="Background Color" description="Sidebar or header background (Parker, Experienced)">
+        <SettingRow
+          icon={Palette}
+          label="Background Color"
+          description="Sidebar or header background (Parker, Experienced)"
+        >
           <div className="flex items-center gap-2">
             <div className="relative">
               <Input
                 type="color"
-                defaultValue={settings?.background_color ?? '#374151'}
-                onChange={(e) => handleUpdate('background_color', e.target.value)}
+                defaultValue={settings?.background_color ?? "#374151"}
+                onChange={(e) => handleUpdate("background_color", e.target.value)}
                 className="h-9 w-12 cursor-pointer border-2 p-0.5"
               />
             </div>
             <Input
-              key={settings?.background_color ?? '#374151'}
-              defaultValue={settings?.background_color ?? '#374151'}
+              key={settings?.background_color ?? "#374151"}
+              defaultValue={settings?.background_color ?? "#374151"}
               onBlur={(e) => {
                 const val = e.target.value.trim()
                 if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-                  handleUpdate('background_color', val)
+                  handleUpdate("background_color", val)
                 }
               }}
               className="h-9 w-24 font-mono text-xs uppercase"
@@ -249,14 +294,18 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
             />
             <div
               className="h-9 w-9 shrink-0 rounded-md border"
-              style={{ backgroundColor: settings?.background_color ?? '#374151' }}
+              style={{ backgroundColor: settings?.background_color ?? "#374151" }}
             />
           </div>
         </SettingRow>
       )}
 
       {showBackground && (
-        <SettingRow icon={Type} label="Sidebar Text" description="Text color on the sidebar background">
+        <SettingRow
+          icon={Type}
+          label="Sidebar Text"
+          description="Text color on the sidebar background"
+        >
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <div className="relative">
@@ -264,7 +313,7 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
                   type="color"
                   defaultValue={resolvedSidebarText}
                   key={`stc-${resolvedSidebarText}`}
-                  onChange={(e) => handleUpdate('sidebar_text_color', e.target.value)}
+                  onChange={(e) => handleUpdate("sidebar_text_color", e.target.value)}
                   className="h-9 w-12 cursor-pointer border-2 p-0.5"
                 />
               </div>
@@ -274,7 +323,7 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
                 onBlur={(e) => {
                   const val = e.target.value.trim()
                   if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-                    handleUpdate('sidebar_text_color', val)
+                    handleUpdate("sidebar_text_color", val)
                   }
                 }}
                 className="h-9 w-24 font-mono text-xs uppercase"
@@ -285,14 +334,16 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
                 style={{ backgroundColor: resolvedSidebarText }}
               />
               {!settings?.sidebar_text_color && (
-                <Badge variant="secondary" className="text-[9px]">Auto</Badge>
+                <Badge variant="secondary" className="text-[9px]">
+                  Auto
+                </Badge>
               )}
               {settings?.sidebar_text_color && (
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => handleUpdate('sidebar_text_color', null)}
+                  onClick={() => handleUpdate("sidebar_text_color", null)}
                   disabled={isPending}
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
@@ -300,9 +351,11 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
               )}
             </div>
             {contrastRatio < 4.5 && (
-              <div className="flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800">
+              <div className="flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-400">
                 <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                <span>Low contrast ({contrastRatio.toFixed(1)}:1). WCAG AA requires 4.5:1 minimum.</span>
+                <span>
+                  Low contrast ({contrastRatio.toFixed(1)}:1). WCAG AA requires 4.5:1 minimum.
+                </span>
               </div>
             )}
           </div>
@@ -310,23 +363,27 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
       )}
 
       {showRightPanel && (
-        <SettingRow icon={Palette} label="Panel Color" description="Main content area background (Parker)">
+        <SettingRow
+          icon={Palette}
+          label="Panel Color"
+          description="Main content area background (Parker)"
+        >
           <div className="flex items-center gap-2">
             <div className="relative">
               <Input
                 type="color"
-                defaultValue={settings?.right_panel_color ?? '#f9fafb'}
-                onChange={(e) => handleUpdate('right_panel_color', e.target.value)}
+                defaultValue={settings?.right_panel_color ?? "#f9fafb"}
+                onChange={(e) => handleUpdate("right_panel_color", e.target.value)}
                 className="h-9 w-12 cursor-pointer border-2 p-0.5"
               />
             </div>
             <Input
-              key={settings?.right_panel_color ?? '#f9fafb'}
-              defaultValue={settings?.right_panel_color ?? '#f9fafb'}
+              key={settings?.right_panel_color ?? "#f9fafb"}
+              defaultValue={settings?.right_panel_color ?? "#f9fafb"}
               onBlur={(e) => {
                 const val = e.target.value.trim()
                 if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-                  handleUpdate('right_panel_color', val)
+                  handleUpdate("right_panel_color", val)
                 }
               }}
               className="h-9 w-24 font-mono text-xs uppercase"
@@ -334,16 +391,20 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
             />
             <div
               className="h-9 w-9 shrink-0 rounded-md border"
-              style={{ backgroundColor: settings?.right_panel_color ?? '#f9fafb' }}
+              style={{ backgroundColor: settings?.right_panel_color ?? "#f9fafb" }}
             />
           </div>
         </SettingRow>
       )}
 
-      <SettingRow icon={Type} label="Font Family" description="Typography used throughout the resume">
+      <SettingRow
+        icon={Type}
+        label="Font Family"
+        description="Typography used throughout the resume"
+      >
         <FontFamilyPicker
-          value={settings?.font_family ?? 'Inter'}
-          onSelect={(family) => handleUpdate('font_family', family)}
+          value={settings?.font_family ?? "Inter"}
+          onSelect={(family) => handleUpdate("font_family", family)}
           disabled={isPending}
         />
       </SettingRow>
@@ -353,8 +414,8 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
 
       <SettingRow icon={Rows3} label="Density" description="Controls spacing between sections">
         <Select
-          defaultValue={settings?.font_size_preset ?? 'comfortable'}
-          onValueChange={(v) => handleUpdate('font_size_preset', v)}
+          defaultValue={settings?.font_size_preset ?? "comfortable"}
+          onValueChange={(v) => handleUpdate("font_size_preset", v)}
           disabled={isPending}
         >
           <SelectTrigger className="h-9">
@@ -377,7 +438,7 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
             min={8}
             max={12}
             step={0.5}
-            onValueCommit={([v]) => handleUpdate('font_size_base', v)}
+            onValueCommit={([v]) => handleUpdate("font_size_base", v)}
             disabled={isPending}
             className="flex-1"
           />
@@ -387,10 +448,14 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
         </div>
       </SettingRow>
 
-      <SettingRow icon={Calendar} label="Date Format" description="How dates appear in experience and education">
+      <SettingRow
+        icon={Calendar}
+        label="Date Format"
+        description="How dates appear in experience and education"
+      >
         <Select
-          defaultValue={settings?.date_format ?? 'month_year'}
-          onValueChange={(v) => handleUpdate('date_format', v)}
+          defaultValue={settings?.date_format ?? "month_year"}
+          onValueChange={(v) => handleUpdate("date_format", v)}
           disabled={isPending}
         >
           <SelectTrigger className="h-9">
@@ -398,16 +463,22 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
           </SelectTrigger>
           <SelectContent>
             {dateFormatOptions.map((d) => (
-              <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+              <SelectItem key={d.value} value={d.value}>
+                {d.label}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </SettingRow>
 
-      <SettingRow icon={FileText} label="Page Limit" description="Maximum number of pages for PDF export">
+      <SettingRow
+        icon={FileText}
+        label="Page Limit"
+        description="Maximum number of pages for PDF export"
+      >
         <Select
           defaultValue={String(settings?.page_limit ?? 2)}
-          onValueChange={(v) => handleUpdate('page_limit', parseInt(v))}
+          onValueChange={(v) => handleUpdate("page_limit", parseInt(v))}
           disabled={isPending}
         >
           <SelectTrigger className="h-9">
@@ -421,10 +492,14 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
         </Select>
       </SettingRow>
 
-      <SettingRow icon={Maximize} label="Page Margins" description="Controls padding around the page edges">
+      <SettingRow
+        icon={Maximize}
+        label="Page Margins"
+        description="Controls padding around the page edges"
+      >
         <Select
-          defaultValue={settings?.page_margin ?? 'normal'}
-          onValueChange={(v) => handleUpdate('page_margin', v)}
+          defaultValue={settings?.page_margin ?? "normal"}
+          onValueChange={(v) => handleUpdate("page_margin", v)}
           disabled={isPending}
         >
           <SelectTrigger className="h-9">
@@ -432,20 +507,26 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
           </SelectTrigger>
           <SelectContent>
             {marginOptions.map((m) => (
-              <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+              <SelectItem key={m.value} value={m.value}>
+                {m.label}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </SettingRow>
 
-      <SettingRow icon={Heading1} label="Name Size" description="Font size for your name in the header (18-36px)">
+      <SettingRow
+        icon={Heading1}
+        label="Name Size"
+        description="Font size for your name in the header (18-36px)"
+      >
         <div className="flex items-center gap-3">
           <Slider
             defaultValue={[settings?.name_font_size ?? nameSizeDefault]}
             min={18}
             max={36}
             step={1}
-            onValueCommit={([v]) => handleUpdate('name_font_size', v)}
+            onValueCommit={([v]) => handleUpdate("name_font_size", v)}
             disabled={isPending}
             className="flex-1"
           />
@@ -455,10 +536,14 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
         </div>
       </SettingRow>
 
-      <SettingRow icon={CaseSensitive} label="Uppercase Titles" description="Force section titles to ALL CAPS">
+      <SettingRow
+        icon={CaseSensitive}
+        label="Uppercase Titles"
+        description="Force section titles to ALL CAPS"
+      >
         <Switch
           checked={settings?.section_title_uppercase ?? uppercaseDefault}
-          onCheckedChange={(v) => handleUpdate('section_title_uppercase', v)}
+          onCheckedChange={(v) => handleUpdate("section_title_uppercase", v)}
           disabled={isPending}
         />
       </SettingRow>
@@ -466,7 +551,11 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
       {/* Sections */}
       <SectionHeader title="Sections" />
 
-      <SettingRow icon={Eye} label="Section Visibility" description="Toggle which sections appear on the resume">
+      <SettingRow
+        icon={Eye}
+        label="Section Visibility"
+        description="Toggle which sections appear on the resume"
+      >
         <div className="space-y-3">
           {sectionOrder.map((section) => (
             <div key={section} className="flex items-center justify-between">
@@ -477,9 +566,9 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
                   const newHidden = checked
                     ? (settings?.hidden_sections ?? []).filter((s) => s !== section)
                     : [...(settings?.hidden_sections ?? []), section]
-                  handleUpdate('hidden_sections', newHidden)
+                  handleUpdate("hidden_sections", newHidden)
                 }}
-                disabled={section === 'contact' || isPending}
+                disabled={section === "contact" || isPending}
               />
             </div>
           ))}
@@ -489,7 +578,11 @@ export function SettingsPanel({ resumeId, settings, sectionOrder, templateId }: 
       {/* AI Prompts */}
       <SectionHeader title="AI Prompts" />
 
-      <SettingRow icon={Sparkles} label="Prompt Overrides" description="Customize AI prompts for this resume">
+      <SettingRow
+        icon={Sparkles}
+        label="Prompt Overrides"
+        description="Customize AI prompts for this resume"
+      >
         <AIPromptsOverrides resumeId={resumeId} />
       </SettingRow>
     </div>
@@ -503,13 +596,12 @@ function AIPromptsOverrides({ resumeId }: { resumeId: string }) {
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
-    Promise.all([
-      fetchPromptsByCategory(),
-      getResumePromptOverrides(resumeId),
-    ]).then(([p, o]) => {
-      setPrompts(p)
-      setOverrides(o)
-    }).catch(() => {})
+    Promise.all([fetchPromptsByCategory(), getResumePromptOverrides(resumeId)])
+      .then(([p, o]) => {
+        setPrompts(p)
+        setOverrides(o)
+      })
+      .catch(() => {})
   }, [resumeId])
 
   const overrideMap = new Map(overrides.map((o) => [o.prompt_slug, o]))
@@ -528,14 +620,14 @@ function AIPromptsOverrides({ resumeId }: { resumeId: string }) {
             prev.map((o) =>
               o.prompt_slug === slug
                 ? { ...o, system_prompt: systemPrompt, user_prompt_template: userTemplate }
-                : o
-            )
+                : o,
+            ),
           )
         } else {
           setOverrides((prev) => [
             ...prev,
             {
-              id: 'temp',
+              id: "temp",
               resume_id: resumeId,
               prompt_slug: slug,
               system_prompt: systemPrompt,
@@ -545,9 +637,9 @@ function AIPromptsOverrides({ resumeId }: { resumeId: string }) {
             },
           ])
         }
-        toast.success('Override saved')
+        toast.success("Override saved")
       } catch {
-        toast.error('Failed to save override')
+        toast.error("Failed to save override")
       }
     })
   }
@@ -557,17 +649,15 @@ function AIPromptsOverrides({ resumeId }: { resumeId: string }) {
       try {
         await deleteResumePromptOverride(resumeId, slug)
         setOverrides((prev) => prev.filter((o) => o.prompt_slug !== slug))
-        toast.success('Reset to default')
+        toast.success("Reset to default")
       } catch {
-        toast.error('Failed to reset')
+        toast.error("Failed to reset")
       }
     })
   }
 
   if (prompts.length === 0) {
-    return (
-      <p className="text-muted-foreground text-xs">Loading prompts...</p>
-    )
+    return <p className="text-muted-foreground text-xs">Loading prompts...</p>
   }
 
   return (
@@ -582,22 +672,13 @@ function AIPromptsOverrides({ resumeId }: { resumeId: string }) {
             <button
               type="button"
               className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs"
-              onClick={() =>
-                setExpandedSlug(isExpanded ? null : p.slug)
-              }
+              onClick={() => setExpandedSlug(isExpanded ? null : p.slug)}
             >
               <span className="flex-1 font-medium">{p.name}</span>
-              <Badge
-                variant={isCustom ? 'default' : 'secondary'}
-                className="text-[9px]"
-              >
-                {isCustom ? 'Custom' : 'Default'}
+              <Badge variant={isCustom ? "default" : "secondary"} className="text-[9px]">
+                {isCustom ? "Custom" : "Default"}
               </Badge>
-              {isExpanded ? (
-                <ChevronUp className="h-3 w-3" />
-              ) : (
-                <ChevronDown className="h-3 w-3" />
-              )}
+              {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             </button>
             {isExpanded && (
               <PromptOverrideEditor
@@ -628,11 +709,9 @@ function PromptOverrideEditor({
   onReset: () => void
   isPending: boolean
 }) {
-  const [systemPrompt, setSystemPrompt] = useState(
-    override?.system_prompt ?? prompt.system_prompt
-  )
+  const [systemPrompt, setSystemPrompt] = useState(override?.system_prompt ?? prompt.system_prompt)
   const [userTemplate, setUserTemplate] = useState(
-    override?.user_prompt_template ?? prompt.user_prompt_template
+    override?.user_prompt_template ?? prompt.user_prompt_template,
   )
 
   return (

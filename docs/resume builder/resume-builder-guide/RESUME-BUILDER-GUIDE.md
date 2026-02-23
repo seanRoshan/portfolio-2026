@@ -55,18 +55,18 @@ A Resume Builder extension integrated into an existing Next.js 16 application. T
 
 These principles should guide every design and implementation decision:
 
-| # | Principle | Implication |
-|---|-----------|-------------|
-| 1 | **Resume's only goal is to get an interview** | It's a sales document, not a life history. Guide users toward brevity and impact. |
-| 2 | **7-second scan rule** | Recruiters scan in ~7 seconds. The design must surface key info (title, skills, company) instantly. |
-| 3 | **Tailoring is mandatory** | Support creating multiple resume versions from a master. Each version targets a specific role. |
-| 4 | **Show impact, not responsibilities** | Every bullet point should follow the accomplishment formula. The UI must guide this. |
-| 5 | **Career progression matters** | The resume must tell a story of growth. Highlight promotions and increasing scope. |
-| 6 | **PDF is the only output format** | Never output .doc or .rtf. PDF preserves formatting across all viewers. |
-| 7 | **ATS is organizational, not a gatekeeper** | Don't build "ATS bypass" features. Build for human readability; ATS handles the rest. |
-| 8 | **No bias-inducing content** | Never include photo upload, date of birth, gender, nationality, marital status, or religion fields. |
-| 9 | **Single-column layouts are superior** | For tech resumes, single-column supports natural top-to-bottom scanning. |
-| 10 | **Referrals trump everything** | A referral bypasses the initial scan. The builder doesn't control this, but could integrate referral tracking. |
+| #   | Principle                                     | Implication                                                                                                    |
+| --- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 1   | **Resume's only goal is to get an interview** | It's a sales document, not a life history. Guide users toward brevity and impact.                              |
+| 2   | **7-second scan rule**                        | Recruiters scan in ~7 seconds. The design must surface key info (title, skills, company) instantly.            |
+| 3   | **Tailoring is mandatory**                    | Support creating multiple resume versions from a master. Each version targets a specific role.                 |
+| 4   | **Show impact, not responsibilities**         | Every bullet point should follow the accomplishment formula. The UI must guide this.                           |
+| 5   | **Career progression matters**                | The resume must tell a story of growth. Highlight promotions and increasing scope.                             |
+| 6   | **PDF is the only output format**             | Never output .doc or .rtf. PDF preserves formatting across all viewers.                                        |
+| 7   | **ATS is organizational, not a gatekeeper**   | Don't build "ATS bypass" features. Build for human readability; ATS handles the rest.                          |
+| 8   | **No bias-inducing content**                  | Never include photo upload, date of birth, gender, nationality, marital status, or religion fields.            |
+| 9   | **Single-column layouts are superior**        | For tech resumes, single-column supports natural top-to-bottom scanning.                                       |
+| 10  | **Referrals trump everything**                | A referral bypasses the initial scan. The builder doesn't control this, but could integrate referral tracking. |
 
 ---
 
@@ -95,146 +95,145 @@ User (1) ──── (N) Resume
 ```typescript
 // User can have multiple resumes (master + tailored versions)
 interface Resume {
-  id: string;
-  userId: string;
-  title: string;                    // e.g., "Senior Backend Engineer - Google Application"
-  templateId: string;               // Reference to template
-  experienceLevel: ExperienceLevel; // Drives section ordering and guidance
-  targetRole?: string;              // e.g., "Frontend", "Backend", "Staff+"
-  isMaster: boolean;                // Is this the master resume?
-  parentResumeId?: string;          // If tailored, link to master
-  settings: ResumeSettings;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  userId: string
+  title: string // e.g., "Senior Backend Engineer - Google Application"
+  templateId: string // Reference to template
+  experienceLevel: ExperienceLevel // Drives section ordering and guidance
+  targetRole?: string // e.g., "Frontend", "Backend", "Staff+"
+  isMaster: boolean // Is this the master resume?
+  parentResumeId?: string // If tailored, link to master
+  settings: ResumeSettings
+  createdAt: Date
+  updatedAt: Date
 }
 
 type ExperienceLevel =
   | "intern"
   | "new_grad"
   | "bootcamp_grad"
-  | "junior"        // 1-3 years
-  | "mid"           // 3-5 years
-  | "senior"        // 5-10 years
-  | "staff_plus"    // 10+ years
+  | "junior" // 1-3 years
+  | "mid" // 3-5 years
+  | "senior" // 5-10 years
+  | "staff_plus" // 10+ years
   | "tech_lead"
-  | "eng_manager";
+  | "eng_manager"
 
 interface ContactInfo {
-  id: string;
-  resumeId: string;
-  fullName: string;
-  email: string;
-  phone?: string;
-  city: string;
-  country: string;
-  linkedinUrl?: string;
-  githubUrl?: string;
-  portfolioUrl?: string;
-  blogUrl?: string;
+  id: string
+  resumeId: string
+  fullName: string
+  email: string
+  phone?: string
+  city: string
+  country: string
+  linkedinUrl?: string
+  githubUrl?: string
+  portfolioUrl?: string
+  blogUrl?: string
 }
 
 interface Summary {
-  id: string;
-  resumeId: string;
-  text: string;          // 1-3 sentences max
-  isVisible: boolean;    // Some profiles should hide this
+  id: string
+  resumeId: string
+  text: string // 1-3 sentences max
+  isVisible: boolean // Some profiles should hide this
 }
 
 interface WorkExperience {
-  id: string;
-  resumeId: string;
-  jobTitle: string;
-  company: string;
-  location: string;
-  startDate: Date;
-  endDate?: Date;        // null = "Present"
-  isPromotion: boolean;  // Visual indicator of career growth
-  parentExperienceId?: string; // For promotions within same company
-  order: number;
-  achievements: Achievement[];
+  id: string
+  resumeId: string
+  jobTitle: string
+  company: string
+  location: string
+  startDate: Date
+  endDate?: Date // null = "Present"
+  isPromotion: boolean // Visual indicator of career growth
+  parentExperienceId?: string // For promotions within same company
+  order: number
+  achievements: Achievement[]
 }
 
 interface Achievement {
-  id: string;
-  parentId: string;      // WorkExperience or Project ID
-  parentType: "work" | "project";
-  text: string;          // Single bullet point
-  hasMetric: boolean;    // Computed: does this contain a number?
-  order: number;
+  id: string
+  parentId: string // WorkExperience or Project ID
+  parentType: "work" | "project"
+  text: string // Single bullet point
+  hasMetric: boolean // Computed: does this contain a number?
+  order: number
 }
 
 interface Education {
-  id: string;
-  resumeId: string;
-  degree: string;
-  institution: string;
-  fieldOfStudy?: string;
-  graduationDate: Date;
-  gpa?: number;          // Only show if > 3.5 and < 5 years experience
-  relevantCoursework?: string[];
-  honors?: string;
-  order: number;
+  id: string
+  resumeId: string
+  degree: string
+  institution: string
+  fieldOfStudy?: string
+  graduationDate: Date
+  gpa?: number // Only show if > 3.5 and < 5 years experience
+  relevantCoursework?: string[]
+  honors?: string
+  order: number
 }
 
 interface SkillCategory {
-  id: string;
-  resumeId: string;
-  name: string;          // e.g., "Languages", "Frameworks", "Databases", "Cloud", "Tools"
-  skills: string[];      // e.g., ["TypeScript", "Python", "Go"]
-  order: number;
+  id: string
+  resumeId: string
+  name: string // e.g., "Languages", "Frameworks", "Databases", "Cloud", "Tools"
+  skills: string[] // e.g., ["TypeScript", "Python", "Go"]
+  order: number
 }
 
 interface Project {
-  id: string;
-  resumeId: string;
-  name: string;
-  projectUrl?: string;
-  sourceUrl?: string;    // GitHub link
-  description: string;
-  achievements: Achievement[];
-  order: number;
+  id: string
+  resumeId: string
+  name: string
+  projectUrl?: string
+  sourceUrl?: string // GitHub link
+  description: string
+  achievements: Achievement[]
+  order: number
 }
 
 interface Certification {
-  id: string;
-  resumeId: string;
-  name: string;
-  issuer: string;
-  date: Date;
-  order: number;
+  id: string
+  resumeId: string
+  name: string
+  issuer: string
+  date: Date
+  order: number
 }
 
 interface Extracurricular {
-  id: string;
-  resumeId: string;
-  type: "patent" | "publication" | "talk" | "open_source" | "community" | "other";
-  title: string;
-  description?: string;
-  url?: string;
-  order: number;
+  id: string
+  resumeId: string
+  type: "patent" | "publication" | "talk" | "open_source" | "community" | "other"
+  title: string
+  description?: string
+  url?: string
+  order: number
 }
 
 interface ResumeSettings {
-  id: string;
-  resumeId: string;
-  templateId: string;
-  accentColor: string;           // Hex color for links/headers
-  fontFamily: FontFamily;
-  fontSize: "compact" | "comfortable" | "spacious";
-  dateFormat: "full" | "month_year" | "year_only";
-  sectionOrder: string[];        // Array of section IDs in display order
-  hiddenSections: string[];      // Section IDs to hide
-  pageLimit: 1 | 2 | 3;
+  id: string
+  resumeId: string
+  templateId: string
+  accentColor: string // Hex color for links/headers
+  fontFamily: FontFamily
+  fontSize: "compact" | "comfortable" | "spacious"
+  dateFormat: "full" | "month_year" | "year_only"
+  sectionOrder: string[] // Array of section IDs in display order
+  hiddenSections: string[] // Section IDs to hide
+  pageLimit: 1 | 2 | 3
 }
 
 type FontFamily =
-  | "inter"        // Modern sans-serif
-  | "source_sans"  // Clean sans-serif
-  | "lato"         // Friendly sans-serif
-  | "georgia"      // Classic serif
-  | "garamond"     // Elegant serif
-  | "source_code"  // Monospace (for Mono template)
-  ;
+  | "inter" // Modern sans-serif
+  | "source_sans" // Clean sans-serif
+  | "lato" // Friendly sans-serif
+  | "georgia" // Classic serif
+  | "garamond" // Elegant serif
+  | "source_code" // Monospace (for Mono template)
 ```
 
 ---
@@ -243,30 +242,30 @@ type FontFamily =
 
 ### Section Inventory
 
-| Section | Status | Fields | Notes |
-|---------|--------|--------|-------|
-| **Contact Details** | Required | name, email, phone, city, country, linkedin, github, portfolio | Max 4 links |
-| **Summary** | Conditional | text (1-3 sentences) | Required for senior/manager/career-change. Hidden for juniors. |
-| **Work Experience** | Required | title, company, location, dates, 3-4 achievement bullets each | Most critical section for experienced professionals |
-| **Education** | Required | degree, institution, field, graduation date, GPA (conditional), coursework (conditional) | Prominence decreases with experience |
-| **Skills / Technologies** | Required | Categorized skill lists (Languages, Frameworks, DBs, Cloud, Tools) | No ratings. Order by relevance. |
-| **Projects** | Recommended | name, URLs, description, achievements | Critical for new grads; optional for experienced |
-| **Certifications** | Optional | name, issuer, date | More valued by agencies and non-tech-first companies |
-| **Extracurricular** | Optional | type, title, description, URL | Patents, publications, talks, OSS |
-| **Interests** | Optional | One-line list | First thing to cut for space |
+| Section                   | Status      | Fields                                                                                   | Notes                                                          |
+| ------------------------- | ----------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **Contact Details**       | Required    | name, email, phone, city, country, linkedin, github, portfolio                           | Max 4 links                                                    |
+| **Summary**               | Conditional | text (1-3 sentences)                                                                     | Required for senior/manager/career-change. Hidden for juniors. |
+| **Work Experience**       | Required    | title, company, location, dates, 3-4 achievement bullets each                            | Most critical section for experienced professionals            |
+| **Education**             | Required    | degree, institution, field, graduation date, GPA (conditional), coursework (conditional) | Prominence decreases with experience                           |
+| **Skills / Technologies** | Required    | Categorized skill lists (Languages, Frameworks, DBs, Cloud, Tools)                       | No ratings. Order by relevance.                                |
+| **Projects**              | Recommended | name, URLs, description, achievements                                                    | Critical for new grads; optional for experienced               |
+| **Certifications**        | Optional    | name, issuer, date                                                                       | More valued by agencies and non-tech-first companies           |
+| **Extracurricular**       | Optional    | type, title, description, URL                                                            | Patents, publications, talks, OSS                              |
+| **Interests**             | Optional    | One-line list                                                                            | First thing to cut for space                                   |
 
 ### Sections to NEVER Include
 
-| Excluded | Reason |
-|----------|--------|
-| Objective Statement | Outdated; states the obvious |
-| Photo | Introduces unconscious bias |
-| Date of Birth | Introduces age bias |
-| Gender / Nationality / Marital Status | Irrelevant; introduces bias |
-| References / "Available on Request" | Assumed; wastes space |
-| Self-rated skills (stars, bars, percentages) | Subjective and counterproductive |
-| Third-party quotes / testimonials | Inappropriate for resumes |
-| Full mailing address | Privacy concern; city+country suffices |
+| Excluded                                     | Reason                                 |
+| -------------------------------------------- | -------------------------------------- |
+| Objective Statement                          | Outdated; states the obvious           |
+| Photo                                        | Introduces unconscious bias            |
+| Date of Birth                                | Introduces age bias                    |
+| Gender / Nationality / Marital Status        | Irrelevant; introduces bias            |
+| References / "Available on Request"          | Assumed; wastes space                  |
+| Self-rated skills (stars, bars, percentages) | Subjective and counterproductive       |
+| Third-party quotes / testimonials            | Inappropriate for resumes              |
+| Full mailing address                         | Privacy concern; city+country suffices |
 
 ---
 
@@ -291,6 +290,7 @@ Summary: Hidden by default
 ```
 
 **Guidance:**
+
 - Education goes near the top
 - Include GPA if > 3.5
 - Include relevant coursework (Data Structures, Algorithms)
@@ -313,6 +313,7 @@ Page Limit: 1 page (strict)
 ```
 
 **Guidance:**
+
 - Summary is mandatory to frame the career narrative
 - Projects should include live hosted demos, OSS contributions, freelance work
 - Past experience kept very concise; focus on transferable skills
@@ -334,6 +335,7 @@ Page Limit: 1-2 pages
 ```
 
 **Guidance:**
+
 - Remove GPA (unless extraordinary)
 - Remove coursework and activities
 - Work experience is the star; 3-4 achievement bullets per role
@@ -354,6 +356,7 @@ Page Limit: 2 pages
 ```
 
 **Guidance:**
+
 - Early career roles should be highly condensed (title, company, dates only)
 - Include "soft" achievements: mentoring, team building, process improvement
 - Highlight cross-team influence and technical leadership
@@ -387,15 +390,17 @@ Page Limit: 2 pages
 ```
 
 **Guidance for Tech Lead bullets:**
+
 - "Sped up delivery by X%"
 - "Led a team of N engineers to ship..."
 - Team context is essential (team size, scope)
 
 **Guidance for Manager bullets:**
+
 - Hiring achievements (diversity metrics)
 - People development (promotions coached)
 - Team health metrics (low attrition)
-- Shipping impactful projects *through* the team
+- Shipping impactful projects _through_ the team
 
 ---
 
@@ -403,14 +408,14 @@ Page Limit: 2 pages
 
 When users specify a target role, reorder content to emphasize relevant experience.
 
-| Target Role | Prioritize | Key Metrics |
-|-------------|-----------|-------------|
-| **Frontend** | UI/UX, JS/TS frameworks (React, Vue, Angular), design systems | Page load time, Lighthouse scores, user engagement |
-| **Backend** | Languages (Go, Java, Python), databases, APIs, distributed systems | API latency, uptime (99.9%), throughput (QPS), cost savings |
-| **Mobile** | Swift, Kotlin, Flutter, React Native, app store releases | App ratings, download counts, crash rates |
-| **Data / ML** | Python/R, Spark, TensorFlow, PyTorch, statistical modeling | Model accuracy, business outcome impact, data processed |
-| **DevOps / Infra** | Cloud platforms, Kubernetes, CI/CD, monitoring | Deploy frequency, MTTR, infrastructure cost reduction |
-| **Management** | Leadership, project delivery, people management | Team size, shipping velocity, retention, promotions |
+| Target Role        | Prioritize                                                         | Key Metrics                                                 |
+| ------------------ | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| **Frontend**       | UI/UX, JS/TS frameworks (React, Vue, Angular), design systems      | Page load time, Lighthouse scores, user engagement          |
+| **Backend**        | Languages (Go, Java, Python), databases, APIs, distributed systems | API latency, uptime (99.9%), throughput (QPS), cost savings |
+| **Mobile**         | Swift, Kotlin, Flutter, React Native, app store releases           | App ratings, download counts, crash rates                   |
+| **Data / ML**      | Python/R, Spark, TensorFlow, PyTorch, statistical modeling         | Model accuracy, business outcome impact, data processed     |
+| **DevOps / Infra** | Cloud platforms, Kubernetes, CI/CD, monitoring                     | Deploy frequency, MTTR, infrastructure cost reduction       |
+| **Management**     | Leadership, project delivery, people management                    | Team size, shipping velocity, retention, promotions         |
 
 **Rule:** When a user has experience in multiple areas, the content most relevant to the target role should be listed first within each job experience.
 
@@ -420,16 +425,16 @@ When users specify a target role, reorder content to emphasize relevant experien
 
 ### Writing Rules for Achievement Bullets
 
-| Rule | Implementation |
-|------|---------------|
-| Start with strong action verb | Validate first word against approved verb list |
-| Include at least one metric | Flag bullets without numbers |
-| Max 2 lines per bullet | Character limit enforcement |
-| 3-4 bullets per role | Count enforcement per work experience |
-| No passive voice | Detect "was responsible for", "assisted with", "worked on" |
-| No buzzwords | Detect "team player", "fast learner", "hit the ground running" |
-| No internal jargon | Flag acronyms not in standard tech vocabulary |
-| Show impact, not responsibility | Detect "responsible for" pattern and suggest rewrite |
+| Rule                            | Implementation                                                 |
+| ------------------------------- | -------------------------------------------------------------- |
+| Start with strong action verb   | Validate first word against approved verb list                 |
+| Include at least one metric     | Flag bullets without numbers                                   |
+| Max 2 lines per bullet          | Character limit enforcement                                    |
+| 3-4 bullets per role            | Count enforcement per work experience                          |
+| No passive voice                | Detect "was responsible for", "assisted with", "worked on"     |
+| No buzzwords                    | Detect "team player", "fast learner", "hit the ground running" |
+| No internal jargon              | Flag acronyms not in standard tech vocabulary                  |
+| Show impact, not responsibility | Detect "responsible for" pattern and suggest rewrite           |
 
 ### Approved Action Verbs
 
@@ -443,13 +448,13 @@ Communication: Presented, Documented, Authored, Published, Mentored, Trained
 
 ### Verbs to Flag and Replace
 
-| Flag | Suggest Instead |
-|------|----------------|
-| "Worked on" | "Built", "Implemented", "Developed" |
-| "Responsible for" | "Led", "Managed", "Drove" |
-| "Took part in" | "Contributed to", "Collaborated on" |
-| "Assisted with" | "Supported", "Enabled" (or better: describe specific contribution) |
-| "Helped" | "Enabled", "Facilitated" (or describe the specific help) |
+| Flag              | Suggest Instead                                                    |
+| ----------------- | ------------------------------------------------------------------ |
+| "Worked on"       | "Built", "Implemented", "Developed"                                |
+| "Responsible for" | "Led", "Managed", "Drove"                                          |
+| "Took part in"    | "Contributed to", "Collaborated on"                                |
+| "Assisted with"   | "Supported", "Enabled" (or better: describe specific contribution) |
+| "Helped"          | "Enabled", "Facilitated" (or describe the specific help)           |
 
 ---
 
@@ -466,30 +471,34 @@ Communication: Presented, Documented, Authored, Published, Mentored, Trained
 ### Examples
 
 **Before (Weak):**
+
 > Worked on the Billing team, developing microservices.
 
 **After (Strong):**
+
 > Reduced support tickets by 80% by implementing comprehensive error code mapping in a Node.js billing API, ensuring 100% of error codes resolve to appropriate HTTP responses.
 
 **Before (Weak):**
+
 > Automated error handling in our RESTful API services.
 
 **After (Strong):**
+
 > Improved availability of the receipts microservice from 99.8% to 99.9% by implementing a Redis read-through cache layer, eliminating redundant database queries during peak traffic.
 
 ### Metrics to Prompt For
 
 The builder should proactively ask users these questions to extract metrics:
 
-| Question | Metric Type |
-|----------|------------|
-| "How many users did this serve?" | Scale |
-| "By what percentage did this improve X?" | Performance gain |
-| "How much revenue/cost was involved?" | Revenue / Cost savings |
-| "How many team members were involved?" | Team size |
-| "How much faster was it?" | Latency / Speed |
-| "What was the before/after availability?" | Reliability |
-| "How many teams adopted this?" | Adoption / Influence |
+| Question                                  | Metric Type            |
+| ----------------------------------------- | ---------------------- |
+| "How many users did this serve?"          | Scale                  |
+| "By what percentage did this improve X?"  | Performance gain       |
+| "How much revenue/cost was involved?"     | Revenue / Cost savings |
+| "How many team members were involved?"    | Team size              |
+| "How much faster was it?"                 | Latency / Speed        |
+| "What was the before/after availability?" | Reliability            |
+| "How many teams adopted this?"            | Adoption / Influence   |
 
 **Important:** Approximate numbers are better than no numbers. Guide users with: "A rough estimate is better than nothing."
 
@@ -501,44 +510,44 @@ The builder should run these validations in real-time and surface warnings/error
 
 ### Critical (Block Export)
 
-| Rule | Check |
-|------|-------|
-| No empty sections visible | All visible sections must have content |
-| Contact info complete | Name + email + city/country required |
-| At least one work experience or project | Resume must have substance |
-| No broken URLs | Validate all entered URLs |
-| File naming convention | Export as `{FirstName}_{LastName}_Resume.pdf` |
+| Rule                                    | Check                                         |
+| --------------------------------------- | --------------------------------------------- |
+| No empty sections visible               | All visible sections must have content        |
+| Contact info complete                   | Name + email + city/country required          |
+| At least one work experience or project | Resume must have substance                    |
+| No broken URLs                          | Validate all entered URLs                     |
+| File naming convention                  | Export as `{FirstName}_{LastName}_Resume.pdf` |
 
 ### Warnings (Show Alert)
 
-| Rule | Check |
-|------|-------|
-| Bullet without metric | Flag achievement bullets containing no numbers |
-| Passive language detected | Flag "worked on", "responsible for", etc. |
-| Buzzword detected | Flag "team player", "fast learner", "excellent communication" |
-| Internal jargon detected | Flag non-standard acronyms |
-| Over page limit | Content exceeds selected page limit |
-| GPA shown with 5+ years experience | Suggest removing GPA |
-| Coursework shown with 5+ years experience | Suggest removing coursework |
-| Skills self-rated | Prevent skill rating UI entirely |
-| Too many contact links | Max 4 contact links |
-| Large text blocks | Flag paragraphs > 3-4 lines; suggest bullet points |
-| Inconsistent date format | Ensure all dates use same format |
-| Missing location in work experience | Prompt to add city/country |
-| Too many bullets per role | Warn if > 5 bullets per role |
-| Too few bullets per role | Warn if < 2 bullets per role |
-| Sloppy language | Flag "etc.", "and so on", slang |
-| Photo detected | Never allow photo upload |
+| Rule                                      | Check                                                         |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| Bullet without metric                     | Flag achievement bullets containing no numbers                |
+| Passive language detected                 | Flag "worked on", "responsible for", etc.                     |
+| Buzzword detected                         | Flag "team player", "fast learner", "excellent communication" |
+| Internal jargon detected                  | Flag non-standard acronyms                                    |
+| Over page limit                           | Content exceeds selected page limit                           |
+| GPA shown with 5+ years experience        | Suggest removing GPA                                          |
+| Coursework shown with 5+ years experience | Suggest removing coursework                                   |
+| Skills self-rated                         | Prevent skill rating UI entirely                              |
+| Too many contact links                    | Max 4 contact links                                           |
+| Large text blocks                         | Flag paragraphs > 3-4 lines; suggest bullet points            |
+| Inconsistent date format                  | Ensure all dates use same format                              |
+| Missing location in work experience       | Prompt to add city/country                                    |
+| Too many bullets per role                 | Warn if > 5 bullets per role                                  |
+| Too few bullets per role                  | Warn if < 2 bullets per role                                  |
+| Sloppy language                           | Flag "etc.", "and so on", slang                               |
+| Photo detected                            | Never allow photo upload                                      |
 
 ### Style Enforcement
 
-| Rule | Check |
-|------|-------|
-| Font size minimum | Never allow below 9pt |
-| Consistent formatting | Enforce single font family throughout |
-| Bold usage | Flag bolding within body sentences (only titles, companies, dates) |
-| Link styling | All URLs must be clickable; styled to match text color (no default blue) |
-| No sub-bullets | Prevent nested bullet points |
+| Rule                  | Check                                                                    |
+| --------------------- | ------------------------------------------------------------------------ |
+| Font size minimum     | Never allow below 9pt                                                    |
+| Consistent formatting | Enforce single font family throughout                                    |
+| Bold usage            | Flag bolding within body sentences (only titles, companies, dates)       |
+| Link styling          | All URLs must be clickable; styled to match text color (no default blue) |
+| No sub-bullets        | Prevent nested bullet points                                             |
 
 ---
 
@@ -558,6 +567,7 @@ Resume Data (JSON) ──→ Template Engine ──→ HTML/CSS ──→ PDF
 ```
 
 **Key design decisions:**
+
 - Content entered once, rendered in any template
 - Users can switch templates without re-entering data
 - Templates enforce good spacing (prevent content cramming)
@@ -568,62 +578,62 @@ Resume Data (JSON) ──→ Template Engine ──→ HTML/CSS ──→ PDF
 
 ```typescript
 interface ResumeTemplate {
-  id: string;
-  name: string;
-  description: string;
-  category: "recommended" | "classic" | "creative" | "minimal";
-  layout: "single_column" | "two_column";
-  targetExperienceLevels: ExperienceLevel[];
-  maxPages: number;
-  previewImageUrl: string;
+  id: string
+  name: string
+  description: string
+  category: "recommended" | "classic" | "creative" | "minimal"
+  layout: "single_column" | "two_column"
+  targetExperienceLevels: ExperienceLevel[]
+  maxPages: number
+  previewImageUrl: string
 
   // Design tokens
   tokens: {
     fontFamily: {
-      heading: string;
-      body: string;
-    };
+      heading: string
+      body: string
+    }
     fontSize: {
-      name: string;       // e.g., "28px"
-      sectionHeader: string;
-      jobTitle: string;
-      body: string;
-      date: string;
-    };
+      name: string // e.g., "28px"
+      sectionHeader: string
+      jobTitle: string
+      body: string
+      date: string
+    }
     spacing: {
-      sectionGap: string;
-      entryGap: string;
-      lineHeight: string;
-      pageMargin: string;
-    };
+      sectionGap: string
+      entryGap: string
+      lineHeight: string
+      pageMargin: string
+    }
     colors: {
-      primary: string;     // Text color
-      secondary: string;   // Dates, location
-      accent: string;      // Links, headers
-      background: string;
-      divider: string;
-    };
+      primary: string // Text color
+      secondary: string // Dates, location
+      accent: string // Links, headers
+      background: string
+      divider: string
+    }
     layout: {
-      columnRatio?: string; // e.g., "30/70" for two-column
-      headerStyle: "centered" | "left_aligned" | "full_width";
-      sectionDivider: "line" | "space" | "border" | "none";
-    };
-  };
+      columnRatio?: string // e.g., "30/70" for two-column
+      headerStyle: "centered" | "left_aligned" | "full_width"
+      sectionDivider: "line" | "space" | "border" | "none"
+    }
+  }
 }
 ```
 
 ### Customization Options
 
-| Option | Type | Constraints |
-|--------|------|------------|
-| Accent color | Color picker | Single color for links + headers |
-| Font family | Select (curated list) | 6 font pairings max |
-| Density | Toggle: compact / comfortable / spacious | Maps to font size + spacing presets |
-| Section order | Drag-and-drop | Reorder all sections |
-| Section visibility | Toggle per section | Show/hide optional sections |
-| Custom sections | Text input | User-defined section names |
-| Date format | Select | "Sep 2020", "09/2020", "2020" |
-| Contact field visibility | Toggle per field | Choose which contact info to show |
+| Option                   | Type                                     | Constraints                         |
+| ------------------------ | ---------------------------------------- | ----------------------------------- |
+| Accent color             | Color picker                             | Single color for links + headers    |
+| Font family              | Select (curated list)                    | 6 font pairings max                 |
+| Density                  | Toggle: compact / comfortable / spacious | Maps to font size + spacing presets |
+| Section order            | Drag-and-drop                            | Reorder all sections                |
+| Section visibility       | Toggle per section                       | Show/hide optional sections         |
+| Custom sections          | Text input                               | User-defined section names          |
+| Date format              | Select                                   | "Sep 2020", "09/2020", "2020"       |
+| Contact field visibility | Toggle per field                         | Choose which contact info to show   |
 
 ---
 
@@ -701,12 +711,12 @@ interface ResumeTemplate {
 
 ### Templates to AVOID (Do Not Implement)
 
-| Template | Why |
-|----------|-----|
-| EuroPass CV | Rigid table layout, wastes space, encourages bias (photo, DOB), universally discouraged |
-| EnhanCV-style | Design-heavy, hard to scan, encourages fluff ("Life Philosophy" sections) |
-| Canva templates | Optimized for visual impact, not recruiter scanning; mostly two-column with photos |
-| Resume.io generic | Inconsistent structures, includes skill ratings, unrealistic sample content |
+| Template          | Why                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| EuroPass CV       | Rigid table layout, wastes space, encourages bias (photo, DOB), universally discouraged |
+| EnhanCV-style     | Design-heavy, hard to scan, encourages fluff ("Life Philosophy" sections)               |
+| Canva templates   | Optimized for visual impact, not recruiter scanning; mostly two-column with photos      |
+| Resume.io generic | Inconsistent structures, includes skill ratings, unrealistic sample content             |
 
 ---
 
@@ -714,34 +724,34 @@ interface ResumeTemplate {
 
 ### Font Size Hierarchy
 
-| Element | Size Range | Weight | Notes |
-|---------|-----------|--------|-------|
-| Name | 24-30pt | Bold | Largest element on page |
-| Section Headers | 14-16pt | Bold or ALL CAPS | Clear visual break |
-| Job Title / Company | 12-14pt | Bold | Easy to scan |
-| Body Text | 10-12pt | Regular | Readable at print size |
-| Dates / Location | 9-11pt | Regular or Light | Secondary info, slightly smaller |
+| Element             | Size Range | Weight           | Notes                            |
+| ------------------- | ---------- | ---------------- | -------------------------------- |
+| Name                | 24-30pt    | Bold             | Largest element on page          |
+| Section Headers     | 14-16pt    | Bold or ALL CAPS | Clear visual break               |
+| Job Title / Company | 12-14pt    | Bold             | Easy to scan                     |
+| Body Text           | 10-12pt    | Regular          | Readable at print size           |
+| Dates / Location    | 9-11pt     | Regular or Light | Secondary info, slightly smaller |
 
 ### Spacing Rules
 
-| Element | Spec |
-|---------|------|
-| Page margins | 0.5-1 inch all sides |
-| Line height | 1.3-1.5x font size |
-| Section gap | 16-24px between sections |
-| Entry gap | 8-12px between work experiences |
-| Bullet indent | 16-20px from left edge |
+| Element       | Spec                            |
+| ------------- | ------------------------------- |
+| Page margins  | 0.5-1 inch all sides            |
+| Line height   | 1.3-1.5x font size              |
+| Section gap   | 16-24px between sections        |
+| Entry gap     | 8-12px between work experiences |
+| Bullet indent | 16-20px from left edge          |
 
 ### Page Length Rules
 
-| Experience Level | Max Pages |
-|-----------------|-----------|
-| Intern / New Grad | 1 page (strict) |
-| Bootcamp Grad | 1 page (strict) |
-| Junior (1-3 years) | 1 page |
-| Mid (3-5 years) | 1-2 pages |
-| Senior (5-10 years) | 2 pages |
-| Staff+ / Manager | 2 pages (3 max in rare cases) |
+| Experience Level    | Max Pages                     |
+| ------------------- | ----------------------------- |
+| Intern / New Grad   | 1 page (strict)               |
+| Bootcamp Grad       | 1 page (strict)               |
+| Junior (1-3 years)  | 1 page                        |
+| Mid (3-5 years)     | 1-2 pages                     |
+| Senior (5-10 years) | 2 pages                       |
+| Staff+ / Manager    | 2 pages (3 max in rare cases) |
 
 ### File Naming
 
@@ -757,43 +767,43 @@ These patterns should power the AI suggestion engine and the "Resume Improver" f
 
 ### Layout Transformations
 
-| Before | After | Rule |
-|--------|-------|------|
-| 3+ page resume | 1-2 pages | Cut irrelevant old jobs, merge roles at same company, condense early career |
-| Two-column photo-heavy template | Clean single-column | Switch template, remove photo |
-| Inconsistent fonts/alignment/spacing | Uniform style | Apply single style sheet |
-| Oldest experience listed first | Newest experience first | Enforce reverse chronological order |
-| Key info (Skills) on page 2 | Skills on page 1 | Reorder sections; skills must be on page 1 |
+| Before                               | After                   | Rule                                                                        |
+| ------------------------------------ | ----------------------- | --------------------------------------------------------------------------- |
+| 3+ page resume                       | 1-2 pages               | Cut irrelevant old jobs, merge roles at same company, condense early career |
+| Two-column photo-heavy template      | Clean single-column     | Switch template, remove photo                                               |
+| Inconsistent fonts/alignment/spacing | Uniform style           | Apply single style sheet                                                    |
+| Oldest experience listed first       | Newest experience first | Enforce reverse chronological order                                         |
+| Key info (Skills) on page 2          | Skills on page 1        | Reorder sections; skills must be on page 1                                  |
 
 ### Content Transformations
 
-| Before | After | Rule |
-|--------|-------|------|
-| "Built a mobile app" | "Built an Android app using Kotlin and Jetpack Compose serving 50K users" | Add tech stack + metrics |
-| "Was responsible for..." | "Architected...", "Led..." | Replace passive voice with active verbs |
-| No quantifiable results | "Improved API response time by 30%" | Prompt user for metrics |
-| "Excellent communication skills" | "Presented quarterly architecture reviews to 40+ engineers" | Replace buzzwords with specific examples |
-| 10 years same company, one entry | Split into 3 roles showing promotions | Visualize career progression |
+| Before                           | After                                                                     | Rule                                     |
+| -------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------- |
+| "Built a mobile app"             | "Built an Android app using Kotlin and Jetpack Compose serving 50K users" | Add tech stack + metrics                 |
+| "Was responsible for..."         | "Architected...", "Led..."                                                | Replace passive voice with active verbs  |
+| No quantifiable results          | "Improved API response time by 30%"                                       | Prompt user for metrics                  |
+| "Excellent communication skills" | "Presented quarterly architecture reviews to 40+ engineers"               | Replace buzzwords with specific examples |
+| 10 years same company, one entry | Split into 3 roles showing promotions                                     | Visualize career progression             |
 
 ### Cleanup Transformations
 
-| Before | After | Rule |
-|--------|-------|------|
-| Self-rated skills (stars/bars) | Simple skill list by category | Remove all rating UI |
-| Photo, DOB, marital status | Removed entirely | Strip bias-inducing info |
-| Links to generic company homepages | Links to specific work (GitHub, live projects) | Replace or remove generic URLs |
-| Every technology ever touched listed | Curated, relevant skill list | Prioritize by target role relevance |
-| Missing city/country | City, Country added | Prompt for location |
+| Before                               | After                                          | Rule                                |
+| ------------------------------------ | ---------------------------------------------- | ----------------------------------- |
+| Self-rated skills (stars/bars)       | Simple skill list by category                  | Remove all rating UI                |
+| Photo, DOB, marital status           | Removed entirely                               | Strip bias-inducing info            |
+| Links to generic company homepages   | Links to specific work (GitHub, live projects) | Replace or remove generic URLs      |
+| Every technology ever touched listed | Curated, relevant skill list                   | Prioritize by target role relevance |
+| Missing city/country                 | City, Country added                            | Prompt for location                 |
 
 ### Reference Images
 
 Before/After examples from the course:
 
-| Example | Before | After |
-|---------|--------|-------|
-| Resume Structure | ![Before](./images/p2-c2-resume-structure_1_before_after_01_v1-XOWTVLUJ.png) | ![After](./images/p2-c2-resume-structure_3_before_after_01_v3-DGYRVVYT.png) |
-| Standing Out | ![Before](./images/p2-c3-standing-out_0_before_after_02_v1-WVEDNRLZ.png) | ![After](./images/p2-c3-standing-out_2_before_after_02_v3-LIUDMYUS.png) |
-| Full Resume Before | ![Before](./images/p3-c3-resume-improvement-examples_0_resume_1_before_1-DG4ROJUE.png) | ![After](./images/p3-c3-resume-improvement-examples_2_resume_1_after_1-RHGAI432.png) |
+| Example              | Before                                                                                 | After                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Resume Structure     | ![Before](./images/p2-c2-resume-structure_1_before_after_01_v1-XOWTVLUJ.png)           | ![After](./images/p2-c2-resume-structure_3_before_after_01_v3-DGYRVVYT.png)          |
+| Standing Out         | ![Before](./images/p2-c3-standing-out_0_before_after_02_v1-WVEDNRLZ.png)               | ![After](./images/p2-c3-standing-out_2_before_after_02_v3-LIUDMYUS.png)              |
+| Full Resume Before   | ![Before](./images/p3-c3-resume-improvement-examples_0_resume_1_before_1-DG4ROJUE.png) | ![After](./images/p3-c3-resume-improvement-examples_2_resume_1_after_1-RHGAI432.png) |
 | Full Resume 2 Before | ![Before](./images/p3-c3-resume-improvement-examples_4_resume_2_before_1-BPK634VO.png) | ![After](./images/p3-c3-resume-improvement-examples_7_resume_2_after_1-U4POAJXV.png) |
 
 ---
@@ -806,6 +816,7 @@ Before/After examples from the course:
 **Output:** Impact-driven statement using XYZ formula
 
 **Prompt template:**
+
 ```
 Rewrite this resume bullet point to follow the XYZ formula:
 "Accomplished [X impact] as measured by [Y metric] by doing [Z action]"
@@ -824,17 +835,18 @@ Requirements:
 
 Detect and suggest alternatives:
 
-| Cliche | Suggested Prompt |
-|--------|-----------------|
-| "team player" | "Describe a time you collaborated on a difficult project or mentored a teammate" |
-| "fast learner" | "What new technology did you learn quickly, and what did you build with it?" |
-| "responsible for" | "What specific outcome did you drive?" |
-| "passionate about" | "What did you build or contribute to that demonstrates this passion?" |
+| Cliche             | Suggested Prompt                                                                 |
+| ------------------ | -------------------------------------------------------------------------------- |
+| "team player"      | "Describe a time you collaborated on a difficult project or mentored a teammate" |
+| "fast learner"     | "What new technology did you learn quickly, and what did you build with it?"     |
+| "responsible for"  | "What specific outcome did you drive?"                                           |
+| "passionate about" | "What did you build or contribute to that demonstrates this passion?"            |
 
 ### Feature 3: Job Description Matcher
 
 **Input:** Pasted job description + current resume
 **Output:**
+
 - Keywords present in JD but missing from resume
 - Match rate percentage (gamified)
 - Specific suggestions for which skills/technologies to add
@@ -844,14 +856,14 @@ Detect and suggest alternatives:
 
 Score the resume across dimensions:
 
-| Dimension | Weight | What It Checks |
-|-----------|--------|----------------|
-| Metric Coverage | 25% | % of bullets containing quantifiable metrics |
-| Active Language | 20% | % of bullets starting with strong action verbs |
-| Formatting Consistency | 15% | Date formats, font consistency, spacing |
-| Section Completeness | 15% | Required sections present and filled |
-| Keyword Relevance | 15% | Match against target role keywords |
-| Conciseness | 10% | Page count appropriate, no large text blocks |
+| Dimension              | Weight | What It Checks                                 |
+| ---------------------- | ------ | ---------------------------------------------- |
+| Metric Coverage        | 25%    | % of bullets containing quantifiable metrics   |
+| Active Language        | 20%    | % of bullets starting with strong action verbs |
+| Formatting Consistency | 15%    | Date formats, font consistency, spacing        |
+| Section Completeness   | 15%    | Required sections present and filled           |
+| Keyword Relevance      | 15%    | Match against target role keywords             |
+| Conciseness            | 10%    | Page count appropriate, no large text blocks   |
 
 ### Feature 5: Summary Generator
 
@@ -861,6 +873,7 @@ Score the resume across dimensions:
 ### Feature 6: Jargon Translator
 
 Detect internal project names/acronyms and suggest generic descriptions:
+
 - "the N94 program" -> "a next-generation navigation system for commercial aircraft"
 - "Project Phoenix" -> "a company-wide platform migration initiative"
 
@@ -885,6 +898,7 @@ Detect internal project names/acronyms and suggest generic descriptions:
 ### GitHub Profile Reviewer
 
 Checklist feature:
+
 - [ ] Personal profile README exists?
 - [ ] 6 best repositories pinned?
 - [ ] Pinned repos have clear descriptions?
@@ -938,15 +952,15 @@ Infrastructure:
 
 ### Key Technical Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Layout engine | CSS Grid + Flexbox | Best for complex template layouts with print support |
-| PDF generation | Puppeteer (server-side) | Highest fidelity HTML-to-PDF rendering |
-| Print styles | `@media print` CSS | Hide UI elements, optimize for paper |
-| Real-time preview | Client-side rendering | Instant feedback as user types |
-| Template switching | Data/presentation separation | JSON data model + CSS-only template swaps |
-| Form state | React Hook Form + Zod | Type-safe validation matching the rules engine |
-| Drag-and-drop | @dnd-kit | Section reordering, bullet point reordering |
+| Decision           | Choice                       | Rationale                                            |
+| ------------------ | ---------------------------- | ---------------------------------------------------- |
+| Layout engine      | CSS Grid + Flexbox           | Best for complex template layouts with print support |
+| PDF generation     | Puppeteer (server-side)      | Highest fidelity HTML-to-PDF rendering               |
+| Print styles       | `@media print` CSS           | Hide UI elements, optimize for paper                 |
+| Real-time preview  | Client-side rendering        | Instant feedback as user types                       |
+| Template switching | Data/presentation separation | JSON data model + CSS-only template swaps            |
+| Form state         | React Hook Form + Zod        | Type-safe validation matching the rules engine       |
+| Drag-and-drop      | @dnd-kit                     | Section reordering, bullet point reordering          |
 
 ### PDF Generation Pipeline
 
@@ -985,23 +999,23 @@ Return download URL to client
 
 ### Editor Interface
 
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| Live preview | P0 | Side-by-side editor + rendered resume preview |
-| Section reordering | P0 | Drag-and-drop sections |
-| Template switcher | P0 | Preview resume in different templates instantly |
-| Inline validation | P0 | Real-time warnings (passive voice, missing metrics, etc.) |
-| Achievement builder | P0 | Guided input: Impact field + Metric field + Action field = formatted bullet |
-| PDF export | P0 | One-click download with proper filename |
-| Experience level selector | P0 | Configures defaults, section order, guidance |
-| Resume scoring | P1 | Overall score with dimension breakdown |
-| Job description matcher | P1 | Paste JD, see match rate + missing keywords |
-| AI bullet rewriter | P1 | Click to improve individual bullets |
-| Multi-resume management | P1 | Master + tailored versions |
-| Share for feedback | P2 | Private link with commenting |
-| Web resume | P2 | Shareable URL with view tracking |
-| LinkedIn optimizer | P2 | Import/export LinkedIn profile data |
-| Cover letter builder | P3 | AI-assisted cover letter generation |
+| Feature                   | Priority | Description                                                                 |
+| ------------------------- | -------- | --------------------------------------------------------------------------- |
+| Live preview              | P0       | Side-by-side editor + rendered resume preview                               |
+| Section reordering        | P0       | Drag-and-drop sections                                                      |
+| Template switcher         | P0       | Preview resume in different templates instantly                             |
+| Inline validation         | P0       | Real-time warnings (passive voice, missing metrics, etc.)                   |
+| Achievement builder       | P0       | Guided input: Impact field + Metric field + Action field = formatted bullet |
+| PDF export                | P0       | One-click download with proper filename                                     |
+| Experience level selector | P0       | Configures defaults, section order, guidance                                |
+| Resume scoring            | P1       | Overall score with dimension breakdown                                      |
+| Job description matcher   | P1       | Paste JD, see match rate + missing keywords                                 |
+| AI bullet rewriter        | P1       | Click to improve individual bullets                                         |
+| Multi-resume management   | P1       | Master + tailored versions                                                  |
+| Share for feedback        | P2       | Private link with commenting                                                |
+| Web resume                | P2       | Shareable URL with view tracking                                            |
+| LinkedIn optimizer        | P2       | Import/export LinkedIn profile data                                         |
+| Cover letter builder      | P3       | AI-assisted cover letter generation                                         |
 
 ### Editor Layout
 
@@ -1037,26 +1051,26 @@ All reference images are available in the `./images/` subdirectory.
 
 ### Template References
 
-| Template | File |
-|----------|------|
-| Pragmatic | `p3-c2-resume-templates_4_resume_template_pragmatic-CSEPJWSE.png` |
-| Parker | `p3-c2-resume-templates_5_resume_template_parker-JLXDP3GA.png` |
-| Mono | `p3-c2-resume-templates_6_resume_template_mono-NAYFCZ3A.png` |
-| Smarkdown | `p3-c2-resume-templates_7_resume_template_smarkdown-QO5TQ2C7.png` |
-| Experienced | `p3-c2-resume-templates_8_resume_template_experienced-L7TVALO3.png` |
-| Vendables | `p3-c2-resume-templates_9_resume_template_vendables-6OC4TZQZ.png` |
-| CareerCup | `p3-c2-resume-templates_10_resume_template_careercup-SZ7BDPDX.png` |
-| Serif (avoid) | `p3-c2-resume-templates_11_resume_template_serif-ZDJ7HEQA.png` |
-| Swiss (avoid) | `p3-c2-resume-templates_12_resume_template_swiss-O6SZKDF4.png` |
+| Template      | File                                                                |
+| ------------- | ------------------------------------------------------------------- |
+| Pragmatic     | `p3-c2-resume-templates_4_resume_template_pragmatic-CSEPJWSE.png`   |
+| Parker        | `p3-c2-resume-templates_5_resume_template_parker-JLXDP3GA.png`      |
+| Mono          | `p3-c2-resume-templates_6_resume_template_mono-NAYFCZ3A.png`        |
+| Smarkdown     | `p3-c2-resume-templates_7_resume_template_smarkdown-QO5TQ2C7.png`   |
+| Experienced   | `p3-c2-resume-templates_8_resume_template_experienced-L7TVALO3.png` |
+| Vendables     | `p3-c2-resume-templates_9_resume_template_vendables-6OC4TZQZ.png`   |
+| CareerCup     | `p3-c2-resume-templates_10_resume_template_careercup-SZ7BDPDX.png`  |
+| Serif (avoid) | `p3-c2-resume-templates_11_resume_template_serif-ZDJ7HEQA.png`      |
+| Swiss (avoid) | `p3-c2-resume-templates_12_resume_template_swiss-O6SZKDF4.png`      |
 
 ### Before/After Examples
 
-| Example | Before Image | After Image |
-|---------|-------------|-------------|
-| Resume Structure | `p2-c2-resume-structure_1_before_after_01_v1-XOWTVLUJ.png` | `p2-c2-resume-structure_3_before_after_01_v3-DGYRVVYT.png` |
-| Standing Out | `p2-c3-standing-out_0_before_after_02_v1-WVEDNRLZ.png` | `p2-c3-standing-out_2_before_after_02_v3-LIUDMYUS.png` |
-| Full Resume 1 | `p3-c3-resume-improvement-examples_0_resume_1_before_1-DG4ROJUE.png` | `p3-c3-resume-improvement-examples_2_resume_1_after_1-RHGAI432.png` |
-| Full Resume 2 | `p3-c3-resume-improvement-examples_4_resume_2_before_1-BPK634VO.png` | `p3-c3-resume-improvement-examples_7_resume_2_after_1-U4POAJXV.png` |
+| Example          | Before Image                                                         | After Image                                                         |
+| ---------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Resume Structure | `p2-c2-resume-structure_1_before_after_01_v1-XOWTVLUJ.png`           | `p2-c2-resume-structure_3_before_after_01_v3-DGYRVVYT.png`          |
+| Standing Out     | `p2-c3-standing-out_0_before_after_02_v1-WVEDNRLZ.png`               | `p2-c3-standing-out_2_before_after_02_v3-LIUDMYUS.png`              |
+| Full Resume 1    | `p3-c3-resume-improvement-examples_0_resume_1_before_1-DG4ROJUE.png` | `p3-c3-resume-improvement-examples_2_resume_1_after_1-RHGAI432.png` |
+| Full Resume 2    | `p3-c3-resume-improvement-examples_4_resume_2_before_1-BPK634VO.png` | `p3-c3-resume-improvement-examples_7_resume_2_after_1-U4POAJXV.png` |
 
 ---
 
@@ -1065,6 +1079,7 @@ All reference images are available in the `./images/` subdirectory.
 This guide was synthesized from **Gergely Orosz's "How to Write a Good Resume" course** on ByteByteGo. All principles, rules, and template evaluations are derived from the course's 19 chapters (78,297 words, 110 images).
 
 Analysis performed using Google Gemini 2.5 Pro across 5 parallel agents:
+
 1. Hiring pipeline & resume importance analysis
 2. Resume structure & standing out techniques
 3. Common mistakes, experience levels & exercises
@@ -1073,4 +1088,4 @@ Analysis performed using Google Gemini 2.5 Pro across 5 parallel agents:
 
 ---
 
-*Generated: 2026-02-14*
+_Generated: 2026-02-14_

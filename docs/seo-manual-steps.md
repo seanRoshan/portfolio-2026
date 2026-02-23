@@ -14,13 +14,13 @@ All code changes have been implemented and committed. This guide covers the rema
 
 You own 6 domains all pointing to the same Vercel deployment. Without redirects, Google sees 6 copies of every page (duplicate content penalty) and splits your link equity across all of them. Redirecting consolidates all SEO authority to one domain.
 
-| Domain | Action |
-|--------|--------|
-| `seanroshan.com` | **Primary** — keep as-is |
-| `seanroshan.dev` | Redirect to `seanroshan.com` |
-| `seanroshan.io` | Redirect to `seanroshan.com` |
-| `seanroshan.ca` | Redirect to `seanroshan.com` |
-| `seanroshan.us` | Redirect to `seanroshan.com` |
+| Domain            | Action                       |
+| ----------------- | ---------------------------- |
+| `seanroshan.com`  | **Primary** — keep as-is     |
+| `seanroshan.dev`  | Redirect to `seanroshan.com` |
+| `seanroshan.io`   | Redirect to `seanroshan.com` |
+| `seanroshan.ca`   | Redirect to `seanroshan.com` |
+| `seanroshan.us`   | Redirect to `seanroshan.com` |
 | `seanroshan.live` | Redirect to `seanroshan.com` |
 
 ### Steps
@@ -48,6 +48,7 @@ You own 6 domains all pointing to the same Vercel deployment. Without redirects,
 ### Verification
 
 After deployment, verify:
+
 - [ ] `curl -I https://seanroshan.dev` returns `308` redirect to `seanroshan.com`
 - [ ] `curl -I https://seanroshan.io` returns `308` redirect to `seanroshan.com`
 - [ ] Visit `https://seanroshan.com/sitemap.xml` — all URLs should start with `https://seanroshan.com`
@@ -68,12 +69,12 @@ After deployment, verify:
 
 Google will provide a TXT verification record. Add it at your domain registrar:
 
-| Field | Value |
-|-------|-------|
-| **Type** | TXT |
-| **Host/Name** | `@` (or blank) |
-| **Value** | The `google-site-verification=...` string Google provides |
-| **TTL** | 3600 (or Auto) |
+| Field         | Value                                                     |
+| ------------- | --------------------------------------------------------- |
+| **Type**      | TXT                                                       |
+| **Host/Name** | `@` (or blank)                                            |
+| **Value**     | The `google-site-verification=...` string Google provides |
+| **TTL**       | 3600 (or Auto)                                            |
 
 - DNS propagation can take 5 minutes to 72 hours
 - Click **"Verify"** in Google Search Console after adding the record
@@ -125,14 +126,14 @@ Wikidata feeds directly into Google's Knowledge Graph. This is the single most i
 
 After creating the item, add these statements (click **"+ add statement"**):
 
-| Property | Property ID | Value |
-|----------|-------------|-------|
-| instance of | P31 | human (Q5) |
-| occupation | P106 | software engineer (Q80855) |
-| official website | P856 | `https://seanroshan.com` |
-| GitHub username | P2037 | `seanRoshan` |
-| Twitter/X username | P2002 | *(your X handle)* |
-| LinkedIn personal profile ID | P6634 | *(your LinkedIn slug, e.g. "seanroshan")* |
+| Property                     | Property ID | Value                                     |
+| ---------------------------- | ----------- | ----------------------------------------- |
+| instance of                  | P31         | human (Q5)                                |
+| occupation                   | P106        | software engineer (Q80855)                |
+| official website             | P856        | `https://seanroshan.com`                  |
+| GitHub username              | P2037       | `seanRoshan`                              |
+| Twitter/X username           | P2002       | _(your X handle)_                         |
+| LinkedIn personal profile ID | P6634       | _(your LinkedIn slug, e.g. "seanroshan")_ |
 
 **Tip:** When adding values, start typing and Wikidata will autocomplete the correct entity (e.g., type "human" for P31 and select "Q5: human").
 
@@ -208,6 +209,7 @@ Search `"Sean Roshan"` on Google. If a Knowledge Panel appears on the right side
 ### Step 4: Review Panel Information
 
 Once claimed, you can suggest edits to:
+
 - Featured image
 - Description
 - Social profile links
@@ -216,19 +218,20 @@ Once claimed, you can suggest edits to:
 
 ## Timeline
 
-| Milestone | Expected Timeline |
-|-----------|------------------|
-| Vercel domain redirects active | Immediate |
-| Google crawls and indexes site | 1-7 days after Search Console setup |
-| Structured data appears in Rich Results | 2-4 weeks |
-| Knowledge Panel appears | 3-6 weeks (with strong Wikidata + social signals) |
-| Knowledge Panel claimed and customized | After panel appears |
+| Milestone                               | Expected Timeline                                 |
+| --------------------------------------- | ------------------------------------------------- |
+| Vercel domain redirects active          | Immediate                                         |
+| Google crawls and indexes site          | 1-7 days after Search Console setup               |
+| Structured data appears in Rich Results | 2-4 weeks                                         |
+| Knowledge Panel appears                 | 3-6 weeks (with strong Wikidata + social signals) |
+| Knowledge Panel claimed and customized  | After panel appears                               |
 
 ---
 
 ## Checklist Summary
 
 ### Immediate (do now)
+
 - [ ] Configure Vercel domain redirects
 - [ ] Set `NEXT_PUBLIC_SITE_URL` environment variable
 - [ ] Redeploy to production
@@ -237,11 +240,13 @@ Once claimed, you can suggest edits to:
 - [ ] Request indexing for key pages
 
 ### This Week
+
 - [ ] Create Wikidata entry
 - [ ] Update all social profile website URLs
 - [ ] Validate structured data with Rich Results Test
 
 ### Ongoing (check back in 3-6 weeks)
+
 - [ ] Monitor Search Console for indexing status
 - [ ] Check for Knowledge Panel appearance
 - [ ] Claim Knowledge Panel when it appears

@@ -1,12 +1,9 @@
-import { AdminHeader } from '../../admin-header'
-import { getJobDescriptions, getResumes } from '@/lib/resume-builder/queries'
-import { JDAnalyzerClient } from './jd-analyzer-client'
+import { AdminHeader } from "../../admin-header"
+import { getJobDescriptions, getResumes } from "@/lib/resume-builder/queries"
+import { JDAnalyzerClient } from "./jd-analyzer-client"
 
 export default async function JDAnalyzerPage() {
-  const [savedAnalyses, resumes] = await Promise.all([
-    getJobDescriptions(),
-    getResumes(),
-  ])
+  const [savedAnalyses, resumes] = await Promise.all([getJobDescriptions(), getResumes()])
 
   return (
     <>

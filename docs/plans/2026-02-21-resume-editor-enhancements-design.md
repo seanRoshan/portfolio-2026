@@ -65,21 +65,21 @@ Visualize page boundaries in the live preview.
 
 ## Schema Changes
 
-| Change | Table | Details |
-|--------|-------|---------|
+| Change               | Table             | Details              |
+| -------------------- | ----------------- | -------------------- |
 | Add `font_size_base` | `resume_settings` | `NUMERIC DEFAULT 10` |
 
 ## Files Modified Summary
 
-| File | Changes |
-|------|---------|
-| `ResumeEditor.tsx` | Resizable panel layout |
-| `SettingsPanel.tsx` | Font size slider, Google Fonts combobox |
+| File                    | Changes                                    |
+| ----------------------- | ------------------------------------------ |
+| `ResumeEditor.tsx`      | Resizable panel layout                     |
+| `SettingsPanel.tsx`     | Font size slider, Google Fonts combobox    |
 | `ResumePreviewPane.tsx` | Page break indicators, Google Font loading |
-| `shared.tsx` | Font size calculation, expanded font map |
-| `generate-html.ts` | Font size support, Google Font import |
-| `actions.ts` | `font_size_base` in settings update |
-| New migration | `font_size_base` column |
+| `shared.tsx`            | Font size calculation, expanded font map   |
+| `generate-html.ts`      | Font size support, Google Font import      |
+| `actions.ts`            | `font_size_base` in settings update        |
+| New migration           | `font_size_base` column                    |
 
 ## New Dependencies
 

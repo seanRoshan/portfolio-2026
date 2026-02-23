@@ -25,9 +25,9 @@ Good resume templates are made tailored for recruiters and hiring managers—not
 
 A good resume template is easy to read. They are easy to read because they follow common conventions that people are used to. Things that people are used to when reading nonfiction are these:
 
--   **Top to bottom reading.** We start at the top and make our way downwards. This is how we read books and magazines.
--   **Important things first**, less important things towards the end. Good nonfiction reading materials start with an introduction that sets the context and often explains the chapters to come. For a resume, in a somewhat similar fashion, the most relevant things should be towards the top, with the less relevant things on the later pages.
--   **Strategic use of colors and bolding**. Bolding can draw attention. **Colors can also pull your attention**. Use both of these in a strategic way to guide the reader on things that you’d like to stand out.
+- **Top to bottom reading.** We start at the top and make our way downwards. This is how we read books and magazines.
+- **Important things first**, less important things towards the end. Good nonfiction reading materials start with an introduction that sets the context and often explains the chapters to come. For a resume, in a somewhat similar fashion, the most relevant things should be towards the top, with the less relevant things on the later pages.
+- **Strategic use of colors and bolding**. Bolding can draw attention. **Colors can also pull your attention**. Use both of these in a strategic way to guide the reader on things that you’d like to stand out.
 
 <table class="inside-out"><tbody><tr><td><p><strong>From the inside out: what direction do recruiters and hiring managers read resumes?</strong></p><p>Every hiring manager, and tech recruiter I’ve talked with read resumes top to bottom. This includes myself. It’s not just a habit: it’s also a recommendation. One of the most hands-on hiring manager guide in tech is the book <a href="http://pragmaticurl.com/hiring-geeks-that-fit-ttr" target="_blank" rel="noopener noreferrer">Hiring Geeks that Fit</a>. Here author Johanna Rothman suggests the same:</p><p><em>“Start reading each resume at the top. I read résumés by starting at the top, and work my way down to the final line. (...) Seeing what a candidate thinks are his or her strong points can tell you a lot about the candidate. (...) As I read, I make a mental note that I later will compare with the actual job’s requirements in each of the following areas: work experience, position objective, strengths, education, and professional training. I use items in the résumé to include candidates, and only use items to exclude candidates if the items match my elimination criteria.”</em></p></td></tr></tbody></table>
 
@@ -67,10 +67,10 @@ Two-column layouts can be a great choice in cases where your resume layout is pa
 
 Before jumping into analyzing specific resume templates, let’s understand how recruiters and hiring managers scan resumes. In the first few seconds, they want to get a few key details from a resume:
 
--   **Years of experience and dates** of your employment.
--   **Key technologies** that are relevant for the role, and whether you have some proficiency with them.
--   **Titles and companies** where you worked.
--   **Location** where you are based right now. Are you local? Within an area that needs no visa? Somewhere where you’d likely need a visa and/or relocation?
+- **Years of experience and dates** of your employment.
+- **Key technologies** that are relevant for the role, and whether you have some proficiency with them.
+- **Titles and companies** where you worked.
+- **Location** where you are based right now. Are you local? Within an area that needs no visa? Somewhere where you’d likely need a visa and/or relocation?
 
 Let’s visualize what recruiters actually see from your resume in the first few seconds. Here is the resume:
 
@@ -86,10 +86,10 @@ From this first scan, the recruiter notes how the candidate has at least two yea
 
 After this scan, the recruiter has the following details:
 
--   Location of where you are based right now
--   Years of experience
--   Key technologies that are relevant for the role
--   Titles and companies where you worked
+- Location of where you are based right now
+- Years of experience
+- Key technologies that are relevant for the role
+- Titles and companies where you worked
 
 If most of these match what the job requires, the recruiter will now start to read your resume, top to bottom. They will still only do a short scan, looking for anything relevant for the role, or that grabs their attention:
 
@@ -97,7 +97,7 @@ If most of these match what the job requires, the recruiter will now start to re
 
 **Only after this scan would the recruiter or hiring manager look at the second page, or read more in-depth.** This assumes that what they have seen matches what they are looking for—or they’ve found enough standout information in other areas. These would indicate this candidate could be worth spending more time on, even if they don’t have every requirement that the hiring manager is looking for.
 
-**A good template simply makes these key pieces of information very easy to find**—and it can also guide the attention of the recruiter to a few additional pieces of information. This means that the recruiter gets all this information much quicker, and they can spend more time *actually* reading the information you want to share with them.
+**A good template simply makes these key pieces of information very easy to find**—and it can also guide the attention of the recruiter to a few additional pieces of information. This means that the recruiter gets all this information much quicker, and they can spend more time _actually_ reading the information you want to share with them.
 
 A good resume is a combination of an easy-to-read template and easy-to-digest content specific to the role you are applying for.
 
@@ -123,7 +123,7 @@ With a well-written resume, even recruiters that are tired or in a hurry will ge
 
 In this chapter, we went through what characteristics good developer resume templates share, and why. When choosing a resume template, aim to have them satisfy these principles:
 
--   **Top to bottom reading.** Easy-to-read templates can be scanned in one go, from top to bottom.
--   **Single column layout.** Two-column and multi-column layouts can look neat, but they are more difficult for recruiters to read. These layouts also make it harder to share enough information about your work experience and projects. A single-column layout has none of these drawbacks.
--   **Important things first**, less important things towards the end. Things relevant for the position should be towards the top; choose sections accordingly.
--   **Strategic use of colors and bolding**. Use bolding and colors to draw attention—and do this consistently.
+- **Top to bottom reading.** Easy-to-read templates can be scanned in one go, from top to bottom.
+- **Single column layout.** Two-column and multi-column layouts can look neat, but they are more difficult for recruiters to read. These layouts also make it harder to share enough information about your work experience and projects. A single-column layout has none of these drawbacks.
+- **Important things first**, less important things towards the end. Things relevant for the position should be towards the top; choose sections accordingly.
+- **Strategic use of colors and bolding**. Use bolding and colors to draw attention—and do this consistently.

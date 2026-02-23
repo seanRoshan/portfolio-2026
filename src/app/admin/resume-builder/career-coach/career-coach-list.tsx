@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import {
   Plus,
   MessageSquare,
@@ -11,22 +11,22 @@ import {
   BookOpen,
   Trash2,
   Clock,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { toast } from 'sonner'
-import { createCoachSession, deleteCoachSession } from './actions'
-import type { CareerCoachSession, CoachSessionType } from '@/types/resume-builder'
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
+import { createCoachSession, deleteCoachSession } from "./actions"
+import type { CareerCoachSession, CoachSessionType } from "@/types/resume-builder"
 
 const SESSION_TYPES: {
   value: CoachSessionType
@@ -35,33 +35,33 @@ const SESSION_TYPES: {
   icon: typeof MessageSquare
 }[] = [
   {
-    value: 'general',
-    label: 'General Career Advice',
-    description: 'Get guidance on your career trajectory',
+    value: "general",
+    label: "General Career Advice",
+    description: "Get guidance on your career trajectory",
     icon: MessageSquare,
   },
   {
-    value: 'experience_builder',
-    label: 'Experience Builder',
-    description: 'Interview me about my work to generate bullet points',
+    value: "experience_builder",
+    label: "Experience Builder",
+    description: "Interview me about my work to generate bullet points",
     icon: Briefcase,
   },
   {
-    value: 'project_builder',
-    label: 'Project Builder',
-    description: 'Help document my projects',
+    value: "project_builder",
+    label: "Project Builder",
+    description: "Help document my projects",
     icon: FolderKanban,
   },
   {
-    value: 'interview_prep',
-    label: 'Interview Prep',
-    description: 'Practice behavioral questions using STAR method',
+    value: "interview_prep",
+    label: "Interview Prep",
+    description: "Practice behavioral questions using STAR method",
     icon: Target,
   },
   {
-    value: 'career_narrative',
-    label: 'Career Narrative',
-    description: 'Build a cohesive career story',
+    value: "career_narrative",
+    label: "Career Narrative",
+    description: "Build a cohesive career story",
     icon: BookOpen,
   },
 ]
@@ -71,10 +71,10 @@ function getSessionTypeConfig(type: CoachSessionType) {
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   })
 }
 
@@ -87,23 +87,23 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
   const [showCreate, setShowCreate] = useState(false)
   const [showDelete, setShowDelete] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
-  const [topic, setTopic] = useState('')
-  const [sessionType, setSessionType] = useState<CoachSessionType>('general')
+  const [topic, setTopic] = useState("")
+  const [sessionType, setSessionType] = useState<CoachSessionType>("general")
 
   function handleCreate() {
     startTransition(async () => {
       try {
         const session = await createCoachSession({
-          topic: topic || 'New Session',
+          topic: topic || "New Session",
           session_type: sessionType,
         })
         setShowCreate(false)
-        setTopic('')
-        setSessionType('general')
-        toast.success('Session created')
+        setTopic("")
+        setSessionType("general")
+        toast.success("Session created")
         router.push(`/admin/resume-builder/career-coach/${session.id}`)
       } catch {
-        toast.error('Failed to create session')
+        toast.error("Failed to create session")
       }
     })
   }
@@ -113,9 +113,9 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
       try {
         await deleteCoachSession(id)
         setShowDelete(null)
-        toast.success('Session deleted')
+        toast.success("Session deleted")
       } catch {
-        toast.error('Failed to delete session')
+        toast.error("Failed to delete session")
       }
     })
   }
@@ -126,8 +126,7 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Career Coach</h2>
           <p className="text-muted-foreground text-sm">
-            AI-powered coaching sessions to build your resume content and
-            prepare for interviews.
+            AI-powered coaching sessions to build your resume content and prepare for interviews.
           </p>
         </div>
         <Button onClick={() => setShowCreate(true)}>
@@ -157,18 +156,12 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
               <Card
                 key={session.id}
                 className="group relative cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
-                onClick={() =>
-                  router.push(
-                    `/admin/resume-builder/career-coach/${session.id}`
-                  )
-                }
+                onClick={() => router.push(`/admin/resume-builder/career-coach/${session.id}`)}
               >
                 <div className="p-5">
                   <div className="mb-3 flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="line-clamp-1 font-semibold">
-                        {session.topic}
-                      </h3>
+                      <h3 className="line-clamp-1 font-semibold">{session.topic}</h3>
                       <Badge variant="secondary" className="mt-1 gap-1 text-xs">
                         <Icon className="h-3 w-3" />
                         {config.label}
@@ -191,7 +184,7 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
                     <div className="flex items-center gap-1.5">
                       <MessageSquare className="h-3.5 w-3.5" />
                       {session.messages.length} message
-                      {session.messages.length !== 1 ? 's' : ''}
+                      {session.messages.length !== 1 ? "s" : ""}
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-3.5 w-3.5" />
@@ -210,9 +203,7 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New Coaching Session</DialogTitle>
-            <DialogDescription>
-              Choose a session type and topic to get started.
-            </DialogDescription>
+            <DialogDescription>Choose a session type and topic to get started.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -226,24 +217,18 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
                       key={type.value}
                       type="button"
                       className={`flex items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
-                        isSelected
-                          ? 'border-primary bg-primary/5'
-                          : 'hover:bg-muted/50'
+                        isSelected ? "border-primary bg-primary/5" : "hover:bg-muted/50"
                       }`}
                       onClick={() => setSessionType(type.value)}
                     >
                       <Icon
                         className={`mt-0.5 h-5 w-5 shrink-0 ${
-                          isSelected
-                            ? 'text-primary'
-                            : 'text-muted-foreground'
+                          isSelected ? "text-primary" : "text-muted-foreground"
                         }`}
                       />
                       <div>
                         <div className="text-sm font-medium">{type.label}</div>
-                        <div className="text-muted-foreground text-xs">
-                          {type.description}
-                        </div>
+                        <div className="text-muted-foreground text-xs">{type.description}</div>
                       </div>
                     </button>
                   )
@@ -259,12 +244,8 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
                 onChange={(e) => setTopic(e.target.value)}
               />
             </div>
-            <Button
-              onClick={handleCreate}
-              disabled={isPending}
-              className="w-full"
-            >
-              {isPending ? 'Creating...' : 'Start Session'}
+            <Button onClick={handleCreate} disabled={isPending} className="w-full">
+              {isPending ? "Creating..." : "Start Session"}
             </Button>
           </div>
         </DialogContent>
@@ -276,16 +257,12 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
           <DialogHeader>
             <DialogTitle>Delete Session</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. The entire conversation history will
-              be permanently deleted.
+              This action cannot be undone. The entire conversation history will be permanently
+              deleted.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowDelete(null)}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={() => setShowDelete(null)} className="flex-1">
               Cancel
             </Button>
             <Button
@@ -294,7 +271,7 @@ export function CareerCoachList({ sessions }: CareerCoachListProps) {
               disabled={isPending}
               className="flex-1"
             >
-              {isPending ? 'Deleting...' : 'Delete'}
+              {isPending ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </DialogContent>

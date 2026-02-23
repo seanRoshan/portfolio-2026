@@ -17,7 +17,7 @@ export function AnimationPicker({ value, onChange, label }: AnimationPickerProps
       acc[anim.category].push(anim)
       return acc
     },
-    {} as Record<string, typeof LINK_ANIMATIONS[number][]>,
+    {} as Record<string, (typeof LINK_ANIMATIONS)[number][]>,
   )
 
   return (

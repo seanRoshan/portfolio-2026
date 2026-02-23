@@ -62,12 +62,7 @@ export function AnimatedLink({
 
   if (external || href.startsWith("http")) {
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cn(animClass, className)}
-      >
+      <a href={href} target="_blank" rel="noopener noreferrer" className={cn(animClass, className)}>
         {children}
       </a>
     )

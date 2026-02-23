@@ -1,9 +1,9 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from "@/lib/supabase/server"
 
 // Pricing per 1M tokens (USD)
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
-  'claude-sonnet-4-6': { input: 3, output: 15 },
-  'claude-sonnet-4-5-20250929': { input: 3, output: 15 },
+  "claude-sonnet-4-6": { input: 3, output: 15 },
+  "claude-sonnet-4-5-20250929": { input: 3, output: 15 },
 }
 
 const DEFAULT_PRICING = { input: 3, output: 15 }
@@ -18,7 +18,7 @@ interface UsageLogEntry {
 
 export async function logAIUsage(entry: UsageLogEntry): Promise<void> {
   const supabase = await createClient()
-  const { error } = await supabase.from('ai_usage_log').insert({
+  const { error } = await supabase.from("ai_usage_log").insert({
     user_id: entry.user_id,
     action: entry.action,
     model: entry.model,
@@ -26,7 +26,7 @@ export async function logAIUsage(entry: UsageLogEntry): Promise<void> {
     output_tokens: entry.output_tokens,
   })
   if (error) {
-    console.error('[logAIUsage] Insert error:', error)
+    console.error("[logAIUsage] Insert error:", error)
   }
 }
 
@@ -45,9 +45,9 @@ export async function getMonthlyUsage(): Promise<MonthlyUsageSummary> {
   startOfMonth.setHours(0, 0, 0, 0)
 
   const { data, error } = await supabase
-    .from('ai_usage_log')
-    .select('model, input_tokens, output_tokens')
-    .gte('created_at', startOfMonth.toISOString())
+    .from("ai_usage_log")
+    .select("model, input_tokens, output_tokens")
+    .gte("created_at", startOfMonth.toISOString())
 
   if (error || !data) {
     return {

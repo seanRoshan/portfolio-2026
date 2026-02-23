@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition } from "react"
 import {
   Search,
   FileText,
@@ -19,35 +19,35 @@ import {
   Loader2,
   Building2,
   Calendar,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
-import { saveJobDescription, deleteJobDescription } from './actions'
-import type { JobDescription, Resume, JDMatchResult } from '@/types/resume-builder'
+} from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { toast } from "sonner"
+import { cn } from "@/lib/utils"
+import { saveJobDescription, deleteJobDescription } from "./actions"
+import type { JobDescription, Resume, JDMatchResult } from "@/types/resume-builder"
 
 interface JDAnalysis {
   skills: string[]
@@ -69,26 +69,26 @@ export function JDAnalyzerClient({
   resumes,
   initialAnalysis,
 }: JDAnalyzerClientProps) {
-  const [rawText, setRawText] = useState(initialAnalysis?.raw_text ?? '')
-  const [title, setTitle] = useState(initialAnalysis?.title ?? '')
-  const [company, setCompany] = useState(initialAnalysis?.company ?? '')
-  const [analysis, setAnalysis] = useState<JDAnalysis | null>(
-    () => buildAnalysisFromJD(initialAnalysis)
+  const [rawText, setRawText] = useState(initialAnalysis?.raw_text ?? "")
+  const [title, setTitle] = useState(initialAnalysis?.title ?? "")
+  const [company, setCompany] = useState(initialAnalysis?.company ?? "")
+  const [analysis, setAnalysis] = useState<JDAnalysis | null>(() =>
+    buildAnalysisFromJD(initialAnalysis),
   )
   const [matchResult, setMatchResult] = useState<JDMatchResult | null>(null)
-  const [selectedResumeId, setSelectedResumeId] = useState<string>('')
+  const [selectedResumeId, setSelectedResumeId] = useState<string>("")
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isMatching, setIsMatching] = useState(false)
   const [isSaved, setIsSaved] = useState(!!initialAnalysis)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [activeAnalysisId, setActiveAnalysisId] = useState<string | null>(
-    initialAnalysis?.id ?? null
+    initialAnalysis?.id ?? null,
   )
 
   async function handleAnalyze() {
     if (!rawText.trim()) {
-      toast.error('Please paste a job description first')
+      toast.error("Please paste a job description first")
       return
     }
 
@@ -99,24 +99,22 @@ export function JDAnalyzerClient({
     setActiveAnalysisId(null)
 
     try {
-      const res = await fetch('/api/resume-builder/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'analyze-jd', text: rawText }),
+      const res = await fetch("/api/resume-builder/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "analyze-jd", text: rawText }),
       })
 
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error || 'Analysis failed')
+        throw new Error(err.error || "Analysis failed")
       }
 
       const data = await res.json()
       setAnalysis(data)
-      toast.success('Job description analyzed')
+      toast.success("Job description analyzed")
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to analyze job description'
-      )
+      toast.error(error instanceof Error ? error.message : "Failed to analyze job description")
     } finally {
       setIsAnalyzing(false)
     }
@@ -124,11 +122,11 @@ export function JDAnalyzerClient({
 
   async function handleMatch() {
     if (!selectedResumeId) {
-      toast.error('Please select a resume first')
+      toast.error("Please select a resume first")
       return
     }
     if (!rawText.trim()) {
-      toast.error('No job description to match against')
+      toast.error("No job description to match against")
       return
     }
 
@@ -136,11 +134,11 @@ export function JDAnalyzerClient({
     setMatchResult(null)
 
     try {
-      const res = await fetch('/api/resume-builder/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/resume-builder/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'match-jd',
+          action: "match-jd",
           resumeId: selectedResumeId,
           jobDescription: rawText,
         }),
@@ -148,16 +146,14 @@ export function JDAnalyzerClient({
 
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error || 'Matching failed')
+        throw new Error(err.error || "Matching failed")
       }
 
       const data: JDMatchResult = await res.json()
       setMatchResult(data)
-      toast.success('Resume matched against job description')
+      toast.success("Resume matched against job description")
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to match resume'
-      )
+      toast.error(error instanceof Error ? error.message : "Failed to match resume")
     } finally {
       setIsMatching(false)
     }
@@ -181,9 +177,9 @@ export function JDAnalyzerClient({
           analysis: analysis as unknown as Record<string, unknown>,
         })
         setIsSaved(true)
-        toast.success('Analysis saved')
+        toast.success("Analysis saved")
       } catch {
-        toast.error('Failed to save analysis')
+        toast.error("Failed to save analysis")
       }
     })
   }
@@ -196,13 +192,13 @@ export function JDAnalyzerClient({
         if (activeAnalysisId === id) {
           setAnalysis(null)
           setMatchResult(null)
-          setRawText('')
+          setRawText("")
           setActiveAnalysisId(null)
           setIsSaved(false)
         }
-        toast.success('Analysis deleted')
+        toast.success("Analysis deleted")
       } catch {
-        toast.error('Failed to delete analysis')
+        toast.error("Failed to delete analysis")
       }
     })
   }
@@ -210,7 +206,7 @@ export function JDAnalyzerClient({
   function loadSavedAnalysis(jd: JobDescription) {
     setRawText(jd.raw_text)
     setTitle(jd.title)
-    setCompany(jd.company ?? '')
+    setCompany(jd.company ?? "")
     setActiveAnalysisId(jd.id)
     setIsSaved(true)
     setMatchResult(null)
@@ -218,10 +214,10 @@ export function JDAnalyzerClient({
   }
 
   function formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     })
   }
 
@@ -233,14 +229,13 @@ export function JDAnalyzerClient({
       <div className="mb-6">
         <h2 className="text-2xl font-bold tracking-tight">JD Analyzer</h2>
         <p className="text-muted-foreground text-sm">
-          Paste a job description to extract skills, requirements, and match against
-          your resumes.
+          Paste a job description to extract skills, requirements, and match against your resumes.
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Left Panel: Input + Saved Analyses */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* JD Input */}
           <Card>
             <CardHeader className="pb-3">
@@ -323,16 +318,14 @@ export function JDAnalyzerClient({
                       <div
                         key={jd.id}
                         className={cn(
-                          'flex items-start justify-between gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-muted/50',
-                          activeAnalysisId === jd.id && 'bg-muted/50'
+                          "hover:bg-muted/50 flex cursor-pointer items-start justify-between gap-3 px-4 py-3 transition-colors",
+                          activeAnalysisId === jd.id && "bg-muted/50",
                         )}
                         onClick={() => loadSavedAnalysis(jd)}
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium truncate">
-                            {jd.title}
-                          </p>
-                          <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs mt-0.5">
+                          <p className="truncate text-sm font-medium">{jd.title}</p>
+                          <div className="text-muted-foreground mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
                             {jd.company && (
                               <span className="flex items-center gap-1">
                                 <Building2 className="h-3 w-3" />
@@ -345,7 +338,8 @@ export function JDAnalyzerClient({
                             </span>
                             {jd.extracted_skills && jd.extracted_skills.length > 0 && (
                               <span>
-                                {jd.extracted_skills.length} skill{jd.extracted_skills.length !== 1 ? 's' : ''}
+                                {jd.extracted_skills.length} skill
+                                {jd.extracted_skills.length !== 1 ? "s" : ""}
                               </span>
                             )}
                           </div>
@@ -353,7 +347,7 @@ export function JDAnalyzerClient({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                          className="text-muted-foreground hover:text-destructive h-7 w-7 shrink-0"
                           onClick={(e) => {
                             e.stopPropagation()
                             setShowDeleteConfirm(jd.id)
@@ -371,16 +365,16 @@ export function JDAnalyzerClient({
         </div>
 
         {/* Right Panel: Results */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="space-y-6 lg:col-span-3">
           {isAnalyzing && <AnalysisSkeleton />}
 
           {!isAnalyzing && !analysis && (
             <Card className="flex flex-col items-center justify-center py-20">
               <Target className="text-muted-foreground mb-4 h-12 w-12" />
               <h3 className="mb-2 text-lg font-semibold">No Analysis Yet</h3>
-              <p className="text-muted-foreground text-sm text-center max-w-sm">
-                Paste a job description on the left and click Analyze to extract
-                skills, requirements, and more.
+              <p className="text-muted-foreground max-w-sm text-center text-sm">
+                Paste a job description on the left and click Analyze to extract skills,
+                requirements, and more.
               </p>
             </Card>
           )}
@@ -389,11 +383,7 @@ export function JDAnalyzerClient({
             <>
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleSave}
-                  disabled={isPending || isSaved}
-                >
+                <Button variant="outline" onClick={handleSave} disabled={isPending || isSaved}>
                   {isSaved ? (
                     <>
                       <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -409,10 +399,7 @@ export function JDAnalyzerClient({
 
                 <Separator orientation="vertical" className="h-8" />
 
-                <Select
-                  value={selectedResumeId}
-                  onValueChange={setSelectedResumeId}
-                >
+                <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
                   <SelectTrigger className="w-[220px]">
                     <SelectValue placeholder="Select a resume..." />
                   </SelectTrigger>
@@ -425,10 +412,7 @@ export function JDAnalyzerClient({
                   </SelectContent>
                 </Select>
 
-                <Button
-                  onClick={handleMatch}
-                  disabled={isMatching || !selectedResumeId}
-                >
+                <Button onClick={handleMatch} disabled={isMatching || !selectedResumeId}>
                   {isMatching ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -452,13 +436,13 @@ export function JDAnalyzerClient({
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="mb-3 flex items-center gap-3">
                     <Badge variant="secondary" className="capitalize">
                       {analysis.experienceLevel} level
                     </Badge>
                   </div>
                   {analysis.summary && (
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground text-sm leading-relaxed">
                       {analysis.summary}
                     </p>
                   )}
@@ -479,22 +463,23 @@ export function JDAnalyzerClient({
                   </CardHeader>
                   <CardContent>
                     {selectedResumeId && matchResult ? (
-                      <p className="text-xs text-muted-foreground mb-3">
-                        Compared with{' '}
-                        <span className="font-medium text-foreground">
-                          {selectedResume?.title}
-                        </span>
-                        . <span className="text-green-600 dark:text-green-400 font-medium">Green</span> = present,{' '}
-                        <span className="text-orange-600 dark:text-orange-400 font-medium">Orange</span> = missing.
+                      <p className="text-muted-foreground mb-3 text-xs">
+                        Compared with{" "}
+                        <span className="text-foreground font-medium">{selectedResume?.title}</span>
+                        .{" "}
+                        <span className="font-medium text-green-600 dark:text-green-400">
+                          Green
+                        </span>{" "}
+                        = present,{" "}
+                        <span className="font-medium text-orange-600 dark:text-orange-400">
+                          Orange
+                        </span>{" "}
+                        = missing.
                       </p>
                     ) : null}
                     <div className="flex flex-wrap gap-2">
                       {analysis.skills.map((skill) => (
-                        <SkillBadge
-                          key={skill}
-                          skill={skill}
-                          matchResult={matchResult}
-                        />
+                        <SkillBadge key={skill} skill={skill} matchResult={matchResult} />
                       ))}
                     </div>
                   </CardContent>
@@ -516,11 +501,8 @@ export function JDAnalyzerClient({
                   <CardContent>
                     <ul className="space-y-2">
                       {analysis.requirements.map((req, i) => (
-                        <li
-                          key={i}
-                          className="flex items-start gap-2 text-sm"
-                        >
-                          <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <ArrowRight className="text-muted-foreground mt-0.5 h-3.5 w-3.5 shrink-0" />
                           <span>{req}</span>
                         </li>
                       ))}
@@ -544,11 +526,8 @@ export function JDAnalyzerClient({
                   <CardContent>
                     <ul className="space-y-2">
                       {analysis.qualifications.map((qual, i) => (
-                        <li
-                          key={i}
-                          className="flex items-start gap-2 text-sm"
-                        >
-                          <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <ArrowRight className="text-muted-foreground mt-0.5 h-3.5 w-3.5 shrink-0" />
                           <span>{qual}</span>
                         </li>
                       ))}
@@ -562,7 +541,7 @@ export function JDAnalyzerClient({
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-base">
-                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                      <AlertTriangle className="text-destructive h-4 w-4" />
                       Red Flags
                     </CardTitle>
                   </CardHeader>
@@ -571,9 +550,7 @@ export function JDAnalyzerClient({
                       <Alert key={i} variant="destructive">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertTitle className="text-sm">Warning</AlertTitle>
-                        <AlertDescription className="text-sm">
-                          {flag}
-                        </AlertDescription>
+                        <AlertDescription className="text-sm">{flag}</AlertDescription>
                       </Alert>
                     ))}
                   </CardContent>
@@ -604,8 +581,8 @@ export function JDAnalyzerClient({
                         <p className="text-sm font-medium">
                           {getMatchRateLabel(matchResult.matchRate)}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {matchResult.presentKeywords.length} keywords present,{' '}
+                        <p className="text-muted-foreground mt-1 text-xs">
+                          {matchResult.presentKeywords.length} keywords present,{" "}
                           {matchResult.missingKeywords.length} missing
                         </p>
                       </div>
@@ -616,7 +593,7 @@ export function JDAnalyzerClient({
                     {/* Present Keywords */}
                     {matchResult.presentKeywords.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
                           <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                           Present Keywords
                         </h4>
@@ -624,7 +601,7 @@ export function JDAnalyzerClient({
                           {matchResult.presentKeywords.map((kw) => (
                             <Badge
                               key={kw}
-                              className="text-xs bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 border-green-200 dark:border-green-800"
+                              className="border-green-200 bg-green-100 text-xs text-green-800 hover:bg-green-200 dark:border-green-800 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
                             >
                               {kw}
                             </Badge>
@@ -636,7 +613,7 @@ export function JDAnalyzerClient({
                     {/* Missing Keywords */}
                     {matchResult.missingKeywords.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
                           <XCircle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                           Missing Keywords
                         </h4>
@@ -645,7 +622,7 @@ export function JDAnalyzerClient({
                             <Badge
                               key={kw}
                               variant="outline"
-                              className="text-xs bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50 border-orange-200 dark:border-orange-800"
+                              className="border-orange-200 bg-orange-100 text-xs text-orange-800 hover:bg-orange-200 dark:border-orange-800 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50"
                             >
                               {kw}
                             </Badge>
@@ -657,7 +634,7 @@ export function JDAnalyzerClient({
                     {/* Suggestions */}
                     {matchResult.suggestions.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
                           <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                           Improvement Suggestions
                         </h4>
@@ -665,7 +642,7 @@ export function JDAnalyzerClient({
                           {matchResult.suggestions.map((s, i) => (
                             <li
                               key={i}
-                              className="flex items-start gap-2 text-sm text-muted-foreground"
+                              className="text-muted-foreground flex items-start gap-2 text-sm"
                             >
                               <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                               <span>{s}</span>
@@ -678,7 +655,7 @@ export function JDAnalyzerClient({
                     {/* Reorder Suggestions */}
                     {matchResult.reorderSuggestions.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
                           <ListChecks className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                           Reorder Suggestions
                         </h4>
@@ -686,7 +663,7 @@ export function JDAnalyzerClient({
                           {matchResult.reorderSuggestions.map((s, i) => (
                             <li
                               key={i}
-                              className="flex items-start gap-2 text-sm text-muted-foreground"
+                              className="text-muted-foreground flex items-start gap-2 text-sm"
                             >
                               <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                               <span>{s}</span>
@@ -704,35 +681,25 @@ export function JDAnalyzerClient({
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={!!showDeleteConfirm}
-        onOpenChange={() => setShowDeleteConfirm(null)}
-      >
+      <Dialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Analysis</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. The saved analysis will be permanently
-              deleted.
+              This action cannot be undone. The saved analysis will be permanently deleted.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteConfirm(null)}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(null)} className="flex-1">
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={() =>
-                showDeleteConfirm && handleDelete(showDeleteConfirm)
-              }
+              onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)}
               disabled={isPending}
               className="flex-1"
             >
-              {isPending ? 'Deleting...' : 'Delete'}
+              {isPending ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </DialogContent>
@@ -746,33 +713,33 @@ export function JDAnalyzerClient({
 function getMatchRateColors(rate: number): { text: string; stroke: string } {
   if (rate >= 80) {
     return {
-      text: 'text-green-500 dark:text-green-400',
-      stroke: 'stroke-green-500 dark:stroke-green-400',
+      text: "text-green-500 dark:text-green-400",
+      stroke: "stroke-green-500 dark:stroke-green-400",
     }
   }
   if (rate >= 60) {
     return {
-      text: 'text-blue-500 dark:text-blue-400',
-      stroke: 'stroke-blue-500 dark:stroke-blue-400',
+      text: "text-blue-500 dark:text-blue-400",
+      stroke: "stroke-blue-500 dark:stroke-blue-400",
     }
   }
   if (rate >= 40) {
     return {
-      text: 'text-orange-500 dark:text-orange-400',
-      stroke: 'stroke-orange-500 dark:stroke-orange-400',
+      text: "text-orange-500 dark:text-orange-400",
+      stroke: "stroke-orange-500 dark:stroke-orange-400",
     }
   }
   return {
-    text: 'text-red-500 dark:text-red-400',
-    stroke: 'stroke-red-500 dark:stroke-red-400',
+    text: "text-red-500 dark:text-red-400",
+    stroke: "stroke-red-500 dark:stroke-red-400",
   }
 }
 
 function getMatchRateLabel(rate: number): string {
-  if (rate >= 80) return 'Excellent match!'
-  if (rate >= 60) return 'Good match with room for improvement'
-  if (rate >= 40) return 'Moderate match - consider tailoring'
-  return 'Low match - significant gaps'
+  if (rate >= 80) return "Excellent match!"
+  if (rate >= 60) return "Good match with room for improvement"
+  if (rate >= 40) return "Moderate match - consider tailoring"
+  return "Low match - significant gaps"
 }
 
 function MatchRateCircle({ rate }: { rate: number }) {
@@ -801,14 +768,11 @@ function MatchRateCircle({ rate }: { rate: number }) {
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className={cn('transition-all duration-700 ease-out', colors.stroke)}
+          className={cn("transition-all duration-700 ease-out", colors.stroke)}
         />
       </svg>
       <div
-        className={cn(
-          'absolute inset-0 flex flex-col items-center justify-center',
-          colors.text
-        )}
+        className={cn("absolute inset-0 flex flex-col items-center justify-center", colors.text)}
       >
         <span className="text-2xl font-bold">{rate}%</span>
       </div>
@@ -883,13 +847,7 @@ function MatchSkeleton() {
   )
 }
 
-function SkillBadge({
-  skill,
-  matchResult,
-}: {
-  skill: string
-  matchResult: JDMatchResult | null
-}) {
+function SkillBadge({ skill, matchResult }: { skill: string; matchResult: JDMatchResult | null }) {
   if (!matchResult) {
     return (
       <Badge variant="outline" className="text-xs">
@@ -899,18 +857,14 @@ function SkillBadge({
   }
 
   const skillLower = skill.toLowerCase()
-  const isPresent = matchResult.presentKeywords.some(
-    (k) => k.toLowerCase() === skillLower
-  )
-  const isMissing = matchResult.missingKeywords.some(
-    (k) => k.toLowerCase() === skillLower
-  )
+  const isPresent = matchResult.presentKeywords.some((k) => k.toLowerCase() === skillLower)
+  const isMissing = matchResult.missingKeywords.some((k) => k.toLowerCase() === skillLower)
 
   if (isPresent) {
     return (
       <Badge
         variant="default"
-        className="text-xs bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 border-green-200 dark:border-green-800"
+        className="border-green-200 bg-green-100 text-xs text-green-800 hover:bg-green-200 dark:border-green-800 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
       >
         <CheckCircle2 className="mr-1 h-3 w-3" />
         {skill}
@@ -922,7 +876,7 @@ function SkillBadge({
     return (
       <Badge
         variant="destructive"
-        className="text-xs bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50 border-orange-200 dark:border-orange-800"
+        className="border-orange-200 bg-orange-100 text-xs text-orange-800 hover:bg-orange-200 dark:border-orange-800 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50"
       >
         <XCircle className="mr-1 h-3 w-3" />
         {skill}
@@ -952,9 +906,9 @@ function buildAnalysisFromJD(jd: JobDescription | null | undefined): JDAnalysis 
       skills: jd.extracted_skills ?? [],
       requirements: jd.extracted_requirements ?? [],
       qualifications: jd.extracted_qualifications ?? [],
-      experienceLevel: (meta.experienceLevel as string) ?? 'unknown',
+      experienceLevel: (meta.experienceLevel as string) ?? "unknown",
       redFlags: (meta.redFlags as string[]) ?? [],
-      summary: (meta.summary as string) ?? '',
+      summary: (meta.summary as string) ?? "",
     }
   }
 
@@ -963,7 +917,10 @@ function buildAnalysisFromJD(jd: JobDescription | null | undefined): JDAnalysis 
 
 function extractTitle(text: string): string {
   // Try to extract a job title from the first few lines
-  const lines = text.trim().split('\n').filter((l) => l.trim())
+  const lines = text
+    .trim()
+    .split("\n")
+    .filter((l) => l.trim())
 
   // Common patterns: "Senior Software Engineer", "Title: ...", first non-empty line
   for (const line of lines.slice(0, 5)) {
@@ -981,17 +938,20 @@ function extractTitle(text: string): string {
   }
 
   // Fallback: use the first non-empty line if it's short enough
-  const firstLine = lines[0]?.trim() ?? ''
+  const firstLine = lines[0]?.trim() ?? ""
   if (firstLine.length > 0 && firstLine.length <= 80) {
     return firstLine
   }
 
   // Last resort: truncate the first line
-  return firstLine.slice(0, 60) + (firstLine.length > 60 ? '...' : '') || 'Untitled JD'
+  return firstLine.slice(0, 60) + (firstLine.length > 60 ? "..." : "") || "Untitled JD"
 }
 
 function extractCompany(text: string): string | undefined {
-  const lines = text.trim().split('\n').filter((l) => l.trim())
+  const lines = text
+    .trim()
+    .split("\n")
+    .filter((l) => l.trim())
 
   for (const line of lines.slice(0, 10)) {
     const trimmed = line.trim()

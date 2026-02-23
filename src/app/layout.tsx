@@ -14,7 +14,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
-
 export async function generateMetadata() {
   return buildRootMetadata()
 }

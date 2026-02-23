@@ -1,29 +1,29 @@
-'use client'
+"use client"
 
-import { useState, useRef, useEffect } from 'react'
-import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { PragmaticTemplate } from './PragmaticTemplate'
-import { MonoTemplate } from './MonoTemplate'
-import { SmarkdownTemplate } from './SmarkdownTemplate'
-import { CareerCupTemplate } from './CareerCupTemplate'
-import { ParkerTemplate } from './ParkerTemplate'
-import { ExperiencedTemplate } from './ExperiencedTemplate'
-import { googleFontUrl } from '@/lib/resume-builder/fonts'
-import type { ResumeWithRelations } from '@/types/resume-builder'
+import { useState, useRef, useEffect } from "react"
+import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { PragmaticTemplate } from "./PragmaticTemplate"
+import { MonoTemplate } from "./MonoTemplate"
+import { SmarkdownTemplate } from "./SmarkdownTemplate"
+import { CareerCupTemplate } from "./CareerCupTemplate"
+import { ParkerTemplate } from "./ParkerTemplate"
+import { ExperiencedTemplate } from "./ExperiencedTemplate"
+import { googleFontUrl } from "@/lib/resume-builder/fonts"
+import type { ResumeWithRelations } from "@/types/resume-builder"
 
 interface Props {
   resume: ResumeWithRelations
 }
 
 const templateMap: Record<string, React.ComponentType<{ resume: ResumeWithRelations }>> = {
-  'a1b2c3d4-0001-4000-8000-000000000001': PragmaticTemplate,
-  'a1b2c3d4-0002-4000-8000-000000000002': MonoTemplate,
-  'a1b2c3d4-0003-4000-8000-000000000003': SmarkdownTemplate,
-  'a1b2c3d4-0004-4000-8000-000000000004': CareerCupTemplate,
-  'a1b2c3d4-0005-4000-8000-000000000005': ParkerTemplate,
-  'a1b2c3d4-0006-4000-8000-000000000006': ExperiencedTemplate,
+  "a1b2c3d4-0001-4000-8000-000000000001": PragmaticTemplate,
+  "a1b2c3d4-0002-4000-8000-000000000002": MonoTemplate,
+  "a1b2c3d4-0003-4000-8000-000000000003": SmarkdownTemplate,
+  "a1b2c3d4-0004-4000-8000-000000000004": CareerCupTemplate,
+  "a1b2c3d4-0005-4000-8000-000000000005": ParkerTemplate,
+  "a1b2c3d4-0006-4000-8000-000000000006": ExperiencedTemplate,
 }
 
 const ZOOM_LEVELS = [0.4, 0.5, 0.6, 0.75, 0.85, 1.0]
@@ -37,10 +37,9 @@ export function ResumePreviewPane({ resume }: Props) {
   const paperRef = useRef<HTMLDivElement>(null)
   const [pageCount, setPageCount] = useState(1)
 
-  const TemplateComponent =
-    templateMap[resume.template_id ?? ''] ?? PragmaticTemplate
+  const TemplateComponent = templateMap[resume.template_id ?? ""] ?? PragmaticTemplate
 
-  const fontFamily = resume.settings?.font_family ?? 'Inter'
+  const fontFamily = resume.settings?.font_family ?? "Inter"
   const fontUrl = googleFontUrl(fontFamily)
 
   // Measure content height and calculate page count
@@ -66,7 +65,7 @@ export function ResumePreviewPane({ resume }: Props) {
           <div
             style={{
               width: `${8.5 * zoom}in`,
-              position: 'relative',
+              position: "relative",
             }}
           >
             {/* Scaled paper */}
@@ -74,10 +73,10 @@ export function ResumePreviewPane({ resume }: Props) {
               ref={paperRef}
               className="origin-top bg-white shadow-lg"
               style={{
-                width: '8.5in',
+                width: "8.5in",
                 minHeight: `${PAGE_HEIGHT_IN}in`,
                 transform: `scale(${zoom})`,
-                transformOrigin: 'top left',
+                transformOrigin: "top left",
               }}
             >
               <TemplateComponent resume={resume} />
@@ -90,24 +89,24 @@ export function ResumePreviewPane({ resume }: Props) {
                 <div
                   key={i}
                   style={{
-                    position: 'absolute',
+                    position: "absolute",
                     top: `${topPx}px`,
                     left: 0,
                     right: 0,
                     height: `${PAGE_GAP_PX}px`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     zIndex: 10,
                   }}
                 >
                   <div
                     style={{
-                      position: 'absolute',
-                      top: '50%',
+                      position: "absolute",
+                      top: "50%",
                       left: 0,
                       right: 0,
-                      borderTop: '1.5px dashed #d1d5db',
+                      borderTop: "1.5px dashed #d1d5db",
                     }}
                   />
                   <span className="relative rounded bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400">

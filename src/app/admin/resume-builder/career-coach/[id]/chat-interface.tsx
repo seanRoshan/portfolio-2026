@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import { useState, useRef, useEffect, useCallback } from 'react'
-import Link from 'next/link'
+import { useState, useRef, useEffect, useCallback } from "react"
+import Link from "next/link"
 import {
   ArrowLeft,
   Send,
@@ -14,62 +14,57 @@ import {
   X,
   Copy,
   Check,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Textarea } from '@/components/ui/textarea'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { toast } from 'sonner'
-import {
-  updateCoachSessionMessages,
-  updateCoachSessionContent,
-} from '../actions'
+} from "@/components/ui/select"
+import { toast } from "sonner"
+import { updateCoachSessionMessages, updateCoachSessionContent } from "../actions"
 import type {
   CareerCoachSession,
   CoachMessage,
   CoachSessionType,
   Resume,
-} from '@/types/resume-builder'
+} from "@/types/resume-builder"
 
 // ===== Constants =====
 
-const SESSION_TYPE_CONFIG: Record<
-  CoachSessionType,
-  { label: string; icon: typeof MessageSquare }
-> = {
-  general: { label: 'General Career Advice', icon: MessageSquare },
-  experience_builder: { label: 'Experience Builder', icon: Briefcase },
-  project_builder: { label: 'Project Builder', icon: FolderKanban },
-  interview_prep: { label: 'Interview Prep', icon: Target },
-  career_narrative: { label: 'Career Narrative', icon: BookOpen },
-}
+const SESSION_TYPE_CONFIG: Record<CoachSessionType, { label: string; icon: typeof MessageSquare }> =
+  {
+    general: { label: "General Career Advice", icon: MessageSquare },
+    experience_builder: { label: "Experience Builder", icon: Briefcase },
+    project_builder: { label: "Project Builder", icon: FolderKanban },
+    interview_prep: { label: "Interview Prep", icon: Target },
+    career_narrative: { label: "Career Narrative", icon: BookOpen },
+  }
 
 // ===== Helper Functions =====
 
 function formatTimestamp(timestamp: string): string {
-  return new Date(timestamp).toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
+  return new Date(timestamp).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
   })
 }
 
 function renderMessageContent(content: string): React.ReactNode[] {
-  return content.split('\n').map((line, i) => {
-    if (line.trim() === '') {
+  return content.split("\n").map((line, i) => {
+    if (line.trim() === "") {
       return <br key={i} />
     }
 
     const parts = line.split(/(\*\*.*?\*\*)/g)
     const rendered = parts.map((part, j) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
+      if (part.startsWith("**") && part.endsWith("**")) {
         return <strong key={j}>{part.slice(2, -2)}</strong>
       }
       return part
@@ -86,14 +81,11 @@ function renderMessageContent(content: string): React.ReactNode[] {
 function extractBulletPoints(messages: CoachMessage[]): string[] {
   const bullets: string[] = []
   for (const msg of messages) {
-    if (msg.role !== 'assistant') continue
-    const lines = msg.content.split('\n')
+    if (msg.role !== "assistant") continue
+    const lines = msg.content.split("\n")
     for (const line of lines) {
       const trimmed = line.trim()
-      if (
-        (trimmed.startsWith('- ') || trimmed.startsWith('* ')) &&
-        trimmed.length > 20
-      ) {
+      if ((trimmed.startsWith("- ") || trimmed.startsWith("* ")) && trimmed.length > 20) {
         bullets.push(trimmed.slice(2))
       }
     }
@@ -135,11 +127,7 @@ function BulletItem({ text }: BulletItemProps) {
         className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100"
         onClick={handleCopy}
       >
-        {copied ? (
-          <Check className="h-3 w-3" />
-        ) : (
-          <Copy className="h-3 w-3" />
-        )}
+        {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
       </Button>
     </div>
   )
@@ -150,23 +138,18 @@ interface GeneratedContentPanelProps {
   bullets: string[]
 }
 
-function GeneratedContentPanel({
-  sessionType,
-  bullets,
-}: GeneratedContentPanelProps) {
+function GeneratedContentPanel({ sessionType, bullets }: GeneratedContentPanelProps) {
   const title =
-    sessionType === 'experience_builder'
-      ? 'Generated Bullets'
-      : 'Generated Descriptions'
+    sessionType === "experience_builder" ? "Generated Bullets" : "Generated Descriptions"
 
   if (bullets.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
         <FileText className="text-muted-foreground mb-2 h-8 w-8" />
         <p className="text-muted-foreground text-sm">
-          {sessionType === 'experience_builder'
-            ? 'Achievement bullet points will appear here as the coach generates them.'
-            : 'Project descriptions will appear here as the coach generates them.'}
+          {sessionType === "experience_builder"
+            ? "Achievement bullet points will appear here as the coach generates them."
+            : "Project descriptions will appear here as the coach generates them."}
         </p>
       </div>
     )
@@ -193,15 +176,14 @@ interface ChatInterfaceProps {
 
 export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<CoachMessage[]>(session.messages)
-  const [input, setInput] = useState('')
+  const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedResumeId, setSelectedResumeId] = useState<string>('')
+  const [selectedResumeId, setSelectedResumeId] = useState<string>("")
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const hasSidebar =
-    session.session_type === 'experience_builder' ||
-    session.session_type === 'project_builder'
+    session.session_type === "experience_builder" || session.session_type === "project_builder"
 
   const config = SESSION_TYPE_CONFIG[session.session_type]
   const Icon = config.icon
@@ -209,9 +191,7 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
 
   const scrollToBottom = useCallback(() => {
     if (!scrollRef.current) return
-    const scrollContainer = scrollRef.current.querySelector(
-      '[data-radix-scroll-area-viewport]'
-    )
+    const scrollContainer = scrollRef.current.querySelector("[data-radix-scroll-area-viewport]")
     if (scrollContainer) {
       scrollContainer.scrollTop = scrollContainer.scrollHeight
     }
@@ -226,25 +206,25 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
     if (!trimmed || isLoading) return
 
     const userMessage: CoachMessage = {
-      role: 'user',
+      role: "user",
       content: trimmed,
       timestamp: new Date().toISOString(),
     }
 
     const updatedMessages = [...messages, userMessage]
     setMessages(updatedMessages)
-    setInput('')
+    setInput("")
     setIsLoading(true)
 
     // Resize textarea back to default
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = "auto"
     }
 
     try {
-      const response = await fetch('/api/resume-builder/coach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/resume-builder/coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionId: session.id,
           sessionType: session.session_type,
@@ -258,12 +238,12 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error ?? 'Failed to get response')
+        throw new Error(errorData.error ?? "Failed to get response")
       }
 
       const data = await response.json()
       const assistantMessage: CoachMessage = {
-        role: 'assistant',
+        role: "assistant",
         content: data.response,
         timestamp: new Date().toISOString(),
       }
@@ -282,9 +262,7 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
         }
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to send message'
-      )
+      toast.error(error instanceof Error ? error.message : "Failed to send message")
       // Remove the optimistic user message on failure
       setMessages(messages)
     } finally {
@@ -293,7 +271,7 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       handleSend()
     }
@@ -302,10 +280,7 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
   const selectedResume = resumes.find((r) => r.id === selectedResumeId)
 
   return (
-    <div
-      className="flex"
-      style={{ height: 'calc(100vh - 56px)' }}
-    >
+    <div className="flex" style={{ height: "calc(100vh - 56px)" }}>
       {/* Main Chat Area */}
       <div className="flex flex-1 flex-col">
         {/* Chat Header */}
@@ -329,17 +304,14 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
                 Using {selectedResume.title}
                 <button
                   type="button"
-                  onClick={() => setSelectedResumeId('')}
+                  onClick={() => setSelectedResumeId("")}
                   className="hover:text-foreground ml-1"
                 >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
             )}
-            <Select
-              value={selectedResumeId}
-              onValueChange={setSelectedResumeId}
-            >
+            <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Add resume context" />
               </SelectTrigger>
@@ -360,9 +332,7 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <Icon className="text-muted-foreground mb-4 h-12 w-12" />
-                <h3 className="mb-2 text-lg font-semibold">
-                  {config.label}
-                </h3>
+                <h3 className="mb-2 text-lg font-semibold">{config.label}</h3>
                 <p className="text-muted-foreground max-w-md text-sm">
                   {getWelcomeMessage(session.session_type)}
                 </p>
@@ -372,25 +342,17 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex ${
-                  msg.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-                    msg.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                    msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                   }`}
                 >
-                  <div className="text-sm leading-relaxed">
-                    {renderMessageContent(msg.content)}
-                  </div>
+                  <div className="text-sm leading-relaxed">{renderMessageContent(msg.content)}</div>
                   <div
                     className={`mt-1 text-[10px] ${
-                      msg.role === 'user'
-                        ? 'text-primary-foreground/60'
-                        : 'text-muted-foreground'
+                      msg.role === "user" ? "text-primary-foreground/60" : "text-muted-foreground"
                     }`}
                   >
                     {formatTimestamp(msg.timestamp)}
@@ -444,13 +406,13 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
           <div className="hidden w-80 flex-col lg:flex">
             <div className="border-b px-4 py-3">
               <h3 className="text-sm font-semibold">
-                {session.session_type === 'experience_builder'
-                  ? 'Generated Bullets'
-                  : 'Generated Descriptions'}
+                {session.session_type === "experience_builder"
+                  ? "Generated Bullets"
+                  : "Generated Descriptions"}
               </h3>
               <p className="text-muted-foreground text-xs">
                 {generatedBullets.length} item
-                {generatedBullets.length !== 1 ? 's' : ''} generated
+                {generatedBullets.length !== 1 ? "s" : ""} generated
               </p>
             </div>
             <ScrollArea className="flex-1">
@@ -470,13 +432,13 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
 
 function getWelcomeMessage(sessionType: CoachSessionType): string {
   switch (sessionType) {
-    case 'experience_builder':
+    case "experience_builder":
       return "I'll interview you about your work experience to help generate strong, metrics-driven bullet points for your resume. Tell me about a role or project you'd like to document."
-    case 'project_builder':
+    case "project_builder":
       return "Let's document your projects together. Tell me about a project you've worked on, and I'll help you write compelling descriptions and achievement bullets."
-    case 'interview_prep':
+    case "interview_prep":
       return "I'll help you prepare for behavioral interviews using the STAR method. We can practice with questions tailored to your experience. Ready to start?"
-    case 'career_narrative':
+    case "career_narrative":
       return "Let's build a cohesive story that connects your experiences. Tell me about your career journey, and I'll help you craft a compelling narrative."
     default:
       return "I'm your AI career coach. Ask me anything about your career, resume strategy, job search, or professional development."

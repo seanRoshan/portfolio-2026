@@ -1,16 +1,16 @@
-'use client'
+"use client"
 
-import { useTransition, useState } from 'react'
-import { AlignLeft } from 'lucide-react'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { toast } from 'sonner'
-import { updateSummary } from '@/app/admin/resume-builder/actions'
-import { EditorSection } from '../EditorSection'
-import { AIAssistButton } from '../AIAssistButton'
-import type { ResumeSummary } from '@/types/resume-builder'
+import { useTransition, useState } from "react"
+import { AlignLeft } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
+import { updateSummary } from "@/app/admin/resume-builder/actions"
+import { EditorSection } from "../EditorSection"
+import { AIAssistButton } from "../AIAssistButton"
+import type { ResumeSummary } from "@/types/resume-builder"
 
 interface Props {
   resumeId: string
@@ -19,7 +19,7 @@ interface Props {
 
 export function SummarySection({ resumeId, summary }: Props) {
   const [isPending, startTransition] = useTransition()
-  const [text, setText] = useState(summary?.text ?? '')
+  const [text, setText] = useState(summary?.text ?? "")
   const [isVisible, setIsVisible] = useState(summary?.is_visible ?? true)
   const [isDirty, setIsDirty] = useState(false)
 
@@ -28,9 +28,9 @@ export function SummarySection({ resumeId, summary }: Props) {
       try {
         await updateSummary(resumeId, { text, is_visible: isVisible })
         setIsDirty(false)
-        toast.success('Summary saved')
+        toast.success("Summary saved")
       } catch {
-        toast.error('Failed to save summary')
+        toast.error("Failed to save summary")
       }
     })
   }
@@ -40,11 +40,11 @@ export function SummarySection({ resumeId, summary }: Props) {
       title="Professional Summary"
       icon={AlignLeft}
       id="summary"
-      badge={!isVisible ? 'Hidden' : undefined}
+      badge={!isVisible ? "Hidden" : undefined}
     >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label className="text-xs text-muted-foreground">
+          <Label className="text-muted-foreground text-xs">
             1-3 sentences highlighting your key strengths and career goals.
           </Label>
           <div className="flex items-center gap-2">
@@ -73,18 +73,14 @@ export function SummarySection({ resumeId, summary }: Props) {
             rows={4}
             maxLength={500}
           />
-          <span className="text-muted-foreground absolute bottom-2 right-2 text-xs">
+          <span className="text-muted-foreground absolute right-2 bottom-2 text-xs">
             {text.length}/500
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            onClick={handleSave}
-            disabled={isPending || !isDirty}
-            size="sm"
-          >
-            {isPending ? 'Saving...' : 'Save Summary'}
+          <Button onClick={handleSave} disabled={isPending || !isDirty} size="sm">
+            {isPending ? "Saving..." : "Save Summary"}
           </Button>
           <AIAssistButton
             category="summary"

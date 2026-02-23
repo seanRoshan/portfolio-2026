@@ -1,18 +1,9 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import {
-  Plus,
-  Trash2,
-  GripVertical,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Loader2,
-} from "lucide-react"
+import { Plus, Trash2, GripVertical, User, Mail, Phone, MapPin, Loader2 } from "lucide-react"
 import {
   DndContext,
   closestCenter,
@@ -94,7 +85,12 @@ function SortableSocialRow({
 
   return (
     <div ref={setNodeRef} style={style} className="flex items-center gap-2">
-      <button type="button" className="text-muted-foreground cursor-grab" {...attributes} {...listeners}>
+      <button
+        type="button"
+        className="text-muted-foreground cursor-grab"
+        {...attributes}
+        {...listeners}
+      >
         <GripVertical className="h-4 w-4" />
       </button>
       <Select value={entry.platform} onValueChange={(val) => onEdit({ ...entry, platform: val })}>
@@ -110,7 +106,11 @@ function SortableSocialRow({
         </SelectTrigger>
         <SelectContent>
           {socialPlatforms.map((p) => (
-            <SelectItem key={p.key} value={p.key} disabled={usedPlatforms.has(p.key) && p.key !== entry.platform}>
+            <SelectItem
+              key={p.key}
+              value={p.key}
+              disabled={usedPlatforms.has(p.key) && p.key !== entry.platform}
+            >
               <span className="flex items-center gap-2">
                 <SocialIcon platformKey={p.key} size={14} />
                 {p.label}
@@ -150,10 +150,10 @@ function GroupCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-muted/30 rounded-lg p-4 space-y-4">
+    <div className="bg-muted/30 space-y-4 rounded-lg p-4">
       <div className="flex items-center gap-1.5">
-        <Icon className="h-3 w-3 text-muted-foreground/50" />
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60 select-none">
+        <Icon className="text-muted-foreground/50 h-3 w-3" />
+        <p className="text-muted-foreground/60 text-[11px] font-medium tracking-wider uppercase select-none">
           {label}
         </p>
       </div>
@@ -173,7 +173,7 @@ function IconInput({
 } & React.ComponentProps<typeof Input>) {
   return (
     <div className="relative">
-      <Icon className="text-muted-foreground/40 pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" />
+      <Icon className="text-muted-foreground/40 pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2" />
       <Input id={id} className={`h-9 pl-9 text-sm ${className}`} {...rest} />
     </div>
   )
@@ -189,10 +189,12 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
   const [isPending, startTransition] = useTransition()
 
   // Social links as array for drag-and-drop UI
-  const initialLinks: SocialLinkEntry[] = Object.entries(data.social_links ?? {}).map(([platform, url]) => ({
-    platform,
-    url,
-  }))
+  const initialLinks: SocialLinkEntry[] = Object.entries(data.social_links ?? {}).map(
+    ([platform, url]) => ({
+      platform,
+      url,
+    }),
+  )
   const [socialLinks, setSocialLinks] = useState<SocialLinkEntry[]>(
     initialLinks.length > 0 ? initialLinks : [],
   )
@@ -225,6 +227,7 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
       landing_show_availability: data.landing_show_availability ?? false,
     },
   })
+  const showAvailability = useWatch({ control: form.control, name: "landing_show_availability" })
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
@@ -353,13 +356,20 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
               </div>
             </div>
           </GroupCard>
-
         </FormSection>
 
         {/* ── Section 2: Social Links ────────────── */}
-        <FormSection id="social-links" title="Social Links" description="Select platform and enter URL">
+        <FormSection
+          id="social-links"
+          title="Social Links"
+          description="Select platform and enter URL"
+        >
           <div className="space-y-2">
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
               <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
                 {socialLinks.map((entry, i) => (
                   <SortableSocialRow
@@ -473,7 +483,7 @@ export function ContactInfoForm({ data }: ContactInfoFormProps) {
             />
           </div>
 
-          {form.watch("landing_show_availability") && (
+          {showAvailability && (
             <div className="space-y-1.5">
               <Label htmlFor="availability_text" className="text-xs font-medium">
                 Status Text

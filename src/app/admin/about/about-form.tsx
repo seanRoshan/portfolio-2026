@@ -130,7 +130,11 @@ export function AboutForm({ data }: AboutFormProps) {
           />
         </FormSection>
 
-        <FormSection id="stats" title="Stats" description="Key metrics displayed in the about section">
+        <FormSection
+          id="stats"
+          title="Stats"
+          description="Key metrics displayed in the about section"
+        >
           <FormField
             control={form.control}
             name="stats"

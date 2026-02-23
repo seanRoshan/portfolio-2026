@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { isAIAvailable } from '@/lib/resume-builder/ai/client'
-import { coachChat } from '@/lib/resume-builder/ai/services'
-import { getResumeWithRelations } from '@/lib/resume-builder/queries'
-import type { ResumeWithRelations } from '@/types/resume-builder'
+import { NextRequest, NextResponse } from "next/server"
+import { isAIAvailable } from "@/lib/resume-builder/ai/client"
+import { coachChat } from "@/lib/resume-builder/ai/services"
+import { getResumeWithRelations } from "@/lib/resume-builder/queries"
+import type { ResumeWithRelations } from "@/types/resume-builder"
 
 function buildResumeContext(resume: ResumeWithRelations): string {
   const sections: string[] = []
@@ -17,50 +17,41 @@ function buildResumeContext(resume: ResumeWithRelations): string {
 
   if (resume.work_experiences.length > 0) {
     const experienceLines = resume.work_experiences.map((exp) => {
-      const bullets = (exp.achievements ?? [])
-        .map((a) => `  - ${a.text}`)
-        .join('\n')
-      const dateRange = [exp.start_date, exp.end_date ?? 'Present']
-        .filter(Boolean)
-        .join(' - ')
+      const bullets = (exp.achievements ?? []).map((a) => `  - ${a.text}`).join("\n")
+      const dateRange = [exp.start_date, exp.end_date ?? "Present"].filter(Boolean).join(" - ")
       return `${exp.job_title} at ${exp.company} (${dateRange})\n${bullets}`
     })
-    sections.push(`Work Experience:\n${experienceLines.join('\n\n')}`)
+    sections.push(`Work Experience:\n${experienceLines.join("\n\n")}`)
   }
 
   if (resume.projects.length > 0) {
     const projectLines = resume.projects.map((proj) => {
-      const bullets = (proj.achievements ?? [])
-        .map((a) => `  - ${a.text}`)
-        .join('\n')
-      return `${proj.name}${proj.description ? `: ${proj.description}` : ''}\n${bullets}`
+      const bullets = (proj.achievements ?? []).map((a) => `  - ${a.text}`).join("\n")
+      return `${proj.name}${proj.description ? `: ${proj.description}` : ""}\n${bullets}`
     })
-    sections.push(`Projects:\n${projectLines.join('\n\n')}`)
+    sections.push(`Projects:\n${projectLines.join("\n\n")}`)
   }
 
   if (resume.skill_categories.length > 0) {
-    const skillLines = resume.skill_categories.map(
-      (cat) => `${cat.name}: ${cat.skills.join(', ')}`
-    )
-    sections.push(`Skills:\n${skillLines.join('\n')}`)
+    const skillLines = resume.skill_categories.map((cat) => `${cat.name}: ${cat.skills.join(", ")}`)
+    sections.push(`Skills:\n${skillLines.join("\n")}`)
   }
 
   if (resume.education.length > 0) {
     const eduLines = resume.education.map(
-      (edu) =>
-        `${edu.degree} in ${edu.field_of_study ?? 'N/A'} from ${edu.institution}`
+      (edu) => `${edu.degree} in ${edu.field_of_study ?? "N/A"} from ${edu.institution}`,
     )
-    sections.push(`Education:\n${eduLines.join('\n')}`)
+    sections.push(`Education:\n${eduLines.join("\n")}`)
   }
 
-  return sections.join('\n\n')
+  return sections.join("\n\n")
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!isAIAvailable()) {
     return NextResponse.json(
-      { error: 'AI features require ANTHROPIC_API_KEY to be configured' },
-      { status: 503 }
+      { error: "AI features require ANTHROPIC_API_KEY to be configured" },
+      { status: 503 },
     )
   }
 
@@ -79,10 +70,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const response = await coachChat(sessionType, messages, resumeContext)
     return NextResponse.json({ response })
   } catch (error) {
-    console.error('Coach API error:', error)
+    console.error("Coach API error:", error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Coach request failed' },
-      { status: 500 }
+      { error: error instanceof Error ? error.message : "Coach request failed" },
+      { status: 500 },
     )
   }
 }

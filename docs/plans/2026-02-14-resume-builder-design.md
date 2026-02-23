@@ -107,14 +107,14 @@ Resume data → Template HTML/CSS → Puppeteer → PDF → Supabase Storage →
 
 ## 3. Templates (All 6)
 
-| \# | Template | Layout | Best For |
-| --- | --- | --- | --- |
-| 1 | Pragmatic | Single-column, classic | Universal safe choice |
-| 2 | Mono | Single-column, monospace | Engineers signaling technical identity |
-| 3 | Smarkdown | Single-column, markdown-feel | Technical/documentation roles |
-| 4 | CareerCup | Single-column, dense | Big Tech (FAANG) applications |
-| 5 | Parker | Two-column, dark sidebar | Design-adjacent roles, startups |
-| 6 | Experienced | Two-column, professional | Senior professionals |
+| \#  | Template    | Layout                       | Best For                               |
+| --- | ----------- | ---------------------------- | -------------------------------------- |
+| 1   | Pragmatic   | Single-column, classic       | Universal safe choice                  |
+| 2   | Mono        | Single-column, monospace     | Engineers signaling technical identity |
+| 3   | Smarkdown   | Single-column, markdown-feel | Technical/documentation roles          |
+| 4   | CareerCup   | Single-column, dense         | Big Tech (FAANG) applications          |
+| 5   | Parker      | Two-column, dark sidebar     | Design-adjacent roles, startups        |
+| 6   | Experienced | Two-column, professional     | Senior professionals                   |
 
 Each template is implemented as an HTML/CSS component that:
 
@@ -150,15 +150,15 @@ Real-time validation at `src/lib/resume-builder/validation/`:
 
 ### Phase 1: Foundation
 
- 1. Database migration
- 2. Resume CRUD + list page
- 3. Editor layout (split pane)
- 4. Contact info section
- 5. Work experience + achievements
- 6. Education, skills, projects, certs, extracurriculars
- 7. Pragmatic template (HTML/CSS)
- 8. Live preview
- 9. Puppeteer PDF generation
+1.  Database migration
+2.  Resume CRUD + list page
+3.  Editor layout (split pane)
+4.  Contact info section
+5.  Work experience + achievements
+6.  Education, skills, projects, certs, extracurriculars
+7.  Pragmatic template (HTML/CSS)
+8.  Live preview
+9.  Puppeteer PDF generation
 10. Content validation engine
 
 ### Phase 2: All Templates

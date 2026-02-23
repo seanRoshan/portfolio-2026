@@ -1,30 +1,17 @@
-'use client'
+"use client"
 
-import { useTransition } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Linkedin,
-  Github,
-  Globe,
-  Link,
-  Loader2,
-} from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
-import { updateContactInfo } from '@/app/admin/resume-builder/actions'
-import {
-  contactInfoSchema,
-  type ContactInfoFormValues,
-} from '@/lib/schemas/resume-builder'
-import { EditorSection } from '../EditorSection'
-import type { ResumeContactInfo } from '@/types/resume-builder'
+import { useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { User, Mail, Phone, MapPin, Linkedin, Github, Globe, Link, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { updateContactInfo } from "@/app/admin/resume-builder/actions"
+import { contactInfoSchema, type ContactInfoFormValues } from "@/lib/schemas/resume-builder"
+import { EditorSection } from "../EditorSection"
+import type { ResumeContactInfo } from "@/types/resume-builder"
 
 /* ── tiny reusable pieces ─────────────────────── */
 
@@ -38,10 +25,10 @@ function GroupCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-muted/30 rounded-lg p-4 space-y-4">
+    <div className="bg-muted/30 space-y-4 rounded-lg p-4">
       <div className="flex items-center gap-1.5">
-        <Icon className="h-3 w-3 text-foreground/60" />
-        <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/60 select-none">
+        <Icon className="text-foreground/60 h-3 w-3" />
+        <p className="text-foreground/60 text-[11px] font-medium tracking-wider uppercase select-none">
           {label}
         </p>
       </div>
@@ -54,7 +41,7 @@ function IconInput({
   icon: Icon,
   id,
   error,
-  className = '',
+  className = "",
   ...rest
 }: {
   icon: React.ComponentType<{ className?: string }>
@@ -64,7 +51,7 @@ function IconInput({
   return (
     <div className="space-y-1">
       <div className="relative">
-        <Icon className="text-muted-foreground/40 pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" />
+        <Icon className="text-muted-foreground/40 pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2" />
         <Input id={id} className={`h-9 pl-9 text-sm ${className}`} {...rest} />
       </div>
       {error && <p className="text-destructive text-xs">{error}</p>}
@@ -90,15 +77,15 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
   } = useForm<ContactInfoFormValues>({
     resolver: zodResolver(contactInfoSchema),
     defaultValues: {
-      full_name: contactInfo?.full_name ?? '',
-      email: contactInfo?.email ?? '',
-      phone: contactInfo?.phone ?? '',
-      city: contactInfo?.city ?? '',
-      state: contactInfo?.state ?? '',
-      country: contactInfo?.country ?? '',
-      linkedin_url: contactInfo?.linkedin_url ?? '',
-      github_url: contactInfo?.github_url ?? '',
-      portfolio_url: contactInfo?.portfolio_url ?? '',
+      full_name: contactInfo?.full_name ?? "",
+      email: contactInfo?.email ?? "",
+      phone: contactInfo?.phone ?? "",
+      city: contactInfo?.city ?? "",
+      state: contactInfo?.state ?? "",
+      country: contactInfo?.country ?? "",
+      linkedin_url: contactInfo?.linkedin_url ?? "",
+      github_url: contactInfo?.github_url ?? "",
+      portfolio_url: contactInfo?.portfolio_url ?? "",
     },
   })
 
@@ -107,9 +94,9 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
       try {
         await updateContactInfo(resumeId, data)
         reset(data)
-        toast.success('Contact info saved')
+        toast.success("Contact info saved")
       } catch {
-        toast.error('Failed to save contact info')
+        toast.error("Failed to save contact info")
       }
     })
   }
@@ -125,14 +112,12 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
             </Label>
             <Input
               id="full_name"
-              {...register('full_name')}
+              {...register("full_name")}
               placeholder="Jane Doe"
               className="h-10 font-medium"
             />
             {errors.full_name && (
-              <p className="text-destructive text-xs">
-                {errors.full_name.message}
-              </p>
+              <p className="text-destructive text-xs">{errors.full_name.message}</p>
             )}
           </div>
 
@@ -144,7 +129,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               <IconInput
                 icon={Mail}
                 id="email"
-                {...register('email')}
+                {...register("email")}
                 placeholder="jane@example.com"
                 error={errors.email?.message}
               />
@@ -156,7 +141,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               <IconInput
                 icon={Phone}
                 id="phone"
-                {...register('phone')}
+                {...register("phone")}
                 placeholder="+1 (555) 123-4567"
               />
             </div>
@@ -172,7 +157,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               </Label>
               <Input
                 id="city"
-                {...register('city')}
+                {...register("city")}
                 placeholder="San Francisco"
                 className="h-9 text-sm"
               />
@@ -181,12 +166,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               <Label htmlFor="state" className="text-xs font-medium">
                 State
               </Label>
-              <Input
-                id="state"
-                {...register('state')}
-                placeholder="CA"
-                className="h-9 text-sm"
-              />
+              <Input id="state" {...register("state")} placeholder="CA" className="h-9 text-sm" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="country" className="text-xs font-medium">
@@ -194,7 +174,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               </Label>
               <Input
                 id="country"
-                {...register('country')}
+                {...register("country")}
                 placeholder="USA"
                 className="h-9 text-sm"
               />
@@ -212,7 +192,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               <IconInput
                 icon={Linkedin}
                 id="linkedin_url"
-                {...register('linkedin_url')}
+                {...register("linkedin_url")}
                 placeholder="https://linkedin.com/in/janedoe"
                 error={errors.linkedin_url?.message}
               />
@@ -224,7 +204,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               <IconInput
                 icon={Github}
                 id="github_url"
-                {...register('github_url')}
+                {...register("github_url")}
                 placeholder="https://github.com/janedoe"
                 error={errors.github_url?.message}
               />
@@ -236,7 +216,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
               <IconInput
                 icon={Globe}
                 id="portfolio_url"
-                {...register('portfolio_url')}
+                {...register("portfolio_url")}
                 placeholder="https://janedoe.dev"
               />
             </div>
@@ -247,7 +227,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
         <div
           className="grid transition-all duration-300 ease-out"
           style={{
-            gridTemplateRows: isDirty ? '1fr' : '0fr',
+            gridTemplateRows: isDirty ? "1fr" : "0fr",
             opacity: isDirty ? 1 : 0,
           }}
         >
@@ -257,7 +237,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-8 text-xs text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground h-8 text-xs"
                 onClick={() => reset()}
               >
                 Discard
@@ -269,7 +249,7 @@ export function ContactInfoSection({ resumeId, contactInfo }: Props) {
                     Saving…
                   </>
                 ) : (
-                  'Save Contact Info'
+                  "Save Contact Info"
                 )}
               </Button>
             </div>

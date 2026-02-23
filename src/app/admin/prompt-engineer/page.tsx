@@ -1,5 +1,5 @@
-import { listPrompts } from './actions'
-import { PromptEngineerClient } from './prompt-engineer-client'
+import { listPrompts } from "./actions"
+import { PromptEngineerClient } from "./prompt-engineer-client"
 
 export default async function PromptEngineerPage() {
   const prompts = await listPrompts()

@@ -1,12 +1,9 @@
-import { AdminHeader } from '../../admin-header'
-import { getJobApplications, getResumes } from '@/lib/resume-builder/queries'
-import { ApplicationsBoard } from './applications-board'
+import { AdminHeader } from "../../admin-header"
+import { getJobApplications, getResumes } from "@/lib/resume-builder/queries"
+import { ApplicationsBoard } from "./applications-board"
 
 export default async function ApplicationsPage() {
-  const [applications, resumes] = await Promise.all([
-    getJobApplications(),
-    getResumes(),
-  ])
+  const [applications, resumes] = await Promise.all([getJobApplications(), getResumes()])
 
   return (
     <>

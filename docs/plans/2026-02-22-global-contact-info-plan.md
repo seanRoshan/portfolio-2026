@@ -13,6 +13,7 @@
 ### Task 1: Database Migration
 
 **Files:**
+
 - Create: `supabase/migrations/20260222210000_global_contact_info.sql`
 
 **Step 1: Write the migration**
@@ -55,6 +56,7 @@ git commit -m "feat: add global contact info columns to site_settings"
 ### Task 2: Update TypeScript Types
 
 **Files:**
+
 - Modify: `src/types/database.ts:3-17` (SiteSettings interface)
 
 **Step 1: Add new fields to SiteSettings**
@@ -108,6 +110,7 @@ git commit -m "feat: add global profile fields to SiteSettings type"
 ### Task 3: Update `getSiteConfig()` Query
 
 **Files:**
+
 - Modify: `src/lib/queries.ts:9-30` (getSiteConfig function)
 
 **Step 1: Expand the return object**
@@ -168,6 +171,7 @@ git commit -m "feat: expand getSiteConfig with global profile and visibility fla
 ### Task 4: Redesign Admin Contact Page — Actions & Schema
 
 **Files:**
+
 - Modify: `src/app/admin/contact/actions.ts`
 
 **Step 1: Expand the schema and update action**
@@ -182,23 +186,58 @@ import { z } from "zod"
 
 const contactInfoSchema = z.object({
   // Identity
-  full_name: z.string().optional().transform((v) => v?.trim() || null),
+  full_name: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
   contact_email: z
     .string()
     .email()
     .nullable()
     .or(z.literal(""))
     .transform((v) => v || null),
-  phone: z.string().optional().transform((v) => v?.trim() || null),
+  phone: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
   // Location
-  city: z.string().optional().transform((v) => v?.trim() || null),
-  state: z.string().optional().transform((v) => v?.trim() || null),
-  country: z.string().optional().transform((v) => v?.trim() || null),
+  city: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
+  state: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
+  country: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || null),
   // Online presence
-  linkedin_url: z.string().url().or(z.literal("")).optional().transform((v) => v?.trim() || null),
-  github_url: z.string().url().or(z.literal("")).optional().transform((v) => v?.trim() || null),
-  portfolio_url: z.string().url().or(z.literal("")).optional().transform((v) => v?.trim() || null),
-  blog_url: z.string().url().or(z.literal("")).optional().transform((v) => v?.trim() || null),
+  linkedin_url: z
+    .string()
+    .url()
+    .or(z.literal(""))
+    .optional()
+    .transform((v) => v?.trim() || null),
+  github_url: z
+    .string()
+    .url()
+    .or(z.literal(""))
+    .optional()
+    .transform((v) => v?.trim() || null),
+  portfolio_url: z
+    .string()
+    .url()
+    .or(z.literal(""))
+    .optional()
+    .transform((v) => v?.trim() || null),
+  blog_url: z
+    .string()
+    .url()
+    .or(z.literal(""))
+    .optional()
+    .transform((v) => v?.trim() || null),
   // Settings
   contact_form_enabled: z.boolean(),
   social_links: z.record(z.string(), z.string()),
@@ -221,10 +260,7 @@ export async function updateContactInfo(data: ContactInfoFormValues) {
   const { data: current } = await supabase.from("site_settings").select("id").single()
   if (!current) return { error: "Site settings not found" }
 
-  const { error } = await supabase
-    .from("site_settings")
-    .update(validated)
-    .eq("id", current.id)
+  const { error } = await supabase.from("site_settings").update(validated).eq("id", current.id)
 
   if (error) return { error: error.message }
 
@@ -246,6 +282,7 @@ git commit -m "feat: expand contact actions with global profile fields and visib
 ### Task 5: Redesign Admin Contact Form Component
 
 **Files:**
+
 - Modify: `src/app/admin/contact/contact-form.tsx`
 
 **Step 1: Rewrite the form with Grouped Card layout**
@@ -262,6 +299,7 @@ Reuse the `GroupCard` pattern from the resume builder's `ContactInfoSection.tsx`
 Form `defaultValues` must now include all the new fields from `data` prop.
 
 Key implementation notes:
+
 - Import `User, Mail, Phone, MapPin, Link, Linkedin, Github, Globe, BookOpen, Eye, Loader2` from lucide-react
 - Use `FormSection` wrapper (already exists at `@/components/admin/form-section`) for top-level groups
 - Inside FormSection, use the GroupCard pattern: `bg-muted/30 rounded-lg p-4 space-y-4`
@@ -289,6 +327,7 @@ git commit -m "feat: redesign contact form with grouped card layout and visibili
 ### Task 6: Auto-Populate Resume From Global Profile
 
 **Files:**
+
 - Modify: `src/app/admin/resume-builder/actions.ts:72-76` (inside `createResume`)
 
 **Step 1: Fetch global profile and use as defaults**
@@ -345,6 +384,7 @@ git commit -m "feat: auto-populate new resumes from global contact profile"
 ### Task 7: Update Landing Page Components
 
 **Files:**
+
 - Modify: `src/components/sections/Hero.tsx:12-31` (HeroProps interface)
 - Modify: `src/components/sections/Contact.tsx:11-22` (ContactProps interface)
 - Modify: `src/components/sections/Footer.tsx:12-26` (FooterProps interface)
@@ -380,6 +420,7 @@ siteConfig: {
 ```
 
 Also update the `defaultSiteConfig` in each file to include the new fields with sensible defaults:
+
 - `phone: ""`
 - `linkedinUrl: ""`
 - `githubUrl: ""`
@@ -411,6 +452,7 @@ git commit -m "feat: update landing page components with global profile types an
 ### Task 8: Update Admin Contact Page Server Component
 
 **Files:**
+
 - Modify: `src/app/admin/contact/page.tsx`
 
 **Step 1: No changes needed**

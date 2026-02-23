@@ -60,6 +60,7 @@ export interface ResolvedPrompt { ... }      // Result of resolving default + ov
 **File:** `src/lib/resume-builder/ai/prompt-service.ts`
 
 Core functions:
+
 - `resolvePrompt(slug, resumeId?)` — Fetches default prompt, checks for resume-level override, merges (override fields take precedence over defaults when non-null)
 - `executePrompt(slug, variables, resumeId?)` — Resolves prompt, substitutes `{{variables}}` in template, calls Claude API
 - `listPrompts(category?)` — Lists all prompts, optionally filtered by category
@@ -73,6 +74,7 @@ Core functions:
 **File:** `src/app/admin/resume-builder/actions.ts`
 
 Added actions:
+
 - `executeAIPrompt(slug, variables, resumeId?)` — Generic action for inline AI buttons
 - `fetchPromptsByCategory(category?)` — Returns prompts for dropdown menus
 - `updateAchievementText(achievementId, text, resumeId)` — Updates single bullet + revalidates
@@ -85,6 +87,7 @@ Added actions:
 ### 5. Contact Info Portfolio Fallbacks
 
 **Files:**
+
 - `src/lib/resume-builder/ai/tailor-resume.ts` (~line 689) — Post-AI sanitization block
 - `src/app/admin/resume-builder/actions.ts` (~line 162) — DB insert fallbacks
 
@@ -95,6 +98,7 @@ All contact fields now fall back to portfolio data when the AI returns empty val
 **File:** `src/lib/resume-builder/pdf/generate-html.ts`
 
 CSS changes in ALL 3 template generators (main, Parker, Experienced):
+
 - Removed `page-break-inside: avoid` from `.resume-section` (large sections need to break)
 - Added `break-inside: avoid` alongside `page-break-inside: avoid` on `.experience-entry` and `li`
 - Added `h2 { page-break-after: avoid; break-after: avoid }` (headers stay with content)
@@ -105,6 +109,7 @@ CSS changes in ALL 3 template generators (main, Parker, Experienced):
 **File:** `src/components/resume-builder/editor/ScorePanel.tsx`
 
 Popover replacing inline score badges in the ResumeEditor header:
+
 - **Trigger:** Clickable badges showing critical count, warning count, and grade
 - **Content (396px wide):**
   - 7 score dimensions with colored progress bars (green ≥70, amber ≥40, red <40)
@@ -118,23 +123,26 @@ Popover replacing inline score badges in the ResumeEditor header:
 **File:** `src/components/resume-builder/editor/AIAssistButton.tsx`
 
 Reusable inline AI dropdown placed next to every editable text field:
+
 - **Trigger:** Ghost button with Sparkles icon (h-6 w-6), shows Loader2 when pending
 - **Dropdown:** Lists prompts from DB filtered by category
 - **Result:** Inline blue preview with Accept/Reject buttons
 - **Performance:** Module-level `promptCache` prevents duplicate fetches across multiple instances
 
 **Props:**
+
 ```typescript
 interface AIAssistButtonProps {
-  category: 'bullet' | 'summary' | 'description'
+  category: "bullet" | "summary" | "description"
   currentText: string
-  context: Record<string, string>  // job_title, company, etc.
+  context: Record<string, string> // job_title, company, etc.
   resumeId: string
   onAccept: (newText: string) => void
 }
 ```
 
 **Integrated into:**
+
 - `WorkExperienceSection.tsx` — Each achievement bullet
 - `ProjectsSection.tsx` — Description field + each achievement bullet
 - `SummarySection.tsx` — Next to Save button
@@ -145,6 +153,7 @@ interface AIAssistButtonProps {
 **File:** `src/components/resume-builder/editor/OptimizeDialog.tsx`
 
 Dialog triggered by "Optimize" button in ResumeEditor header:
+
 - **Progressive flow:** Shows one fixable item at a time (not batch)
 - **Item types:** weak verbs, missing metrics, missing summary
 - **Per-item UX:** Shows current text → "Fix with AI" button → shows before/after → Accept/Skip
@@ -153,6 +162,7 @@ Dialog triggered by "Optimize" button in ResumeEditor header:
 - **Done state:** Checkmark + "Done — fixed X of Y items"
 
 `buildFixableItems()` extracts fixable issues by:
+
 1. Scanning work experience bullets for weak opening verbs (was, did, used, worked, helped, etc.)
 2. Finding bullets without any digits (missing metrics)
 3. Finding project bullets without digits
@@ -161,6 +171,7 @@ Dialog triggered by "Optimize" button in ResumeEditor header:
 ### 10. Prompt Engineer Admin Page
 
 **Files:**
+
 - `src/app/admin/prompt-engineer/page.tsx` — Server component
 - `src/app/admin/prompt-engineer/actions.ts` — CRUD + test actions
 - `src/app/admin/prompt-engineer/prompt-engineer-client.tsx` — Client component
@@ -168,11 +179,13 @@ Dialog triggered by "Optimize" button in ResumeEditor header:
 **Layout:** Master-detail (left sidebar 288px + right editor)
 
 **Left panel:**
+
 - Category filter dropdown (All, Bullet Points, Summary, Descriptions, General)
 - "New Prompt" button
 - Prompt list grouped by category with "Default" badges
 
 **Right editor:**
+
 - Name, slug, category, description fields
 - System prompt textarea (monospace, 8 rows)
 - User prompt template textarea with extracted `{{variable}}` badges
@@ -190,6 +203,7 @@ Dialog triggered by "Optimize" button in ResumeEditor header:
 **File:** `src/components/resume-builder/editor/SettingsPanel.tsx`
 
 New "AI Prompts" section at the bottom of the Settings sheet:
+
 - `AIPromptsOverrides` component loads all prompts + resume-specific overrides
 - Each prompt shown as expandable card with Custom/Default badge
 - Expanded view: system_prompt and user_prompt_template textareas (monospace, 11px)
@@ -234,27 +248,27 @@ updateAchievementText() → Supabase update → revalidatePath
 
 ## File Index
 
-| Category | File | Purpose |
-|----------|------|---------|
-| **Migration** | `supabase/migrations/20260221000000_ai_prompts.sql` | Tables + seeds |
-| **Types** | `src/types/ai-prompts.ts` | AIPrompt, ResumePromptOverride, ResolvedPrompt |
-| **Service** | `src/lib/resume-builder/ai/prompt-service.ts` | resolvePrompt, executePrompt, listPrompts |
-| **Actions** | `src/app/admin/resume-builder/actions.ts` | executeAIPrompt, fetchPromptsByCategory, update helpers, override CRUD |
-| **Components** | `src/components/resume-builder/editor/ScorePanel.tsx` | Interactive score popover |
-| | `src/components/resume-builder/editor/AIAssistButton.tsx` | Reusable AI dropdown with caching |
-| | `src/components/resume-builder/editor/OptimizeDialog.tsx` | Progressive batch-fix dialog |
-| | `src/components/resume-builder/editor/SettingsPanel.tsx` | Settings + AI prompt overrides |
-| **Admin** | `src/app/admin/prompt-engineer/page.tsx` | Prompt engineer page (server) |
-| | `src/app/admin/prompt-engineer/actions.ts` | Prompt CRUD + test actions |
-| | `src/app/admin/prompt-engineer/prompt-engineer-client.tsx` | Prompt engineer UI (client) |
-| **Modified** | `src/app/admin/admin-sidebar.tsx` | Added Prompt Engineer nav link |
-| | `src/lib/resume-builder/ai/tailor-resume.ts` | Contact info fallbacks |
-| | `src/lib/resume-builder/pdf/generate-html.ts` | Page break CSS |
-| | `src/components/resume-builder/editor/ResumeEditor.tsx` | ScorePanel + OptimizeDialog integration |
-| | `src/components/resume-builder/editor/sections/WorkExperienceSection.tsx` | AIAssistButton on bullets |
-| | `src/components/resume-builder/editor/sections/ProjectsSection.tsx` | AIAssistButton on desc + bullets |
-| | `src/components/resume-builder/editor/sections/SummarySection.tsx` | AIAssistButton on summary |
-| | `src/components/resume-builder/editor/sections/ExtracurricularsSection.tsx` | AIAssistButton on description |
+| Category       | File                                                                        | Purpose                                                                |
+| -------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| **Migration**  | `supabase/migrations/20260221000000_ai_prompts.sql`                         | Tables + seeds                                                         |
+| **Types**      | `src/types/ai-prompts.ts`                                                   | AIPrompt, ResumePromptOverride, ResolvedPrompt                         |
+| **Service**    | `src/lib/resume-builder/ai/prompt-service.ts`                               | resolvePrompt, executePrompt, listPrompts                              |
+| **Actions**    | `src/app/admin/resume-builder/actions.ts`                                   | executeAIPrompt, fetchPromptsByCategory, update helpers, override CRUD |
+| **Components** | `src/components/resume-builder/editor/ScorePanel.tsx`                       | Interactive score popover                                              |
+|                | `src/components/resume-builder/editor/AIAssistButton.tsx`                   | Reusable AI dropdown with caching                                      |
+|                | `src/components/resume-builder/editor/OptimizeDialog.tsx`                   | Progressive batch-fix dialog                                           |
+|                | `src/components/resume-builder/editor/SettingsPanel.tsx`                    | Settings + AI prompt overrides                                         |
+| **Admin**      | `src/app/admin/prompt-engineer/page.tsx`                                    | Prompt engineer page (server)                                          |
+|                | `src/app/admin/prompt-engineer/actions.ts`                                  | Prompt CRUD + test actions                                             |
+|                | `src/app/admin/prompt-engineer/prompt-engineer-client.tsx`                  | Prompt engineer UI (client)                                            |
+| **Modified**   | `src/app/admin/admin-sidebar.tsx`                                           | Added Prompt Engineer nav link                                         |
+|                | `src/lib/resume-builder/ai/tailor-resume.ts`                                | Contact info fallbacks                                                 |
+|                | `src/lib/resume-builder/pdf/generate-html.ts`                               | Page break CSS                                                         |
+|                | `src/components/resume-builder/editor/ResumeEditor.tsx`                     | ScorePanel + OptimizeDialog integration                                |
+|                | `src/components/resume-builder/editor/sections/WorkExperienceSection.tsx`   | AIAssistButton on bullets                                              |
+|                | `src/components/resume-builder/editor/sections/ProjectsSection.tsx`         | AIAssistButton on desc + bullets                                       |
+|                | `src/components/resume-builder/editor/sections/SummarySection.tsx`          | AIAssistButton on summary                                              |
+|                | `src/components/resume-builder/editor/sections/ExtracurricularsSection.tsx` | AIAssistButton on description                                          |
 
 ---
 

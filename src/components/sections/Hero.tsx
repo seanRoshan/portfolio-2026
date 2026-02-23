@@ -66,7 +66,14 @@ const defaultSiteConfig: NonNullable<HeroProps["siteConfig"]> = {
   linkedinUrl: "",
   githubUrl: "",
   portfolioUrl: "",
-  visibility: { email: true, phone: false, location: true, linkedin: true, github: true, portfolio: true },
+  visibility: {
+    email: true,
+    phone: false,
+    location: true,
+    linkedin: true,
+    github: true,
+    portfolio: true,
+  },
 }
 
 export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: HeroProps) {
@@ -317,7 +324,6 @@ export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: Her
             </MagneticButton>
           </div>
         </div>
-
       </div>
 
       {/* Scroll indicator — positioned on section, not container */}

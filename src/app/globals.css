@@ -340,7 +340,9 @@
   width: 0;
   height: 1px;
   background: currentColor;
-  transition: width 0.3s ease, left 0.3s ease;
+  transition:
+    width 0.3s ease,
+    left 0.3s ease;
 }
 .link-hover-underline-center:hover::after {
   width: 100%;
@@ -482,7 +484,9 @@
   transform: scaleX(0);
   transform-origin: left;
   border-radius: 4px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 .link-hover-fill-left:hover::after {
   transform: scaleX(1);
@@ -503,7 +507,9 @@
   transform: scaleX(0);
   transform-origin: right;
   border-radius: 4px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 .link-hover-fill-right:hover::after {
   transform: scaleX(1);
@@ -524,7 +530,9 @@
   transform: scaleY(0);
   transform-origin: bottom;
   border-radius: 4px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 .link-hover-fill-up:hover::after {
   transform: scaleY(1);
@@ -545,7 +553,9 @@
   transform: scaleY(0);
   transform-origin: top;
   border-radius: 4px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 .link-hover-fill-down:hover::after {
   transform: scaleY(1);
@@ -565,7 +575,9 @@
   opacity: 0;
   transform: scale(0);
   border-radius: 4px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 .link-hover-fill-center:hover::after {
   transform: scale(1);
@@ -585,7 +597,9 @@
   background: currentColor;
   opacity: 0;
   transform: translateX(-100%) skewX(-15deg);
-  transition: transform 0.4s ease, opacity 0.4s ease;
+  transition:
+    transform 0.4s ease,
+    opacity 0.4s ease;
 }
 .link-hover-fill-diagonal:hover::after {
   transform: translateX(0) skewX(-15deg);
@@ -634,7 +648,9 @@
 
 .link-hover-text-blur-in {
   filter: blur(0px);
-  transition: filter 0.3s ease, opacity 0.3s ease;
+  transition:
+    filter 0.3s ease,
+    opacity 0.3s ease;
 }
 .link-hover-text-blur-in:not(:hover) {
   filter: blur(0.5px);
@@ -675,7 +691,9 @@
   position: absolute;
   left: -4px;
   opacity: 0;
-  transition: opacity 0.25s ease, left 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    left 0.25s ease;
 }
 .link-hover-bracket-left:hover {
   padding-left: 10px;
@@ -695,14 +713,18 @@
   position: absolute;
   left: -4px;
   opacity: 0;
-  transition: opacity 0.25s ease, left 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    left 0.25s ease;
 }
 .link-hover-bracket-both::after {
   content: "]";
   position: absolute;
   right: -4px;
   opacity: 0;
-  transition: opacity 0.25s ease, right 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    right 0.25s ease;
 }
 .link-hover-bracket-both:hover {
   padding-inline: 10px;
@@ -727,7 +749,9 @@
   border-radius: 4px;
   opacity: 0;
   transform: scale(0.95);
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 .link-hover-border-box:hover::after {
   opacity: 0.3;

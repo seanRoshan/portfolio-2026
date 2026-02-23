@@ -1,41 +1,22 @@
-'use client'
+"use client"
 
-import { useEffect, useState, useCallback } from 'react'
-import {
-  Brain,
-  Database,
-  DollarSign,
-  RefreshCw,
-  ExternalLink,
-  Zap,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {
-  getSystemStatus,
-  type SystemStatus,
-} from '@/app/admin/system-status-actions'
+import { useEffect, useState, useCallback } from "react"
+import { Brain, Database, DollarSign, RefreshCw, ExternalLink, Zap } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { getSystemStatus, type SystemStatus } from "@/app/admin/system-status-actions"
 
-function StatusDot({
-  status,
-}: {
-  status: 'connected' | 'error' | 'unconfigured' | 'loading'
-}) {
+function StatusDot({ status }: { status: "connected" | "error" | "unconfigured" | "loading" }) {
   return (
     <span
       role="status"
       aria-label={status}
       className={cn(
-        'inline-block h-2 w-2 rounded-full',
-        status === 'connected' && 'bg-emerald-500',
-        status === 'error' && 'bg-red-500',
-        status === 'unconfigured' && 'bg-amber-500',
-        status === 'loading' && 'bg-muted-foreground animate-pulse'
+        "inline-block h-2 w-2 rounded-full",
+        status === "connected" && "bg-emerald-500",
+        status === "error" && "bg-red-500",
+        status === "unconfigured" && "bg-amber-500",
+        status === "loading" && "bg-muted-foreground animate-pulse",
       )}
     />
   )
@@ -70,8 +51,8 @@ export function SystemStatusPanel() {
     return () => clearInterval(interval)
   }, [refresh])
 
-  const aiStatus = status?.ai.status ?? 'loading'
-  const dbStatus = status?.database.status ?? 'loading'
+  const aiStatus = status?.ai.status ?? "loading"
+  const dbStatus = status?.database.status ?? "loading"
   const cost = status?.usage.estimated_cost_usd ?? 0
   const calls = status?.usage.total_calls ?? 0
 
@@ -79,7 +60,7 @@ export function SystemStatusPanel() {
     <TooltipProvider delayDuration={300}>
       <div className="border-t px-3 py-2.5">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-muted-foreground text-[10px] font-medium uppercase tracking-wider">
+          <span className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
             System
           </span>
           <button
@@ -89,9 +70,7 @@ export function SystemStatusPanel() {
             aria-label="Refresh system status"
             className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors disabled:opacity-50"
           >
-            <RefreshCw
-              className={cn('h-3 w-3', loading && 'animate-spin')}
-            />
+            <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
           </button>
         </div>
 
@@ -102,25 +81,23 @@ export function SystemStatusPanel() {
             <TooltipTrigger asChild>
               <div className="flex items-center gap-1.5">
                 <Brain className="text-muted-foreground h-3.5 w-3.5" />
-                <StatusDot status={loading ? 'loading' : aiStatus} />
+                <StatusDot status={loading ? "loading" : aiStatus} />
                 <span className="text-muted-foreground text-[11px]">AI</span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
               <p className="font-medium">
-                AI:{' '}
-                {aiStatus === 'connected'
-                  ? 'Connected'
-                  : aiStatus === 'error'
-                    ? 'Error'
-                    : aiStatus === 'unconfigured'
-                      ? 'Not configured'
-                      : 'Checking...'}
+                AI:{" "}
+                {aiStatus === "connected"
+                  ? "Connected"
+                  : aiStatus === "error"
+                    ? "Error"
+                    : aiStatus === "unconfigured"
+                      ? "Not configured"
+                      : "Checking..."}
               </p>
               {status?.ai.error && (
-                <p className="text-destructive mt-0.5 max-w-52 break-words">
-                  {status.ai.error}
-                </p>
+                <p className="text-destructive mt-0.5 max-w-52 break-words">{status.ai.error}</p>
               )}
             </TooltipContent>
           </Tooltip>
@@ -130,23 +107,21 @@ export function SystemStatusPanel() {
             <TooltipTrigger asChild>
               <div className="flex items-center gap-1.5">
                 <Database className="text-muted-foreground h-3.5 w-3.5" />
-                <StatusDot status={loading ? 'loading' : dbStatus} />
+                <StatusDot status={loading ? "loading" : dbStatus} />
                 <span className="text-muted-foreground text-[11px]">DB</span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
               <p className="font-medium">
-                DB:{' '}
-                {dbStatus === 'connected'
-                  ? 'Connected'
-                  : dbStatus === 'error'
-                    ? 'Error'
-                    : 'Checking...'}
+                DB:{" "}
+                {dbStatus === "connected"
+                  ? "Connected"
+                  : dbStatus === "error"
+                    ? "Error"
+                    : "Checking..."}
               </p>
               {status?.database.latency_ms != null && (
-                <p className="text-muted-foreground">
-                  {status.database.latency_ms}ms latency
-                </p>
+                <p className="text-muted-foreground">{status.database.latency_ms}ms latency</p>
               )}
               {status?.database.error && (
                 <p className="text-destructive mt-0.5 max-w-52 break-words">
@@ -164,17 +139,14 @@ export function SystemStatusPanel() {
               <div className="flex items-center gap-1">
                 <Zap className="text-muted-foreground h-3.5 w-3.5" />
                 <span className="text-muted-foreground text-[11px] tabular-nums">
-                  {loading
-                    ? '—'
-                    : `${calls} call${calls !== 1 ? 's' : ''}`}
+                  {loading ? "—" : `${calls} call${calls !== 1 ? "s" : ""}`}
                 </span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
               <p className="font-medium">AI usage this month</p>
               <p className="text-muted-foreground">
-                {formatTokens(status?.usage.total_input_tokens ?? 0)} input
-                &middot;{' '}
+                {formatTokens(status?.usage.total_input_tokens ?? 0)} input &middot;{" "}
                 {formatTokens(status?.usage.total_output_tokens ?? 0)} output
               </p>
             </TooltipContent>
@@ -187,11 +159,7 @@ export function SystemStatusPanel() {
               <div className="flex items-center gap-1">
                 <DollarSign className="text-muted-foreground h-3.5 w-3.5" />
                 <span className="text-muted-foreground text-[11px] tabular-nums">
-                  {loading
-                    ? '—'
-                    : cost > 0
-                      ? `$${cost.toFixed(2)}`
-                      : '$0.00'}
+                  {loading ? "—" : cost > 0 ? `$${cost.toFixed(2)}` : "$0.00"}
                 </span>
               </div>
             </TooltipTrigger>

@@ -1,57 +1,53 @@
 // TypeScript interfaces for the Resume Builder system
 
 export type ExperienceLevel =
-  | 'intern'
-  | 'new_grad'
-  | 'bootcamp_grad'
-  | 'junior'
-  | 'mid'
-  | 'senior'
-  | 'staff_plus'
-  | 'tech_lead'
-  | 'eng_manager'
+  | "intern"
+  | "new_grad"
+  | "bootcamp_grad"
+  | "junior"
+  | "mid"
+  | "senior"
+  | "staff_plus"
+  | "tech_lead"
+  | "eng_manager"
 
 export type FontFamily = string
 
-export type FontSizePreset = 'compact' | 'comfortable' | 'spacious'
-export type DateFormat = 'full' | 'month_year' | 'year_only'
-export type PageMargin = 'compact' | 'normal' | 'wide'
-export type TemplateCategory = 'recommended' | 'classic' | 'creative' | 'minimal'
-export type TemplateLayout = 'single_column' | 'two_column'
-export type AchievementParentType = 'work' | 'project'
+export type FontSizePreset = "compact" | "comfortable" | "spacious"
+export type DateFormat = "full" | "month_year" | "year_only"
+export type PageMargin = "compact" | "normal" | "wide"
+export type TemplateCategory = "recommended" | "classic" | "creative" | "minimal"
+export type TemplateLayout = "single_column" | "two_column"
+export type AchievementParentType = "work" | "project"
 export type ExtracurricularType =
-  | 'patent'
-  | 'publication'
-  | 'talk'
-  | 'open_source'
-  | 'community'
-  | 'other'
+  | "patent"
+  | "publication"
+  | "talk"
+  | "open_source"
+  | "community"
+  | "other"
 
 export type ApplicationStatus =
-  | 'saved'
-  | 'applied'
-  | 'phone_screen'
-  | 'technical'
-  | 'onsite'
-  | 'offer'
-  | 'accepted'
-  | 'rejected'
-  | 'withdrawn'
+  | "saved"
+  | "applied"
+  | "phone_screen"
+  | "technical"
+  | "onsite"
+  | "offer"
+  | "accepted"
+  | "rejected"
+  | "withdrawn"
 
-export type RemoteType = 'remote' | 'hybrid' | 'onsite'
+export type RemoteType = "remote" | "hybrid" | "onsite"
 
 export type CoachSessionType =
-  | 'general'
-  | 'experience_builder'
-  | 'project_builder'
-  | 'interview_prep'
-  | 'career_narrative'
+  | "general"
+  | "experience_builder"
+  | "project_builder"
+  | "interview_prep"
+  | "career_narrative"
 
-export type CoverLetterTone =
-  | 'professional'
-  | 'passionate'
-  | 'bold'
-  | 'conversational'
+export type CoverLetterTone = "professional" | "passionate" | "bold" | "conversational"
 
 // ===== Template =====
 export interface ResumeTemplate {
@@ -91,8 +87,8 @@ export interface TemplateTokens {
   }
   layout: {
     columnRatio?: string
-    headerStyle: 'centered' | 'left_aligned' | 'full_width'
-    sectionDivider: 'line' | 'space' | 'border' | 'none'
+    headerStyle: "centered" | "left_aligned" | "full_width"
+    sectionDivider: "line" | "space" | "border" | "none"
   }
 }
 
@@ -111,6 +107,7 @@ export interface Resume {
   is_master: boolean
   parent_resume_id: string | null
   short_id: string | null
+  is_public: boolean
   created_at: string
   updated_at: string
 }
@@ -302,7 +299,7 @@ export interface CareerCoachSession {
 }
 
 export interface CoachMessage {
-  role: 'user' | 'assistant'
+  role: "user" | "assistant"
   content: string
   timestamp: string
 }
@@ -322,7 +319,7 @@ export interface CoverLetter {
 }
 
 // ===== Validation =====
-export type ValidationSeverity = 'critical' | 'warning' | 'style'
+export type ValidationSeverity = "critical" | "warning" | "style"
 
 export interface ValidationResult {
   severity: ValidationSeverity
@@ -356,7 +353,7 @@ export interface ResumeScoreDimension {
 export interface ResumeScore {
   overall: number
   dimensions: ResumeScoreDimension[]
-  grade: 'A' | 'B' | 'C' | 'D' | 'F'
+  grade: "A" | "B" | "C" | "D" | "F"
 }
 
 export interface JDMatchResult {

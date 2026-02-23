@@ -4,11 +4,7 @@ import { AdminHeader } from "../../admin-header"
 import { VentureForm } from "../venture-form"
 import type { Venture } from "@/types/database"
 
-export default async function EditVenturePage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function EditVenturePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
   const { data } = await supabase.from("ventures").select("*").eq("id", id).single()

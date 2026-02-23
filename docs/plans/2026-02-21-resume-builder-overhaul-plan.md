@@ -13,6 +13,7 @@
 ### Task 1: Fix portfolio data collection completeness
 
 **Files:**
+
 - Modify: `src/lib/resume-builder/ai/portfolio-data.ts`
 
 **Step 1: Add `resume_achievements` to experience query**
@@ -35,7 +36,7 @@ experiences: Array<{
   start_date: string
   end_date: string | null
   achievements: string[]
-  resume_achievements: string[] | null  // curated subset for resume
+  resume_achievements: string[] | null // curated subset for resume
   employment_type: string
   via_company: string | null
 }>
@@ -94,6 +95,7 @@ git commit -m "fix(resume-builder): add resume_achievements and project metadata
 ### Task 2: Fix AI pipeline — increase token limit and add completeness validation
 
 **Files:**
+
 - Modify: `src/lib/resume-builder/ai/tailor-resume.ts`
 
 **Step 1: Increase max_tokens**
@@ -117,19 +119,15 @@ In `tailor-resume.ts:369-382`, update the experience formatting to prefer `resum
 ```typescript
 if (portfolio.experiences.length > 0) {
   const expLines = portfolio.experiences.map((e) => {
-    const dateRange = `${e.start_date} — ${e.end_date ?? 'Present'}`
-    const via = e.via_company ? ` (via ${e.via_company})` : ''
-    const type =
-      e.employment_type !== 'direct' ? ` [${e.employment_type}]` : ''
+    const dateRange = `${e.start_date} — ${e.end_date ?? "Present"}`
+    const via = e.via_company ? ` (via ${e.via_company})` : ""
+    const type = e.employment_type !== "direct" ? ` [${e.employment_type}]` : ""
     // Prefer curated resume_achievements over full achievements list
     const bullets = e.resume_achievements ?? e.achievements ?? []
-    const bulletText =
-      bullets.length > 0
-        ? '\n' + bullets.map((a) => `  - ${a}`).join('\n')
-        : ''
-    return `### ${e.role} at ${e.company}${via}${type}\n${e.location ?? 'Remote'} | ${dateRange}${bulletText}`
+    const bulletText = bullets.length > 0 ? "\n" + bullets.map((a) => `  - ${a}`).join("\n") : ""
+    return `### ${e.role} at ${e.company}${via}${type}\n${e.location ?? "Remote"} | ${dateRange}${bulletText}`
   })
-  sections.push(`## Work Experience\n${expLines.join('\n\n')}`)
+  sections.push(`## Work Experience\n${expLines.join("\n\n")}`)
 }
 ```
 
@@ -143,21 +141,17 @@ if (portfolio.projects.length > 0) {
     const urls: string[] = []
     if (p.live_url) urls.push(`Live: ${p.live_url}`)
     if (p.github_url) urls.push(`GitHub: ${p.github_url}`)
-    const urlLine = urls.length > 0 ? `\n  ${urls.join(' | ')}` : ''
-    const tech =
-      (p.tech_stack ?? []).length > 0
-        ? `\n  Tech: ${p.tech_stack.join(', ')}`
-        : ''
-    const role = p.project_role ? `\n  Role: ${p.project_role}` : ''
+    const urlLine = urls.length > 0 ? `\n  ${urls.join(" | ")}` : ""
+    const tech = (p.tech_stack ?? []).length > 0 ? `\n  Tech: ${p.tech_stack.join(", ")}` : ""
+    const role = p.project_role ? `\n  Role: ${p.project_role}` : ""
     const highlights =
       (p.highlights ?? []).length > 0
-        ? '\n' +
-          p.highlights.map((h) => `  - ${h.metric}: ${h.value}`).join('\n')
-        : ''
+        ? "\n" + p.highlights.map((h) => `  - ${h.metric}: ${h.value}`).join("\n")
+        : ""
     const desc = p.long_description ?? p.short_description
     return `### ${p.title}\n  ${desc}${role}${tech}${urlLine}${highlights}`
   })
-  sections.push(`## Projects\n${projLines.join('\n\n')}`)
+  sections.push(`## Projects\n${projLines.join("\n\n")}`)
 }
 ```
 
@@ -167,12 +161,24 @@ In `tailor-resume.ts:300-307`, wrap each count line conditionally:
 
 ```typescript
 const countLines: string[] = []
-if (expCount > 0) countLines.push(`- Work Experiences: ${expCount} entries — include ALL ${expCount} in work_experiences`)
-if (skillCount > 0) countLines.push(`- Skills: ${skillCount} skills — group ALL relevant ones into skill_categories`)
-if (eduCount > 0) countLines.push(`- Education: ${eduCount} entries — include ALL ${eduCount} in education`)
-if (certCount > 0) countLines.push(`- Certifications: ${certCount} entries — include ALL ${certCount} in certifications`)
-if (projCount > 0) countLines.push(`- Projects: ${projCount} entries — include ALL ${projCount} in projects`)
-if (ventureCount > 0) countLines.push(`- Ventures: ${ventureCount} entries — map ALL ${ventureCount} as extracurriculars`)
+if (expCount > 0)
+  countLines.push(
+    `- Work Experiences: ${expCount} entries — include ALL ${expCount} in work_experiences`,
+  )
+if (skillCount > 0)
+  countLines.push(`- Skills: ${skillCount} skills — group ALL relevant ones into skill_categories`)
+if (eduCount > 0)
+  countLines.push(`- Education: ${eduCount} entries — include ALL ${eduCount} in education`)
+if (certCount > 0)
+  countLines.push(
+    `- Certifications: ${certCount} entries — include ALL ${certCount} in certifications`,
+  )
+if (projCount > 0)
+  countLines.push(`- Projects: ${projCount} entries — include ALL ${projCount} in projects`)
+if (ventureCount > 0)
+  countLines.push(
+    `- Ventures: ${ventureCount} entries — map ALL ${ventureCount} as extracurriculars`,
+  )
 ```
 
 Then use `countLines.join('\n')` instead of the existing block in the prompt template.
@@ -185,9 +191,7 @@ After line 648 (after the validation warnings), add a function that fills gaps w
 // Fill gaps: re-insert any experiences the AI dropped
 if (actualExps < expectedExps) {
   const aiCompanies = new Set(
-    (parsed.work_experiences ?? []).map((e) =>
-      `${e.job_title}|${e.company}`.toLowerCase()
-    )
+    (parsed.work_experiences ?? []).map((e) => `${e.job_title}|${e.company}`.toLowerCase()),
   )
   for (const pe of portfolio.experiences) {
     const key = `${pe.role}|${pe.company}`.toLowerCase()
@@ -196,7 +200,7 @@ if (actualExps < expectedExps) {
       parsed.work_experiences.push({
         job_title: pe.role,
         company: pe.company,
-        location: pe.location ?? '',
+        location: pe.location ?? "",
         start_date: pe.start_date,
         end_date: pe.end_date,
         achievements: bullets.slice(0, 5),
@@ -204,9 +208,7 @@ if (actualExps < expectedExps) {
     }
   }
   // Re-sort by start_date descending
-  parsed.work_experiences.sort((a, b) =>
-    (b.start_date ?? '').localeCompare(a.start_date ?? '')
-  )
+  parsed.work_experiences.sort((a, b) => (b.start_date ?? "").localeCompare(a.start_date ?? ""))
 }
 
 // Fill gaps: ensure every experience has at least 1 bullet
@@ -214,7 +216,7 @@ for (let i = 0; i < parsed.work_experiences.length; i++) {
   const exp = parsed.work_experiences[i]
   if (!exp.achievements || exp.achievements.length === 0) {
     const match = portfolio.experiences.find(
-      (pe) => pe.company.toLowerCase() === exp.company.toLowerCase()
+      (pe) => pe.company.toLowerCase() === exp.company.toLowerCase(),
     )
     if (match) {
       const bullets = match.resume_achievements ?? match.achievements ?? []
@@ -227,9 +229,7 @@ for (let i = 0; i < parsed.work_experiences.length; i++) {
 const expectedProjs = portfolio.projects.length
 const actualProjs = parsed.projects?.length ?? 0
 if (actualProjs < expectedProjs) {
-  const aiProjects = new Set(
-    (parsed.projects ?? []).map((p) => p.name.toLowerCase())
-  )
+  const aiProjects = new Set((parsed.projects ?? []).map((p) => p.name.toLowerCase()))
   for (const pp of portfolio.projects) {
     if (!aiProjects.has(pp.title.toLowerCase())) {
       parsed.projects.push({
@@ -261,6 +261,7 @@ git commit -m "fix(resume-builder): increase AI token limit, add gap-filling for
 ### Task 3: Refactor generateTailoredResume server action
 
 **Files:**
+
 - Modify: `src/app/admin/resume-builder/actions.ts`
 
 **Step 1: Add rollback logic**
@@ -272,9 +273,9 @@ try {
   // ... all the insert operations ...
 } catch (insertErr) {
   // Rollback: delete the partially created resume
-  await supabase.from('resumes').delete().eq('id', resume.id)
+  await supabase.from("resumes").delete().eq("id", resume.id)
   throw new Error(
-    `Failed to populate resume data: ${insertErr instanceof Error ? insertErr.message : String(insertErr)}`
+    `Failed to populate resume data: ${insertErr instanceof Error ? insertErr.message : String(insertErr)}`,
   )
 }
 ```
@@ -296,9 +297,9 @@ const expInserts = tailored.data.work_experiences.map((exp, i) => ({
 }))
 
 const { data: newExperiences, error: expError } = await supabase
-  .from('resume_work_experiences')
+  .from("resume_work_experiences")
   .insert(expInserts)
-  .select('id')
+  .select("id")
 
 if (expError) throw expError
 
@@ -308,16 +309,14 @@ if (newExperiences?.length) {
     const achievements = tailored.data.work_experiences[i]?.achievements ?? []
     return achievements.map((text, j) => ({
       parent_id: newExp.id,
-      parent_type: 'work' as const,
+      parent_type: "work" as const,
       text,
       has_metric: /\d/.test(text),
       sort_order: j,
     }))
   })
   if (allAchievements.length > 0) {
-    const { error: achError } = await supabase
-      .from('resume_achievements')
-      .insert(allAchievements)
+    const { error: achError } = await supabase.from("resume_achievements").insert(allAchievements)
     if (achError) throw achError
   }
 }
@@ -342,6 +341,7 @@ git commit -m "refactor(resume-builder): batch DB inserts and add rollback on fa
 ### Task 4: Implement resume scoring system
 
 **Files:**
+
 - Modify: `src/lib/resume-builder/ai/services.ts` (enhance existing `scoreResume`)
 
 **Step 1: Enhance the scoring function**
@@ -365,7 +365,7 @@ export interface ResumeScore {
     feedback: string
     suggestions: string[]
   }[]
-  grade: 'A' | 'B' | 'C' | 'D' | 'F'
+  grade: "A" | "B" | "C" | "D" | "F"
 }
 ```
 
@@ -400,6 +400,7 @@ git commit -m "feat(resume-builder): enhanced resume scoring with per-dimension 
 ### Task 5: Wire settings to template rendering (preview)
 
 **Files:**
+
 - Modify: `src/components/resume-builder/templates/shared.tsx` (add settings helpers)
 - Modify: All 6 template files
 
@@ -417,16 +418,34 @@ export const FONT_MAP: Record<string, string> = {
   source_code: '"Source Code Pro", monospace',
 }
 
-export const DENSITY_MAP: Record<string, { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }> = {
-  compact:     { body: '9px',  heading: '11px', section: '13px', lineHeight: '1.3', sectionGap: '8px' },
-  comfortable: { body: '10px', heading: '12px', section: '14px', lineHeight: '1.4', sectionGap: '12px' },
-  spacious:    { body: '11px', heading: '13px', section: '15px', lineHeight: '1.5', sectionGap: '16px' },
+export const DENSITY_MAP: Record<
+  string,
+  { body: string; heading: string; section: string; lineHeight: string; sectionGap: string }
+> = {
+  compact: { body: "9px", heading: "11px", section: "13px", lineHeight: "1.3", sectionGap: "8px" },
+  comfortable: {
+    body: "10px",
+    heading: "12px",
+    section: "14px",
+    lineHeight: "1.4",
+    sectionGap: "12px",
+  },
+  spacious: {
+    body: "11px",
+    heading: "13px",
+    section: "15px",
+    lineHeight: "1.5",
+    sectionGap: "16px",
+  },
 }
 
-export function getTemplateStyles(settings: { accent_color?: string; font_family?: string; font_size_preset?: string } | null) {
-  const accent = settings?.accent_color ?? '#000000'
-  const font = FONT_MAP[settings?.font_family ?? 'inter'] ?? FONT_MAP.inter
-  const density = DENSITY_MAP[settings?.font_size_preset ?? 'comfortable'] ?? DENSITY_MAP.comfortable
+export function getTemplateStyles(
+  settings: { accent_color?: string; font_family?: string; font_size_preset?: string } | null,
+) {
+  const accent = settings?.accent_color ?? "#000000"
+  const font = FONT_MAP[settings?.font_family ?? "inter"] ?? FONT_MAP.inter
+  const density =
+    DENSITY_MAP[settings?.font_size_preset ?? "comfortable"] ?? DENSITY_MAP.comfortable
   return { accent, font, density }
 }
 ```
@@ -466,6 +485,7 @@ git commit -m "feat(resume-builder): wire settings (font, color, density) to all
 ### Task 6: Wire settings to PDF generation
 
 **Files:**
+
 - Modify: `src/lib/resume-builder/pdf/generate-html.ts`
 
 **Step 1: Import shared constants and apply to HTML generation**
@@ -481,8 +501,12 @@ Replace hardcoded accent colors with `settings.accent_color`.
 Add to the global CSS block in the HTML:
 
 ```css
-.resume-section { page-break-inside: avoid; }
-.experience-entry { page-break-inside: avoid; }
+.resume-section {
+  page-break-inside: avoid;
+}
+.experience-entry {
+  page-break-inside: avoid;
+}
 ```
 
 Apply the class to each section wrapper and each experience entry in the HTML output.
@@ -492,6 +516,7 @@ Apply the class to each section wrapper and each experience entry in the HTML ou
 Replace the Google Fonts `<link>` tag with embedded `@font-face` declarations that use locally available system fonts. This prevents Puppeteer timeout on font loading.
 
 Map to system fonts as fallback:
+
 - inter → system-ui, -apple-system
 - georgia → Georgia (system font, no CDN needed)
 - garamond → Palatino Linotype, Book Antiqua (system fallback)
@@ -502,7 +527,8 @@ Map to system fonts as fallback:
 In the Parker and Experienced template sections, replace `display: flex` with CSS Grid:
 
 ```css
-display: grid; grid-template-columns: 30% 70%;
+display: grid;
+grid-template-columns: 30% 70%;
 ```
 
 This renders more reliably in Puppeteer.
@@ -524,6 +550,7 @@ git commit -m "fix(resume-builder): wire settings to PDF, add page breaks, fix f
 ### Task 7: Add section drag-and-drop reordering
 
 **Files:**
+
 - Modify: `src/components/resume-builder/editor/ResumeEditor.tsx`
 - Modify: `src/app/admin/resume-builder/actions.ts` (if `updateResumeSettings` doesn't already handle `section_order`)
 
@@ -539,14 +566,14 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-} from '@dnd-kit/core'
+} from "@dnd-kit/core"
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+} from "@dnd-kit/sortable"
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 ```
 
 **Step 2: Create SortableSection wrapper**
@@ -554,9 +581,9 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 Create a small wrapper component that uses `useSortable` hook from @dnd-kit:
 
 ```tsx
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { GripVertical } from 'lucide-react'
+import { useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { GripVertical } from "lucide-react"
 
 function SortableSection({ id, children }: { id: string; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
@@ -564,7 +591,11 @@ function SortableSection({ id, children }: { id: string; children: React.ReactNo
   return (
     <div ref={setNodeRef} style={style}>
       <div className="flex items-start gap-1">
-        <button {...attributes} {...listeners} className="mt-3 cursor-grab text-muted-foreground hover:text-foreground">
+        <button
+          {...attributes}
+          {...listeners}
+          className="text-muted-foreground hover:text-foreground mt-3 cursor-grab"
+        >
           <GripVertical className="h-4 w-4" />
         </button>
         <div className="flex-1">{children}</div>
@@ -595,6 +626,7 @@ git commit -m "feat(resume-builder): add section drag-and-drop reordering"
 ### Task 8: Add section visibility controls
 
 **Files:**
+
 - Modify: `src/components/resume-builder/editor/SettingsPanel.tsx`
 
 **Step 1: Add visibility toggles**
@@ -655,6 +687,7 @@ git commit -m "feat(resume-builder): add section visibility toggles in settings 
 ### Task 9: Add delete confirmations and auto-save indicator
 
 **Files:**
+
 - Modify: `src/components/resume-builder/editor/sections/WorkExperienceSection.tsx`
 - Modify: `src/components/resume-builder/editor/sections/EducationSection.tsx`
 - Modify: `src/components/resume-builder/editor/sections/ProjectsSection.tsx`
@@ -678,12 +711,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog"
 
 // Replace direct delete buttons with:
-<AlertDialog>
+;<AlertDialog>
   <AlertDialogTrigger asChild>
-    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive">
+    <Button variant="ghost" size="icon" className="text-destructive h-7 w-7">
       <Trash2 className="h-3.5 w-3.5" />
     </Button>
   </AlertDialogTrigger>
@@ -731,6 +764,7 @@ git commit -m "feat(resume-builder): add delete confirmations and auto-save stat
 ### Task 10: Add mobile preview
 
 **Files:**
+
 - Modify: `src/components/resume-builder/editor/ResumeEditor.tsx`
 
 **Step 1: Add mobile preview sheet**
@@ -738,8 +772,10 @@ git commit -m "feat(resume-builder): add delete confirmations and auto-save stat
 Import `Sheet` from shadcn/ui (already imported). Add a mobile-only preview button that opens the preview in a full-screen sheet:
 
 ```tsx
-{/* Mobile preview button - shown only on small screens */}
-<div className="md:hidden">
+{
+  /* Mobile preview button - shown only on small screens */
+}
+;<div className="md:hidden">
   <Sheet>
     <SheetTrigger asChild>
       <Button variant="outline" size="sm">
@@ -774,6 +810,7 @@ git commit -m "feat(resume-builder): add mobile preview via bottom sheet"
 ### Task 11: Enhance master resume with template selection
 
 **Files:**
+
 - Explore: `src/app/(public)/resume/` or equivalent public resume route
 - Modify: The public resume page to add template preview and selection
 
@@ -810,6 +847,7 @@ git commit -m "feat(resume-builder): add template selection and section controls
 ### Task 12: Add career coach validation checks
 
 **Files:**
+
 - Modify: `src/lib/resume-builder/validation/rules.ts`
 
 **Step 1: Add career coach validation rules**
@@ -845,6 +883,7 @@ git commit -m "feat(resume-builder): add career coach validation rules from resu
 ### Task 13: Create comprehensive source file generator
 
 **Files:**
+
 - Create: `src/lib/resume-builder/ai/generate-source-file.ts`
 
 **Step 1: Create the source file generator**
@@ -852,7 +891,7 @@ git commit -m "feat(resume-builder): add career coach validation rules from resu
 This function generates a comprehensive markdown document containing ALL portfolio data in a structured format suitable for AI consumption:
 
 ```typescript
-import { fetchPortfolioData } from './portfolio-data'
+import { fetchPortfolioData } from "./portfolio-data"
 
 /**
  * Generates a comprehensive source file containing ALL portfolio data.
@@ -874,13 +913,13 @@ Generated: ${new Date().toISOString()}
 | Field | Value |
 |-------|-------|
 | Name | ${portfolio.name} |
-| Email | ${portfolio.email ?? 'N/A'} |
-| Phone | ${portfolio.phone ?? 'N/A'} |
-| Location | ${portfolio.location ?? 'N/A'} |
-| LinkedIn | ${portfolio.linkedin ?? 'N/A'} |
-| GitHub | ${portfolio.github ?? 'N/A'} |
-| Website | ${portfolio.website ?? 'N/A'} |
-| Blog | ${portfolio.blog ?? 'N/A'} |`)
+| Email | ${portfolio.email ?? "N/A"} |
+| Phone | ${portfolio.phone ?? "N/A"} |
+| Location | ${portfolio.location ?? "N/A"} |
+| LinkedIn | ${portfolio.linkedin ?? "N/A"} |
+| GitHub | ${portfolio.github ?? "N/A"} |
+| Website | ${portfolio.website ?? "N/A"} |
+| Blog | ${portfolio.blog ?? "N/A"} |`)
 
   // Bio
   if (portfolio.bio) {
@@ -890,57 +929,62 @@ Generated: ${new Date().toISOString()}
   // Work Experience with ALL detail
   if (portfolio.experiences.length > 0) {
     const expLines = portfolio.experiences.map((e, i) => {
-      const dateRange = `${e.start_date} — ${e.end_date ?? 'Present'}`
+      const dateRange = `${e.start_date} — ${e.end_date ?? "Present"}`
       const meta: string[] = []
-      if (e.employment_type !== 'direct') meta.push(`Type: ${e.employment_type}`)
+      if (e.employment_type !== "direct") meta.push(`Type: ${e.employment_type}`)
       if (e.via_company) meta.push(`Via: ${e.via_company}`)
-      const metaLine = meta.length > 0 ? `\n  _${meta.join(' | ')}_` : ''
+      const metaLine = meta.length > 0 ? `\n  _${meta.join(" | ")}_` : ""
 
       const curatedBullets = e.resume_achievements?.length
-        ? `\n  **Curated Resume Bullets:**\n${e.resume_achievements.map((a) => `  - ${a}`).join('\n')}`
-        : ''
-      const allBullets = e.achievements.length > 0
-        ? `\n  **All Achievements:**\n${e.achievements.map((a) => `  - ${a}`).join('\n')}`
-        : ''
+        ? `\n  **Curated Resume Bullets:**\n${e.resume_achievements.map((a) => `  - ${a}`).join("\n")}`
+        : ""
+      const allBullets =
+        e.achievements.length > 0
+          ? `\n  **All Achievements:**\n${e.achievements.map((a) => `  - ${a}`).join("\n")}`
+          : ""
 
       return `### ${i + 1}. ${e.role} at ${e.company}
-  ${e.location ?? 'Remote'} | ${dateRange}${metaLine}${curatedBullets}${allBullets}`
+  ${e.location ?? "Remote"} | ${dateRange}${metaLine}${curatedBullets}${allBullets}`
     })
-    sections.push(`## Work Experience (${portfolio.experiences.length} entries)\n${expLines.join('\n\n')}`)
+    sections.push(
+      `## Work Experience (${portfolio.experiences.length} entries)\n${expLines.join("\n\n")}`,
+    )
   }
 
   // Skills (grouped by category)
   if (portfolio.skills.length > 0) {
     const byCategory = new Map<string, string[]>()
     for (const skill of portfolio.skills) {
-      const cat = skill.category || 'Other'
+      const cat = skill.category || "Other"
       if (!byCategory.has(cat)) byCategory.set(cat, [])
       byCategory.get(cat)!.push(skill.name)
     }
     const skillLines = Array.from(byCategory.entries())
-      .map(([cat, names]) => `- **${cat}:** ${names.join(', ')}`)
-      .join('\n')
+      .map(([cat, names]) => `- **${cat}:** ${names.join(", ")}`)
+      .join("\n")
     sections.push(`## Skills (${portfolio.skills.length} total)\n${skillLines}`)
   }
 
   // Education
   if (portfolio.education.length > 0) {
     const eduLines = portfolio.education.map((e) => {
-      const field = e.field ? ` in ${e.field}` : ''
-      const year = e.year ? ` (${e.year})` : ''
-      const details = e.details ? `\n  ${e.details}` : ''
+      const field = e.field ? ` in ${e.field}` : ""
+      const year = e.year ? ` (${e.year})` : ""
+      const details = e.details ? `\n  ${e.details}` : ""
       return `- **${e.degree}${field}** — ${e.school}${year}${details}`
     })
-    sections.push(`## Education (${portfolio.education.length} entries)\n${eduLines.join('\n')}`)
+    sections.push(`## Education (${portfolio.education.length} entries)\n${eduLines.join("\n")}`)
   }
 
   // Certifications
   if (portfolio.certifications.length > 0) {
     const certLines = portfolio.certifications.map((c) => {
-      const year = c.year ? ` (${c.year})` : ''
+      const year = c.year ? ` (${c.year})` : ""
       return `- **${c.name}** — ${c.issuer}${year}`
     })
-    sections.push(`## Certifications (${portfolio.certifications.length} entries)\n${certLines.join('\n')}`)
+    sections.push(
+      `## Certifications (${portfolio.certifications.length} entries)\n${certLines.join("\n")}`,
+    )
   }
 
   // Projects (with full detail)
@@ -949,30 +993,32 @@ Generated: ${new Date().toISOString()}
       const urls: string[] = []
       if (p.live_url) urls.push(`Live: ${p.live_url}`)
       if (p.github_url) urls.push(`GitHub: ${p.github_url}`)
-      const urlLine = urls.length > 0 ? `\n  ${urls.join(' | ')}` : ''
-      const tech = p.tech_stack.length > 0 ? `\n  Tech: ${p.tech_stack.join(', ')}` : ''
-      const role = p.project_role ? `\n  Role: ${p.project_role}` : ''
+      const urlLine = urls.length > 0 ? `\n  ${urls.join(" | ")}` : ""
+      const tech = p.tech_stack.length > 0 ? `\n  Tech: ${p.tech_stack.join(", ")}` : ""
+      const role = p.project_role ? `\n  Role: ${p.project_role}` : ""
       const desc = p.long_description ?? p.short_description
       const highlights = p.highlights?.length
-        ? '\n  Highlights:\n' + p.highlights.map((h) => `  - ${h.metric}: ${h.value}`).join('\n')
-        : ''
+        ? "\n  Highlights:\n" + p.highlights.map((h) => `  - ${h.metric}: ${h.value}`).join("\n")
+        : ""
       return `### ${p.title}\n  ${desc}${role}${tech}${urlLine}${highlights}`
     })
-    sections.push(`## Projects (${portfolio.projects.length} entries)\n${projLines.join('\n\n')}`)
+    sections.push(`## Projects (${portfolio.projects.length} entries)\n${projLines.join("\n\n")}`)
   }
 
   // Ventures
   if (portfolio.ventures.length > 0) {
     const ventureLines = portfolio.ventures.map((v) => {
-      const year = v.founded_year ? ` (Founded ${v.founded_year})` : ''
-      const url = v.url ? ` — ${v.url}` : ''
-      const desc = v.description ? `\n  ${v.description}` : ''
+      const year = v.founded_year ? ` (Founded ${v.founded_year})` : ""
+      const url = v.url ? ` — ${v.url}` : ""
+      const desc = v.description ? `\n  ${v.description}` : ""
       return `- **${v.name}** — ${v.role}${year}${url}${desc}`
     })
-    sections.push(`## Ventures & Side Projects (${portfolio.ventures.length} entries)\n${ventureLines.join('\n')}`)
+    sections.push(
+      `## Ventures & Side Projects (${portfolio.ventures.length} entries)\n${ventureLines.join("\n")}`,
+    )
   }
 
-  return sections.join('\n\n---\n\n')
+  return sections.join("\n\n---\n\n")
 }
 ```
 
@@ -993,58 +1039,59 @@ git commit -m "feat(resume-builder): add comprehensive portfolio source file gen
 ### Task 14: Playwright E2E tests for resume builder
 
 **Files:**
+
 - Create: `tests/resume-builder.spec.ts` (or appropriate test directory)
 
 **Step 1: Write test for resume creation flow**
 
 ```typescript
-import { test, expect } from '@playwright/test'
+import { test, expect } from "@playwright/test"
 
-test.describe('Resume Builder', () => {
+test.describe("Resume Builder", () => {
   test.beforeEach(async ({ page }) => {
     // Login as admin
-    await page.goto('/login')
+    await page.goto("/login")
     // ... login steps
   })
 
-  test('create resume from scratch', async ({ page }) => {
-    await page.goto('/admin/resume-builder')
-    await page.click('text=New Resume')
-    await page.click('text=Start from Scratch')
-    await page.fill('[name="title"]', 'Test Resume')
-    await page.click('text=Create Resume')
+  test("create resume from scratch", async ({ page }) => {
+    await page.goto("/admin/resume-builder")
+    await page.click("text=New Resume")
+    await page.click("text=Start from Scratch")
+    await page.fill('[name="title"]', "Test Resume")
+    await page.click("text=Create Resume")
     await expect(page).toHaveURL(/\/admin\/resume-builder\/.*\/edit/)
   })
 
-  test('editor loads all sections', async ({ page }) => {
+  test("editor loads all sections", async ({ page }) => {
     // Navigate to an existing resume
-    await page.goto('/admin/resume-builder')
-    await page.click('.resume-card >> nth=0')
+    await page.goto("/admin/resume-builder")
+    await page.click(".resume-card >> nth=0")
     // Verify all section headers are visible
-    await expect(page.locator('text=Contact Information')).toBeVisible()
-    await expect(page.locator('text=Summary')).toBeVisible()
-    await expect(page.locator('text=Work Experience')).toBeVisible()
-    await expect(page.locator('text=Skills')).toBeVisible()
+    await expect(page.locator("text=Contact Information")).toBeVisible()
+    await expect(page.locator("text=Summary")).toBeVisible()
+    await expect(page.locator("text=Work Experience")).toBeVisible()
+    await expect(page.locator("text=Skills")).toBeVisible()
   })
 
-  test('settings changes update preview', async ({ page }) => {
+  test("settings changes update preview", async ({ page }) => {
     // Open settings, change font, verify preview updates
-    await page.goto('/admin/resume-builder')
-    await page.click('.resume-card >> nth=0')
+    await page.goto("/admin/resume-builder")
+    await page.click(".resume-card >> nth=0")
     await page.click('[aria-label="Settings"]')
     // Change accent color
     // Verify preview pane reflects the change
   })
 
-  test('section reordering works', async ({ page }) => {
+  test("section reordering works", async ({ page }) => {
     // Test drag-and-drop reordering
   })
 
-  test('PDF downloads successfully', async ({ page }) => {
+  test("PDF downloads successfully", async ({ page }) => {
     // Click download, verify PDF response
   })
 
-  test('score badge shows', async ({ page }) => {
+  test("score badge shows", async ({ page }) => {
     // Verify score badge is visible in toolbar
   })
 })

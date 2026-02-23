@@ -1,10 +1,9 @@
-'use client'
+"use client"
 
-import { useTransition } from 'react'
-import { Award, Plus, Trash2 } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
+import { useTransition } from "react"
+import { Award, Plus, Trash2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,11 +14,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
-import { addCertification, updateCertification, deleteCertification } from '@/app/admin/resume-builder/actions'
-import { EditorSection } from '../EditorSection'
-import type { ResumeCertification } from '@/types/resume-builder'
+} from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
+import {
+  addCertification,
+  updateCertification,
+  deleteCertification,
+} from "@/app/admin/resume-builder/actions"
+import { EditorSection } from "../EditorSection"
+import type { ResumeCertification } from "@/types/resume-builder"
 
 interface Props {
   resumeId: string
@@ -33,9 +36,9 @@ export function CertificationsSection({ resumeId, certifications }: Props) {
     startTransition(async () => {
       try {
         await addCertification(resumeId)
-        toast.success('Certification added')
+        toast.success("Certification added")
       } catch {
-        toast.error('Failed to add certification')
+        toast.error("Failed to add certification")
       }
     })
   }
@@ -46,7 +49,13 @@ export function CertificationsSection({ resumeId, certifications }: Props) {
       icon={Award}
       id="certifications"
       action={
-        <Button variant="ghost" size="sm" onClick={handleAdd} disabled={isPending} className="h-5 px-1.5 text-[11px]">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleAdd}
+          disabled={isPending}
+          className="h-5 px-1.5 text-[11px]"
+        >
           <Plus className="mr-0.5 h-3 w-3" />
           Add
         </Button>
@@ -75,7 +84,7 @@ function CertificationCard({ cert, resumeId }: { cert: ResumeCertification; resu
       try {
         await updateCertification(cert.id, resumeId, { [field]: value })
       } catch {
-        toast.error('Failed to update')
+        toast.error("Failed to update")
       }
     })
   }
@@ -84,9 +93,9 @@ function CertificationCard({ cert, resumeId }: { cert: ResumeCertification; resu
     startTransition(async () => {
       try {
         await deleteCertification(cert.id, resumeId)
-        toast.success('Certification removed')
+        toast.success("Certification removed")
       } catch {
-        toast.error('Failed to delete')
+        toast.error("Failed to delete")
       }
     })
   }
@@ -94,13 +103,33 @@ function CertificationCard({ cert, resumeId }: { cert: ResumeCertification; resu
   return (
     <div className="flex items-start gap-2 rounded-lg border p-3">
       <div className="grid flex-1 gap-2 sm:grid-cols-3">
-        <Input defaultValue={cert.name} onBlur={(e) => handleUpdate('name', e.target.value)} placeholder="AWS Solutions Architect" className="text-sm" />
-        <Input defaultValue={cert.issuer ?? ''} onBlur={(e) => handleUpdate('issuer', e.target.value)} placeholder="Amazon" className="text-sm" />
-        <Input type="month" defaultValue={cert.date?.slice(0, 7) ?? ''} onBlur={(e) => handleUpdate('date', e.target.value ? `${e.target.value}-01` : null)} className="text-sm" />
+        <Input
+          defaultValue={cert.name}
+          onBlur={(e) => handleUpdate("name", e.target.value)}
+          placeholder="AWS Solutions Architect"
+          className="text-sm"
+        />
+        <Input
+          defaultValue={cert.issuer ?? ""}
+          onBlur={(e) => handleUpdate("issuer", e.target.value)}
+          placeholder="Amazon"
+          className="text-sm"
+        />
+        <Input
+          type="month"
+          defaultValue={cert.date?.slice(0, 7) ?? ""}
+          onBlur={(e) => handleUpdate("date", e.target.value ? `${e.target.value}-01` : null)}
+          className="text-sm"
+        />
       </div>
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="ghost" size="icon" disabled={isPending} className="text-destructive h-8 w-8 shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={isPending}
+            className="text-destructive h-8 w-8 shrink-0"
+          >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </AlertDialogTrigger>

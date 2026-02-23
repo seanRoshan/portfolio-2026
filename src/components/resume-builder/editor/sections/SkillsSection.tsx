@@ -1,11 +1,10 @@
-'use client'
+"use client"
 
-import { useTransition, useState } from 'react'
-import { Wrench, Plus, Trash2, X } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useTransition, useState } from "react"
+import { Wrench, Plus, Trash2, X } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,15 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
+} from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
 import {
   addSkillCategory,
   updateSkillCategory,
   deleteSkillCategory,
-} from '@/app/admin/resume-builder/actions'
-import { EditorSection } from '../EditorSection'
-import type { ResumeSkillCategory } from '@/types/resume-builder'
+} from "@/app/admin/resume-builder/actions"
+import { EditorSection } from "../EditorSection"
+import type { ResumeSkillCategory } from "@/types/resume-builder"
 
 interface Props {
   resumeId: string
@@ -38,9 +37,9 @@ export function SkillsSection({ resumeId, categories }: Props) {
     startTransition(async () => {
       try {
         await addSkillCategory(resumeId)
-        toast.success('Category added')
+        toast.success("Category added")
       } catch {
-        toast.error('Failed to add category')
+        toast.error("Failed to add category")
       }
     })
   }
@@ -51,7 +50,13 @@ export function SkillsSection({ resumeId, categories }: Props) {
       icon={Wrench}
       id="skills"
       action={
-        <Button variant="ghost" size="sm" onClick={handleAdd} disabled={isPending} className="h-5 px-1.5 text-[11px]">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleAdd}
+          disabled={isPending}
+          className="h-5 px-1.5 text-[11px]"
+        >
           <Plus className="mr-0.5 h-3 w-3" />
           Add Category
         </Button>
@@ -80,14 +85,14 @@ function SkillCategoryCard({
   resumeId: string
 }) {
   const [isPending, startTransition] = useTransition()
-  const [newSkill, setNewSkill] = useState('')
+  const [newSkill, setNewSkill] = useState("")
 
   function handleUpdateName(name: string) {
     startTransition(async () => {
       try {
         await updateSkillCategory(category.id, resumeId, { name })
       } catch {
-        toast.error('Failed to update')
+        toast.error("Failed to update")
       }
     })
   }
@@ -95,12 +100,12 @@ function SkillCategoryCard({
   function handleAddSkill() {
     if (!newSkill.trim()) return
     const updated = [...category.skills, newSkill.trim()]
-    setNewSkill('')
+    setNewSkill("")
     startTransition(async () => {
       try {
         await updateSkillCategory(category.id, resumeId, { skills: updated })
       } catch {
-        toast.error('Failed to add skill')
+        toast.error("Failed to add skill")
       }
     })
   }
@@ -111,7 +116,7 @@ function SkillCategoryCard({
       try {
         await updateSkillCategory(category.id, resumeId, { skills: updated })
       } catch {
-        toast.error('Failed to remove skill')
+        toast.error("Failed to remove skill")
       }
     })
   }
@@ -120,9 +125,9 @@ function SkillCategoryCard({
     startTransition(async () => {
       try {
         await deleteSkillCategory(category.id, resumeId)
-        toast.success('Category removed')
+        toast.success("Category removed")
       } catch {
-        toast.error('Failed to delete')
+        toast.error("Failed to delete")
       }
     })
   }
@@ -138,7 +143,12 @@ function SkillCategoryCard({
         />
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" disabled={isPending} className="text-destructive h-8 w-8 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              disabled={isPending}
+              className="text-destructive h-8 w-8 shrink-0"
+            >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </AlertDialogTrigger>
@@ -159,7 +169,11 @@ function SkillCategoryCard({
         {category.skills.map((skill, i) => (
           <Badge key={i} variant="secondary" className="gap-1 pr-1 text-xs">
             {skill}
-            <button type="button" onClick={() => handleRemoveSkill(i)} className="hover:text-destructive rounded-sm p-0.5">
+            <button
+              type="button"
+              onClick={() => handleRemoveSkill(i)}
+              className="hover:text-destructive rounded-sm p-0.5"
+            >
               <X className="h-3 w-3" />
             </button>
           </Badge>
@@ -170,11 +184,17 @@ function SkillCategoryCard({
         <Input
           value={newSkill}
           onChange={(e) => setNewSkill(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
+          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddSkill())}
           placeholder="Add skill..."
           className="h-7 text-xs"
         />
-        <Button variant="outline" size="sm" onClick={handleAddSkill} disabled={isPending || !newSkill.trim()} className="h-7 text-xs">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleAddSkill}
+          disabled={isPending || !newSkill.trim()}
+          className="h-7 text-xs"
+        >
           Add
         </Button>
       </div>

@@ -93,6 +93,7 @@ export function ProjectForm({
       certification_ids: data?.certification_ids ?? [],
     },
   })
+  const imageCaptions = useWatch({ control: form.control, name: "image_captions" })
 
   function onSubmit(values: ProjectFormValues) {
     startTransition(async () => {
@@ -216,7 +217,7 @@ export function ProjectForm({
             control={form.control}
             name="images"
             render={({ field }) => {
-              const captions = (form.watch("image_captions") ?? {}) as Record<string, string>
+              const captions = (imageCaptions ?? {}) as Record<string, string>
               return (
                 <FormItem>
                   <FormLabel>Photo Album</FormLabel>

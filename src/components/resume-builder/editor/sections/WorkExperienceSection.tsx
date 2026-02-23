@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import { useTransition, useState, useCallback } from 'react'
+import { useTransition, useState, useCallback } from "react"
 import {
   Briefcase,
   Plus,
@@ -9,13 +9,13 @@ import {
   ChevronUp,
   AlertTriangle,
   EyeOff,
-} from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
+} from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,8 +26,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
+} from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
 import {
   addWorkExperience,
   updateWorkExperience,
@@ -35,11 +35,11 @@ import {
   addAchievement,
   updateAchievement,
   deleteAchievement,
-} from '@/app/admin/resume-builder/actions'
-import { EditorSection } from '../EditorSection'
-import { AIAssistButton } from '../AIAssistButton'
-import { analyzeAchievement } from '@/lib/resume-builder/validation/rules'
-import type { ResumeWorkExperience } from '@/types/resume-builder'
+} from "@/app/admin/resume-builder/actions"
+import { EditorSection } from "../EditorSection"
+import { AIAssistButton } from "../AIAssistButton"
+import { analyzeAchievement } from "@/lib/resume-builder/validation/rules"
+import type { ResumeWorkExperience } from "@/types/resume-builder"
 
 interface Props {
   resumeId: string
@@ -48,9 +48,7 @@ interface Props {
 
 export function WorkExperienceSection({ resumeId, experiences }: Props) {
   const [isPending, startTransition] = useTransition()
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    new Set(experiences.map((e) => e.id))
-  )
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(experiences.map((e) => e.id)))
 
   const toggleExpand = useCallback((id: string) => {
     setExpandedIds((prev) => {
@@ -66,9 +64,9 @@ export function WorkExperienceSection({ resumeId, experiences }: Props) {
       try {
         const data = await addWorkExperience(resumeId)
         setExpandedIds((prev) => new Set(prev).add(data.id))
-        toast.success('Experience added')
+        toast.success("Experience added")
       } catch {
-        toast.error('Failed to add experience')
+        toast.error("Failed to add experience")
       }
     })
   }
@@ -132,7 +130,7 @@ function ExperienceCard({
           [field]: value,
         })
       } catch {
-        toast.error('Failed to update')
+        toast.error("Failed to update")
       }
     })
   }
@@ -141,9 +139,9 @@ function ExperienceCard({
     startTransition(async () => {
       try {
         await deleteWorkExperience(experience.id, resumeId)
-        toast.success('Experience removed')
+        toast.success("Experience removed")
       } catch {
-        toast.error('Failed to delete')
+        toast.error("Failed to delete")
       }
     })
   }
@@ -151,9 +149,9 @@ function ExperienceCard({
   function handleAddBullet() {
     startTransition(async () => {
       try {
-        await addAchievement(experience.id, 'work', resumeId)
+        await addAchievement(experience.id, "work", resumeId)
       } catch {
-        toast.error('Failed to add bullet')
+        toast.error("Failed to add bullet")
       }
     })
   }
@@ -161,9 +159,9 @@ function ExperienceCard({
   const bulletCount = experience.achievements?.length ?? 0
   const bulletWarning =
     bulletCount > 5
-      ? 'Too many bullets (max 5)'
+      ? "Too many bullets (max 5)"
       : bulletCount < 2 && bulletCount > 0
-        ? 'Consider adding more bullets (3-4 recommended)'
+        ? "Consider adding more bullets (3-4 recommended)"
         : null
 
   return (
@@ -171,16 +169,15 @@ function ExperienceCard({
       {/* Header */}
       <button
         type="button"
-        className={`flex w-full items-center gap-3 p-3 text-left${experience.is_visible === false ? ' opacity-50' : ''}`}
+        className={`flex w-full items-center gap-3 p-3 text-left${experience.is_visible === false ? "opacity-50" : ""}`}
         onClick={onToggle}
       >
         <div className="flex-1">
-          <div className="text-sm font-medium text-foreground">
-            {experience.job_title || 'Untitled Role'}
+          <div className="text-foreground text-sm font-medium">
+            {experience.job_title || "Untitled Role"}
           </div>
-          <div className="text-muted-foreground text-xs text-foreground/60">
-            {experience.company || 'Company'}{' '}
-            {experience.location && `· ${experience.location}`}
+          <div className="text-muted-foreground text-foreground/60 text-xs">
+            {experience.company || "Company"} {experience.location && `· ${experience.location}`}
           </div>
         </div>
         {experience.is_visible === false && (
@@ -194,11 +191,7 @@ function ExperienceCard({
             Promotion
           </Badge>
         )}
-        {isExpanded ? (
-          <ChevronUp className="h-4 w-4" />
-        ) : (
-          <ChevronDown className="h-4 w-4" />
-        )}
+        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </button>
 
       {/* Expanded Content */}
@@ -209,7 +202,7 @@ function ExperienceCard({
               <Label className="text-xs">Job Title *</Label>
               <Input
                 defaultValue={experience.job_title}
-                onBlur={(e) => handleUpdate('job_title', e.target.value)}
+                onBlur={(e) => handleUpdate("job_title", e.target.value)}
                 placeholder="Senior Software Engineer"
               />
             </div>
@@ -217,7 +210,7 @@ function ExperienceCard({
               <Label className="text-xs">Company *</Label>
               <Input
                 defaultValue={experience.company}
-                onBlur={(e) => handleUpdate('company', e.target.value)}
+                onBlur={(e) => handleUpdate("company", e.target.value)}
                 placeholder="Acme Corp"
               />
             </div>
@@ -227,8 +220,8 @@ function ExperienceCard({
             <div className="space-y-2">
               <Label className="text-xs">Location</Label>
               <Input
-                defaultValue={experience.location ?? ''}
-                onBlur={(e) => handleUpdate('location', e.target.value)}
+                defaultValue={experience.location ?? ""}
+                onBlur={(e) => handleUpdate("location", e.target.value)}
                 placeholder="San Francisco, CA"
               />
             </div>
@@ -236,12 +229,9 @@ function ExperienceCard({
               <Label className="text-xs">Start Date</Label>
               <Input
                 type="month"
-                defaultValue={experience.start_date?.slice(0, 7) ?? ''}
+                defaultValue={experience.start_date?.slice(0, 7) ?? ""}
                 onBlur={(e) =>
-                  handleUpdate(
-                    'start_date',
-                    e.target.value ? `${e.target.value}-01` : null
-                  )
+                  handleUpdate("start_date", e.target.value ? `${e.target.value}-01` : null)
                 }
               />
             </div>
@@ -249,12 +239,9 @@ function ExperienceCard({
               <Label className="text-xs">End Date</Label>
               <Input
                 type="month"
-                defaultValue={experience.end_date?.slice(0, 7) ?? ''}
+                defaultValue={experience.end_date?.slice(0, 7) ?? ""}
                 onBlur={(e) =>
-                  handleUpdate(
-                    'end_date',
-                    e.target.value ? `${e.target.value}-01` : null
-                  )
+                  handleUpdate("end_date", e.target.value ? `${e.target.value}-01` : null)
                 }
                 placeholder="Present"
               />
@@ -265,14 +252,14 @@ function ExperienceCard({
             <div className="flex items-center gap-2">
               <Switch
                 checked={experience.is_visible !== false}
-                onCheckedChange={(v) => handleUpdate('is_visible', v)}
+                onCheckedChange={(v) => handleUpdate("is_visible", v)}
               />
               <Label className="text-xs">Show on resume</Label>
             </div>
             <div className="flex items-center gap-2">
               <Switch
                 checked={experience.is_promotion}
-                onCheckedChange={(v) => handleUpdate('is_promotion', v)}
+                onCheckedChange={(v) => handleUpdate("is_promotion", v)}
               />
               <Label className="text-xs">This is a promotion</Label>
             </div>
@@ -281,9 +268,7 @@ function ExperienceCard({
           {/* Achievement Bullets */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <Label className="text-xs font-medium">
-                Achievement Bullets
-              </Label>
+              <Label className="text-xs font-medium">Achievement Bullets</Label>
               {bulletWarning && (
                 <span className="flex items-center gap-1 text-xs text-amber-600">
                   <AlertTriangle className="h-3 w-3" />
@@ -369,7 +354,7 @@ function AchievementRow({
       try {
         await updateAchievement(achievement.id, resumeId, { text })
       } catch {
-        toast.error('Failed to save')
+        toast.error("Failed to save")
       }
     })
   }
@@ -379,7 +364,7 @@ function AchievementRow({
       try {
         await deleteAchievement(achievement.id, resumeId)
       } catch {
-        toast.error('Failed to delete')
+        toast.error("Failed to delete")
       }
     })
   }
@@ -389,9 +374,9 @@ function AchievementRow({
     startTransition(async () => {
       try {
         await updateAchievement(achievement.id, resumeId, { text: newText })
-        toast.success('Bullet updated')
+        toast.success("Bullet updated")
       } catch {
-        toast.error('Failed to save')
+        toast.error("Failed to save")
       }
     })
   }

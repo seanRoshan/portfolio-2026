@@ -65,7 +65,7 @@ function SortableRow({ entry }: { entry: Venture }) {
         >
           <GripVertical className="h-4 w-4" />
         </button>
-        {(entry.icon_url || entry.icon_url_dark) ? (
+        {entry.icon_url || entry.icon_url_dark ? (
           <div className="flex h-12 w-28 shrink-0 items-center justify-center">
             {entry.icon_url && entry.icon_url_dark ? (
               <>

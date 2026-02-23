@@ -6,12 +6,12 @@ This document covers the full setup process for the portfolio backend infrastruc
 
 ## Prerequisites
 
-| Tool | Version | Install |
-| --- | --- | --- |
-| Node.js | 24.x | `nvm install 24` |
+| Tool         | Version | Install                              |
+| ------------ | ------- | ------------------------------------ |
+| Node.js      | 24.x    | `nvm install 24`                     |
 | Supabase CLI | 2.75.0+ | `brew install supabase/tap/supabase` |
-| Vercel CLI | 50.x | `npm i -g vercel` |
-| GitHub CLI | 2.x | `brew install gh` |
+| Vercel CLI   | 50.x    | `npm i -g vercel`                    |
+| GitHub CLI   | 2.x     | `brew install gh`                    |
 
 ---
 
@@ -154,11 +154,11 @@ vercel env add <name>             # Add environment variable
 
 ### Three Supabase Clients
 
-| Client | File | Key Used | RLS | Use Case |
-| --- | --- | --- | --- | --- |
-| Browser | `lib/supabase/client.ts` | Anon | Enforced | Client components (auth state) |
-| Server | `lib/supabase/server.ts` | Anon + cookies | Enforced | Server Components, Server Actions |
-| Admin | `lib/supabase/admin.ts` | Service role | Bypassed | API routes, scripts only |
+| Client  | File                     | Key Used       | RLS      | Use Case                          |
+| ------- | ------------------------ | -------------- | -------- | --------------------------------- |
+| Browser | `lib/supabase/client.ts` | Anon           | Enforced | Client components (auth state)    |
+| Server  | `lib/supabase/server.ts` | Anon + cookies | Enforced | Server Components, Server Actions |
+| Admin   | `lib/supabase/admin.ts`  | Service role   | Bypassed | API routes, scripts only          |
 
 ### Row Level Security (RLS)
 
