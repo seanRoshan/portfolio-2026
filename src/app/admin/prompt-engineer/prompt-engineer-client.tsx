@@ -28,15 +28,17 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
-import { createPrompt, updatePrompt, deletePrompt, testPrompt } from "./actions"
+import { createPrompt, updatePrompt, deletePrompt, testPrompt, autoOptimizePrompt } from "./actions"
+import { AVAILABLE_MODELS } from "@/lib/ai/models"
 import type { AIPrompt } from "@/types/ai-prompts"
 
-const categories = ["bullet", "summary", "description", "general"] as const
+const categories = ["bullet", "summary", "description", "general", "agent"] as const
 const categoryLabels: Record<string, string> = {
   bullet: "Bullet Points",
   summary: "Summary",
   description: "Descriptions",
   general: "General",
+  agent: "AI Agents",
 }
 
 interface Props {
@@ -206,6 +208,9 @@ function PromptEditor({
     max_tokens: prompt.max_tokens,
   })
 
+  // Auto-optimize state
+  const [isOptimizing, setIsOptimizing] = useState(false)
+
   // Test panel state
   const [testVars, setTestVars] = useState("")
   const [testOutput, setTestOutput] = useState("")
@@ -257,6 +262,23 @@ function PromptEditor({
         setTestOutput(`Error: ${err instanceof Error ? err.message : String(err)}`)
       })
       .finally(() => setIsTesting(false))
+  }
+
+  async function handleAutoOptimize() {
+    if (!form.system_prompt.trim()) {
+      toast.error("System prompt is empty — nothing to optimize")
+      return
+    }
+    setIsOptimizing(true)
+    try {
+      const optimized = await autoOptimizePrompt(form.system_prompt)
+      handleChange("system_prompt", optimized)
+      toast.success("System prompt optimized")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Optimization failed")
+    } finally {
+      setIsOptimizing(false)
+    }
   }
 
   // Extract variables from user_prompt_template
@@ -312,7 +334,23 @@ function PromptEditor({
 
       {/* Prompts */}
       <div className="space-y-2">
-        <Label className="text-xs">System Prompt</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-xs">System Prompt</Label>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAutoOptimize}
+            disabled={isOptimizing || isPending}
+            className="h-7 text-xs"
+          >
+            {isOptimizing ? (
+              <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+            ) : (
+              <Sparkles className="mr-1.5 h-3 w-3" />
+            )}
+            {isOptimizing ? "Optimizing..." : "Auto-Optimize"}
+          </Button>
+        </div>
         <Textarea
           value={form.system_prompt}
           onChange={(e) => handleChange("system_prompt", e.target.value)}
@@ -351,8 +389,15 @@ function PromptEditor({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="claude-sonnet-4-6">claude-sonnet-4-6</SelectItem>
-              <SelectItem value="claude-haiku-4-5">claude-haiku-4-5</SelectItem>
+              {/* Legacy Anthropic direct models (for existing prompts) */}
+              <SelectItem value="claude-sonnet-4-6">claude-sonnet-4-6 (Legacy)</SelectItem>
+              <SelectItem value="claude-haiku-4-5">claude-haiku-4-5 (Legacy)</SelectItem>
+              {/* Bedrock models */}
+              {Object.entries(AVAILABLE_MODELS).map(([id, info]) => (
+                <SelectItem key={id} value={id}>
+                  {info.label} ({info.tier})
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
