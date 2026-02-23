@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
-import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import {
   Plus,
   FileText,
@@ -18,74 +18,84 @@ import {
   Search,
   Share2,
   Pencil,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-} from '@/components/ui/sheet'
-import { toast } from 'sonner'
-import { createResume, deleteResume, cloneResume, generateTailoredResume } from './actions'
-import { AdminSidebar } from '../admin-sidebar'
-import type { Resume, ResumeTemplate, ExperienceLevel } from '@/types/resume-builder'
+} from "@/components/ui/select"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
+import { toast } from "sonner"
+import { createResume, deleteResume, cloneResume, generateTailoredResume } from "./actions"
+import { AdminSidebar } from "../admin-sidebar"
+import type { Resume, ResumeTemplate, ExperienceLevel } from "@/types/resume-builder"
 
 const experienceLevels: { value: ExperienceLevel; label: string }[] = [
-  { value: 'intern', label: 'Intern' },
-  { value: 'new_grad', label: 'New Graduate' },
-  { value: 'bootcamp_grad', label: 'Bootcamp Graduate' },
-  { value: 'junior', label: 'Junior (1-3 years)' },
-  { value: 'mid', label: 'Mid-Level (3-5 years)' },
-  { value: 'senior', label: 'Senior (5-10 years)' },
-  { value: 'staff_plus', label: 'Staff+ (10+ years)' },
-  { value: 'tech_lead', label: 'Tech Lead' },
-  { value: 'eng_manager', label: 'Engineering Manager' },
+  { value: "intern", label: "Intern" },
+  { value: "new_grad", label: "New Graduate" },
+  { value: "bootcamp_grad", label: "Bootcamp Graduate" },
+  { value: "junior", label: "Junior (1-3 years)" },
+  { value: "mid", label: "Mid-Level (3-5 years)" },
+  { value: "senior", label: "Senior (5-10 years)" },
+  { value: "staff_plus", label: "Staff+ (10+ years)" },
+  { value: "tech_lead", label: "Tech Lead" },
+  { value: "eng_manager", label: "Engineering Manager" },
 ]
 
 const TEMPLATE_COLORS: Record<string, string> = {
-  Pragmatic: 'border-l-blue-500',
-  Mono: 'border-l-zinc-400',
-  Smarkdown: 'border-l-emerald-500',
-  CareerCup: 'border-l-orange-500',
-  Parker: 'border-l-violet-500',
-  Experienced: 'border-l-teal-500',
+  Pragmatic: "border-l-blue-500",
+  Mono: "border-l-zinc-400",
+  Smarkdown: "border-l-emerald-500",
+  CareerCup: "border-l-orange-500",
+  Parker: "border-l-violet-500",
+  Experienced: "border-l-teal-500",
 }
 
 function getTemplateColor(name: string): string {
-  return TEMPLATE_COLORS[name] ?? 'border-l-zinc-500'
+  return TEMPLATE_COLORS[name] ?? "border-l-zinc-500"
 }
 
 const WORK_MODE_STYLES: Record<string, { label: string; dot: string; bg: string; text: string }> = {
-  remote: { label: 'Remote', dot: 'bg-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400' },
-  hybrid: { label: 'Hybrid', dot: 'bg-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-600 dark:text-amber-400' },
-  onsite: { label: 'On-site', dot: 'bg-blue-500', bg: 'bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400' },
+  remote: {
+    label: "Remote",
+    dot: "bg-emerald-500",
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-600 dark:text-emerald-400",
+  },
+  hybrid: {
+    label: "Hybrid",
+    dot: "bg-amber-500",
+    bg: "bg-amber-500/10",
+    text: "text-amber-600 dark:text-amber-400",
+  },
+  onsite: {
+    label: "On-site",
+    dot: "bg-blue-500",
+    bg: "bg-blue-500/10",
+    text: "text-blue-600 dark:text-blue-400",
+  },
 }
 
 interface ResumeListProps {
@@ -101,14 +111,14 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   const [isCreating, startCreateTransition] = useTransition()
   const [isCloning, startCloneTransition] = useTransition()
   const [isDeleting, startDeleteTransition] = useTransition()
-  const [title, setTitle] = useState('')
-  const [level, setLevel] = useState<ExperienceLevel>('mid')
-  const [targetRole, setTargetRole] = useState('')
-  const [cloneTitle, setCloneTitle] = useState('')
-  const [mode, setMode] = useState<'choose' | 'tailor' | 'scratch'>('choose')
-  const [jobDescription, setJobDescription] = useState('')
+  const [title, setTitle] = useState("")
+  const [level, setLevel] = useState<ExperienceLevel>("mid")
+  const [targetRole, setTargetRole] = useState("")
+  const [cloneTitle, setCloneTitle] = useState("")
+  const [mode, setMode] = useState<"choose" | "tailor" | "scratch">("choose")
+  const [jobDescription, setJobDescription] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("")
 
   const masterResume = resumes.find((r) => r.is_master) ?? null
   const tailoredResumes = resumes.filter((r) => !r.is_master)
@@ -127,22 +137,22 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
     startCreateTransition(async () => {
       try {
         const resumeId = await createResume({
-          title: title || 'Untitled Resume',
+          title: title || "Untitled Resume",
           experience_level: level,
           target_role: targetRole || undefined,
           is_master: resumes.length === 0,
         })
-        toast.success('Resume created')
+        toast.success("Resume created")
         router.push(`/admin/resume-builder/${resumeId}/edit`)
       } catch {
-        toast.error('Failed to create resume')
+        toast.error("Failed to create resume")
       }
     })
   }
 
   function handleGenerate() {
     if (!jobDescription.trim()) {
-      toast.error('Please paste a job description')
+      toast.error("Please paste a job description")
       return
     }
     setIsGenerating(true)
@@ -152,10 +162,10 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
           experience_level: level,
           job_description: jobDescription,
         })
-        toast.success('Resume generated!')
+        toast.success("Resume generated!")
         router.push(`/admin/resume-builder/${resumeId}/edit`)
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Failed to generate resume')
+        toast.error(err instanceof Error ? err.message : "Failed to generate resume")
       } finally {
         setIsGenerating(false)
       }
@@ -167,9 +177,9 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
       try {
         await deleteResume(id)
         setShowDelete(null)
-        toast.success('Resume deleted')
+        toast.success("Resume deleted")
       } catch {
-        toast.error('Failed to delete resume')
+        toast.error("Failed to delete resume")
       }
     })
   }
@@ -177,30 +187,30 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
   function handleClone(id: string) {
     startCloneTransition(async () => {
       try {
-        const resumeId = await cloneResume(id, cloneTitle || 'Cloned Resume')
-        toast.success('Resume cloned')
+        const resumeId = await cloneResume(id, cloneTitle || "Cloned Resume")
+        toast.success("Resume cloned")
         router.push(`/admin/resume-builder/${resumeId}/edit`)
       } catch {
-        toast.error('Failed to clone resume')
+        toast.error("Failed to clone resume")
       }
     })
   }
 
   function formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     })
   }
 
   function getTemplateName(templateId: string | null) {
-    if (!templateId) return 'No template'
-    return templates.find((t) => t.id === templateId)?.name ?? 'Unknown'
+    if (!templateId) return "No template"
+    return templates.find((t) => t.id === templateId)?.name ?? "Unknown"
   }
 
   function getLevelLabel(level: ExperienceLevel | null) {
-    if (!level) return ''
+    if (!level) return ""
     return experienceLevels.find((l) => l.value === level)?.label ?? level
   }
 
@@ -230,7 +240,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
 
       {/* Master Resume Hero */}
       {masterResume ? (
-        <Card className="mb-8 gap-0 border-l-4 border-l-primary py-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+        <Card className="border-l-primary from-primary/5 mb-8 gap-0 border-l-4 bg-gradient-to-r via-transparent to-transparent py-0">
           <div className="flex flex-col gap-4 p-4 md:flex-row">
             {/* PDF Thumbnail Placeholder */}
             <div className="bg-muted/50 flex h-[200px] w-[155px] shrink-0 items-center justify-center rounded-md border">
@@ -244,31 +254,48 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                   <Crown className="h-3 w-3" />
                   Master Resume
                 </Badge>
-                <h2 className="truncate text-xl font-semibold" title={masterResume.target_role || masterResume.title}>
+                <h2
+                  className="truncate text-xl font-semibold"
+                  title={masterResume.target_role || masterResume.title}
+                >
                   {masterResume.target_role || masterResume.title}
                 </h2>
-                {(masterResume.company_name || masterResume.job_location || (masterResume.work_mode && WORK_MODE_STYLES[masterResume.work_mode])) && (
-                  <div className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">
+                {(masterResume.company_name ||
+                  masterResume.job_location ||
+                  (masterResume.work_mode && WORK_MODE_STYLES[masterResume.work_mode])) && (
+                  <div className="text-muted-foreground mt-0.5 flex items-center gap-2 text-sm">
                     {(masterResume.company_name || masterResume.job_location) && (
                       <span className="truncate">
-                        {[masterResume.company_name, masterResume.job_location].filter(Boolean).join(' · ')}
+                        {[masterResume.company_name, masterResume.job_location]
+                          .filter(Boolean)
+                          .join(" · ")}
                       </span>
                     )}
                     {masterResume.work_mode && WORK_MODE_STYLES[masterResume.work_mode] && (
-                      <span className={cn(
-                        'inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-px text-[11px] font-medium',
-                        WORK_MODE_STYLES[masterResume.work_mode].bg,
-                        WORK_MODE_STYLES[masterResume.work_mode].text,
-                      )}>
-                        <span className={cn('h-1.5 w-1.5 rounded-full', WORK_MODE_STYLES[masterResume.work_mode].dot)} />
+                      <span
+                        className={cn(
+                          "inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-px text-[11px] font-medium",
+                          WORK_MODE_STYLES[masterResume.work_mode].bg,
+                          WORK_MODE_STYLES[masterResume.work_mode].text,
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full",
+                            WORK_MODE_STYLES[masterResume.work_mode].dot,
+                          )}
+                        />
                         {WORK_MODE_STYLES[masterResume.work_mode].label}
                       </span>
                     )}
                   </div>
                 )}
-                {masterResume.target_role && masterResume.title.toLowerCase() !== masterResume.target_role.toLowerCase() && (
-                  <p className="text-muted-foreground/70 mt-0.5 text-xs italic">{masterResume.title}</p>
-                )}
+                {masterResume.target_role &&
+                  masterResume.title.toLowerCase() !== masterResume.target_role.toLowerCase() && (
+                    <p className="text-muted-foreground/70 mt-0.5 text-xs italic">
+                      {masterResume.title}
+                    </p>
+                  )}
               </div>
 
               <div className="mb-3 flex flex-wrap gap-1.5">
@@ -288,15 +315,26 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
               </div>
 
               {masterResume.short_id && (
-                <p className="text-muted-foreground mb-3 text-xs">
-                  Public URL:{' '}
-                  <Link
-                    href={`/r/${masterResume.short_id}`}
-                    className="text-primary hover:underline"
-                    target="_blank"
+                <p className="text-muted-foreground mb-3 flex items-center gap-2 text-xs">
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium",
+                      masterResume.is_public
+                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                        : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+                    )}
                   >
-                    /r/{masterResume.short_id}
-                  </Link>
+                    {masterResume.is_public ? "Public" : "Private"}
+                  </span>
+                  {masterResume.is_public && (
+                    <Link
+                      href={`/r/${masterResume.short_id}`}
+                      className="text-primary hover:underline"
+                      target="_blank"
+                    >
+                      /r/{masterResume.short_id}
+                    </Link>
+                  )}
                 </p>
               )}
 
@@ -313,9 +351,9 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                       const url = `${window.location.origin}/r/${masterResume.short_id}`
                       try {
                         await navigator.clipboard.writeText(url)
-                        toast.success('Share link copied to clipboard')
+                        toast.success("Share link copied to clipboard")
                       } catch {
-                        toast.error('Failed to copy link')
+                        toast.error("Failed to copy link")
                       }
                     }}
                   >
@@ -371,7 +409,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
           </div>
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="text-muted-foreground absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2" />
               <Input
                 placeholder="Search resumes..."
                 value={searchQuery}
@@ -408,25 +446,33 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
             </p>
           </div>
         ) : (
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredTailored.map((resume) => {
               const templateName = getTemplateName(resume.template_id)
               const levelLabel = getLevelLabel(resume.experience_level)
               const workMode = resume.work_mode ? WORK_MODE_STYLES[resume.work_mode] : null
-              const showTitle = resume.target_role && resume.title.toLowerCase() !== resume.target_role.toLowerCase()
+              const showTitle =
+                resume.target_role &&
+                resume.title.toLowerCase() !== resume.target_role.toLowerCase()
               return (
                 <Card
                   key={resume.id}
                   className={cn(
-                    'group relative h-[120px] gap-0 overflow-hidden border-l-[3px] py-0 transition-all hover:shadow-md hover:-translate-y-0.5',
+                    "group relative h-[120px] gap-0 overflow-hidden border-l-[3px] py-0 transition-all hover:-translate-y-0.5 hover:shadow-md",
                     getTemplateColor(templateName),
                   )}
                 >
                   {/* Clickable content zone */}
-                  <Link href={`/admin/resume-builder/${resume.id}/edit`} className="flex flex-1 flex-col px-3 py-2">
+                  <Link
+                    href={`/admin/resume-builder/${resume.id}/edit`}
+                    className="flex flex-1 flex-col px-3 py-2"
+                  >
                     {/* Role heading + kebab menu */}
                     <div className="flex items-start justify-between gap-1">
-                      <h3 className="min-w-0 line-clamp-2 text-[13px] font-semibold leading-tight" title={resume.target_role || resume.title}>
+                      <h3
+                        className="line-clamp-2 min-w-0 text-[13px] leading-tight font-semibold"
+                        title={resume.target_role || resume.title}
+                      >
                         {resume.target_role || resume.title}
                       </h3>
                       <DropdownMenu>
@@ -435,8 +481,11 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                             variant="ghost"
                             size="icon"
                             aria-label="Resume actions"
-                            className="-mr-1 -mt-0.5 h-6 w-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
+                            className="-mt-0.5 -mr-1 h-6 w-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                            }}
                           >
                             <MoreHorizontal className="h-3.5 w-3.5" />
                           </Button>
@@ -480,19 +529,21 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
 
                     {/* Company · Location + work mode pill — single line */}
                     {(resume.company_name || resume.job_location || workMode) && (
-                      <div className="mt-px flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <div className="text-muted-foreground mt-px flex items-center gap-1.5 text-[11px]">
                         {(resume.company_name || resume.job_location) && (
                           <span className="min-w-0 truncate">
-                            {[resume.company_name, resume.job_location].filter(Boolean).join(' · ')}
+                            {[resume.company_name, resume.job_location].filter(Boolean).join(" · ")}
                           </span>
                         )}
                         {workMode && (
-                          <span className={cn(
-                            'inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-px text-[10px] font-medium',
-                            workMode.bg,
-                            workMode.text,
-                          )}>
-                            <span className={cn('h-1.5 w-1.5 rounded-full', workMode.dot)} />
+                          <span
+                            className={cn(
+                              "inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-px text-[10px] font-medium",
+                              workMode.bg,
+                              workMode.text,
+                            )}
+                          >
+                            <span className={cn("h-1.5 w-1.5 rounded-full", workMode.dot)} />
                             {workMode.label}
                           </span>
                         )}
@@ -501,14 +552,14 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
 
                     {/* Resume title — only if different from role */}
                     {showTitle && (
-                      <p className="mt-0.5 truncate text-[10px] italic text-muted-foreground/60">
+                      <p className="text-muted-foreground/60 mt-0.5 truncate text-[10px] italic">
                         {resume.title}
                       </p>
                     )}
                   </Link>
 
                   {/* Footer: meta + date — pinned to bottom */}
-                  <div className="mt-auto flex items-center gap-1.5 border-t border-border/40 px-3 py-1.5">
+                  <div className="border-border/40 mt-auto flex items-center gap-1.5 border-t px-3 py-1.5">
                     <span className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded px-1.5 py-px text-[10px] font-medium">
                       <FileText className="h-2.5 w-2.5" />
                       {templateName}
@@ -530,50 +581,52 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
       </div>
 
       {/* Create Resume Dialog */}
-      <Dialog open={showCreate} onOpenChange={(open) => {
-        if (!open && isGenerating) return
-        setShowCreate(open)
-        if (!open) {
-          setMode('choose')
-          setJobDescription('')
-          setTitle('')
-          setTargetRole('')
-          setLevel('mid')
-          setIsGenerating(false)
-        }
-      }}>
+      <Dialog
+        open={showCreate}
+        onOpenChange={(open) => {
+          if (!open && isGenerating) return
+          setShowCreate(open)
+          if (!open) {
+            setMode("choose")
+            setJobDescription("")
+            setTitle("")
+            setTargetRole("")
+            setLevel("mid")
+            setIsGenerating(false)
+          }
+        }}
+      >
         <DialogContent>
-          {mode === 'choose' && (
+          {mode === "choose" && (
             <>
               <DialogHeader>
                 <DialogTitle>Create New Resume</DialogTitle>
-                <DialogDescription>
-                  Choose how to start your resume.
-                </DialogDescription>
+                <DialogDescription>Choose how to start your resume.</DialogDescription>
               </DialogHeader>
               <div className="grid gap-3">
                 <button
                   type="button"
-                  onClick={() => setMode('tailor')}
-                  className="flex items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  onClick={() => setMode("tailor")}
+                  className="hover:bg-accent focus-visible:ring-ring flex items-start gap-4 rounded-lg border p-4 text-left transition-colors focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                    <Sparkles className="h-5 w-5 text-primary" />
+                  <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+                    <Sparkles className="text-primary h-5 w-5" />
                   </div>
                   <div>
                     <div className="font-semibold">Tailor for a Job</div>
                     <p className="text-muted-foreground text-sm">
-                      Paste a job description and AI will draft a tailored resume using your portfolio data.
+                      Paste a job description and AI will draft a tailored resume using your
+                      portfolio data.
                     </p>
                   </div>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMode('scratch')}
-                  className="flex items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  onClick={() => setMode("scratch")}
+                  className="hover:bg-accent focus-visible:ring-ring flex items-start gap-4 rounded-lg border p-4 text-left transition-colors focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <FileText className="h-5 w-5 text-muted-foreground" />
+                  <div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+                    <FileText className="text-muted-foreground h-5 w-5" />
                   </div>
                   <div>
                     <div className="font-semibold">Start from Scratch</div>
@@ -586,21 +639,19 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
             </>
           )}
 
-          {mode === 'tailor' && (
+          {mode === "tailor" && (
             <>
               <DialogHeader>
                 <DialogTitle>Tailor for a Job</DialogTitle>
                 <DialogDescription>
-                  Paste the job description and AI will craft a tailored resume from your portfolio data.
+                  Paste the job description and AI will craft a tailored resume from your portfolio
+                  data.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="level-tailor">Experience Level</Label>
-                  <Select
-                    value={level}
-                    onValueChange={(v) => setLevel(v as ExperienceLevel)}
-                  >
+                  <Select value={level} onValueChange={(v) => setLevel(v as ExperienceLevel)}>
                     <SelectTrigger id="level-tailor">
                       <SelectValue />
                     </SelectTrigger>
@@ -620,14 +671,14 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                     placeholder="Paste the full job description here..."
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
-                    className="h-[300px] overflow-y-auto resize-none"
-                    style={{ fieldSizing: 'fixed' }}
+                    className="h-[300px] resize-none overflow-y-auto"
+                    style={{ fieldSizing: "fixed" }}
                   />
                 </div>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    onClick={() => setMode('choose')}
+                    onClick={() => setMode("choose")}
                     disabled={isGenerating}
                     className="flex-1"
                   >
@@ -655,7 +706,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
             </>
           )}
 
-          {mode === 'scratch' && (
+          {mode === "scratch" && (
             <>
               <DialogHeader>
                 <DialogTitle>Start from Scratch</DialogTitle>
@@ -675,10 +726,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="level-scratch">Experience Level</Label>
-                  <Select
-                    value={level}
-                    onValueChange={(v) => setLevel(v as ExperienceLevel)}
-                  >
+                  <Select value={level} onValueChange={(v) => setLevel(v as ExperienceLevel)}>
                     <SelectTrigger id="level-scratch">
                       <SelectValue />
                     </SelectTrigger>
@@ -701,19 +749,11 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setMode('choose')}
-                    className="flex-1"
-                  >
+                  <Button variant="outline" onClick={() => setMode("choose")} className="flex-1">
                     Back
                   </Button>
-                  <Button
-                    onClick={handleCreate}
-                    disabled={isCreating}
-                    className="flex-1"
-                  >
-                    {isCreating ? 'Creating...' : 'Create Resume'}
+                  <Button onClick={handleCreate} disabled={isCreating} className="flex-1">
+                    {isCreating ? "Creating..." : "Create Resume"}
                   </Button>
                 </div>
               </div>
@@ -733,9 +773,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Clone Resume</DialogTitle>
-            <DialogDescription>
-              Create a copy of this resume with a new title.
-            </DialogDescription>
+            <DialogDescription>Create a copy of this resume with a new title.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -751,7 +789,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
               disabled={isCloning}
               className="w-full"
             >
-              {isCloning ? 'Cloning...' : 'Clone Resume'}
+              {isCloning ? "Cloning..." : "Clone Resume"}
             </Button>
           </div>
         </DialogContent>
@@ -769,16 +807,11 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
           <DialogHeader>
             <DialogTitle>Delete Resume</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. All data for this resume will be
-              permanently deleted.
+              This action cannot be undone. All data for this resume will be permanently deleted.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowDelete(null)}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={() => setShowDelete(null)} className="flex-1">
               Cancel
             </Button>
             <Button
@@ -787,7 +820,7 @@ export function ResumeList({ resumes, templates }: ResumeListProps) {
               disabled={isDeleting}
               className="flex-1"
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </DialogContent>

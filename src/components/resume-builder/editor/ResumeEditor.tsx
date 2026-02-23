@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import { useState, useCallback, useTransition, useEffect, useRef } from 'react'
-import Link from 'next/link'
+import { useState, useCallback, useTransition, useEffect, useRef } from "react"
+import Link from "next/link"
 import {
   DndContext,
   closestCenter,
@@ -10,71 +10,79 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from '@dnd-kit/core'
+} from "@dnd-kit/core"
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+} from "@dnd-kit/sortable"
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
+import { useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import {
   ArrowLeft,
   Briefcase,
   Check,
   Download,
+  ExternalLink,
   Eye,
   EyeOff,
+  Globe,
   GripVertical,
+  Lock,
   Settings2,
   Palette,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+  Share2,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "@/components/ui/select"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 // ScrollArea removed — using native overflow for ref-based scroll tracking
-import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
-import { updateResumeTemplate, updateResumeSettings, updateResumeMetadata } from '@/app/admin/resume-builder/actions'
-import { ContactInfoSection } from './sections/ContactInfoSection'
-import { SummarySection } from './sections/SummarySection'
-import { WorkExperienceSection } from './sections/WorkExperienceSection'
-import { EducationSection } from './sections/EducationSection'
-import { SkillsSection } from './sections/SkillsSection'
-import { ProjectsSection } from './sections/ProjectsSection'
-import { CertificationsSection } from './sections/CertificationsSection'
-import { ExtracurricularsSection } from './sections/ExtracurricularsSection'
-import { SettingsPanel } from './SettingsPanel'
-import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels'
-import { ResumePreviewPane } from '../templates/ResumePreviewPane'
-import { ScorePanel } from './ScorePanel'
-import { OptimizeDialog } from './OptimizeDialog'
-import type { ResumeWithRelations, ResumeTemplate } from '@/types/resume-builder'
+import { toast } from "sonner"
+import { cn } from "@/lib/utils"
+import {
+  updateResumeTemplate,
+  updateResumeSettings,
+  updateResumeMetadata,
+} from "@/app/admin/resume-builder/actions"
+import { ContactInfoSection } from "./sections/ContactInfoSection"
+import { SummarySection } from "./sections/SummarySection"
+import { WorkExperienceSection } from "./sections/WorkExperienceSection"
+import { EducationSection } from "./sections/EducationSection"
+import { SkillsSection } from "./sections/SkillsSection"
+import { ProjectsSection } from "./sections/ProjectsSection"
+import { CertificationsSection } from "./sections/CertificationsSection"
+import { ExtracurricularsSection } from "./sections/ExtracurricularsSection"
+import { SettingsPanel } from "./SettingsPanel"
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels"
+import { ResumePreviewPane } from "../templates/ResumePreviewPane"
+import { ScorePanel } from "./ScorePanel"
+import { OptimizeDialog } from "./OptimizeDialog"
+import type { ResumeWithRelations, ResumeTemplate } from "@/types/resume-builder"
 
 const sectionNames: Record<string, string> = {
-  contact: 'Contact Info',
-  summary: 'Summary',
-  experience: 'Work Experience',
-  skills: 'Skills',
-  education: 'Education',
-  projects: 'Projects',
-  certifications: 'Certifications',
-  extracurriculars: 'Activities',
+  contact: "Contact Info",
+  summary: "Summary",
+  experience: "Work Experience",
+  skills: "Skills",
+  education: "Education",
+  projects: "Projects",
+  certifications: "Certifications",
+  extracurriculars: "Activities",
 }
 
-const OPTIONAL_SECTIONS = new Set(['projects', 'certifications', 'extracurriculars'])
+const OPTIONAL_SECTIONS = new Set(["projects", "certifications", "extracurriculars"])
 
 function SectionNav({
   sections,
@@ -87,7 +95,7 @@ function SectionNav({
   onToggleVisibility: (section: string) => void
   scrollContainerRef: React.RefObject<HTMLElement | null>
 }) {
-  const [activeSection, setActiveSection] = useState<string>('')
+  const [activeSection, setActiveSection] = useState<string>("")
 
   useEffect(() => {
     const container = scrollContainerRef.current
@@ -101,7 +109,7 @@ function SectionNav({
           }
         }
       },
-      { root: container, rootMargin: '-10% 0px -70% 0px' }
+      { root: container, rootMargin: "-10% 0px -70% 0px" },
     )
 
     sections.forEach((id) => {
@@ -125,26 +133,26 @@ function SectionNav({
                 onClick={() => {
                   const container = scrollContainerRef.current
                   const el = container?.querySelector(`#${id}`)
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  el?.scrollIntoView({ behavior: "smooth", block: "start" })
                 }}
                 className={cn(
-                  'flex-1 truncate rounded px-2 py-1.5 text-left text-xs transition-colors',
+                  "flex-1 truncate rounded px-2 py-1.5 text-left text-xs transition-colors",
                   isActive
-                    ? 'bg-accent text-accent-foreground font-medium'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                  isHidden && 'line-through opacity-40'
+                    ? "bg-accent text-accent-foreground font-medium"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  isHidden && "line-through opacity-40",
                 )}
               >
                 {sectionNames[id] ?? id}
               </button>
-            {isOptional && (
-              <button
-                onClick={() => onToggleVisibility(id)}
-                className="text-muted-foreground hover:text-foreground rounded p-0.5 opacity-0 transition-opacity group-hover/nav:opacity-100"
-              >
-                {isHidden ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-              </button>
-            )}
+              {isOptional && (
+                <button
+                  onClick={() => onToggleVisibility(id)}
+                  className="text-muted-foreground hover:text-foreground rounded p-0.5 opacity-0 transition-opacity group-hover/nav:opacity-100"
+                >
+                  {isHidden ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                </button>
+              )}
             </div>
           </div>
         )
@@ -157,13 +165,17 @@ function SortableSection({ id, children }: { id: string; children: React.ReactNo
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} className="group/section relative rounded-lg border border-transparent transition-colors hover:border-border/50">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="group/section hover:border-border/50 relative rounded-lg border border-transparent transition-colors"
+    >
       <div className="flex gap-0.5 p-2 pb-1">
         <div className="flex h-5 items-center">
           <button
             {...attributes}
             {...listeners}
-            className="flex h-5 w-5 shrink-0 cursor-grab items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground active:cursor-grabbing"
+            className="text-muted-foreground/40 hover:bg-muted hover:text-foreground flex h-5 w-5 shrink-0 cursor-grab items-center justify-center rounded transition-colors active:cursor-grabbing"
             aria-label="Drag to reorder"
           >
             <GripVertical className="h-3.5 w-3.5" />
@@ -186,7 +198,7 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
       try {
         await updateResumeMetadata(resume.id, { [field]: trimmed })
       } catch {
-        toast.error(`Failed to update ${field.replace('_', ' ')}`)
+        toast.error(`Failed to update ${field.replace("_", " ")}`)
       }
     })
   }
@@ -198,7 +210,7 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
         await updateResumeMetadata(resume.id, { job_description_text: trimmed })
         setEditingJd(false)
       } catch {
-        toast.error('Failed to save job description')
+        toast.error("Failed to save job description")
       }
     })
   }
@@ -206,17 +218,41 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
   const hasJdText = !!resume.job_description_text?.trim()
 
   const detailFields = [
-    { key: 'title', label: 'Resume Title', value: resume.title, placeholder: 'e.g., My Google Resume' },
-    { key: 'target_role', label: 'Target Role', value: resume.target_role, placeholder: 'e.g., Software Engineer' },
-    { key: 'company_name', label: 'Company', value: resume.company_name, placeholder: 'e.g., Google' },
-    { key: 'job_location', label: 'Location', value: resume.job_location, placeholder: 'e.g., San Francisco, CA' },
+    {
+      key: "title",
+      label: "Resume Title",
+      value: resume.title,
+      placeholder: "e.g., My Google Resume",
+    },
+    {
+      key: "target_role",
+      label: "Target Role",
+      value: resume.target_role,
+      placeholder: "e.g., Software Engineer",
+    },
+    {
+      key: "company_name",
+      label: "Company",
+      value: resume.company_name,
+      placeholder: "e.g., Google",
+    },
+    {
+      key: "job_location",
+      label: "Location",
+      value: resume.job_location,
+      placeholder: "e.g., San Francisco, CA",
+    },
   ]
 
   return (
     <Tabs defaultValue="details" className="mt-4">
       <TabsList className="w-full">
-        <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
-        <TabsTrigger value="description" className="flex-1">Description</TabsTrigger>
+        <TabsTrigger value="details" className="flex-1">
+          Details
+        </TabsTrigger>
+        <TabsTrigger value="description" className="flex-1">
+          Description
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="details" className="space-y-4 pt-2">
@@ -228,7 +264,7 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
             className="h-6 px-2 text-[11px]"
             onClick={() => setEditingDetails(!editingDetails)}
           >
-            {editingDetails ? 'Done' : 'Edit'}
+            {editingDetails ? "Done" : "Edit"}
           </Button>
         </div>
 
@@ -236,10 +272,12 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
           <div className="grid gap-3">
             {detailFields.map((f) => (
               <div key={f.key} className="space-y-1.5">
-                <Label htmlFor={`ji-${f.key}`} className="text-xs">{f.label}</Label>
+                <Label htmlFor={`ji-${f.key}`} className="text-xs">
+                  {f.label}
+                </Label>
                 <Input
                   id={`ji-${f.key}`}
-                  defaultValue={f.value ?? ''}
+                  defaultValue={f.value ?? ""}
                   placeholder={f.placeholder}
                   onBlur={(e) => handleDetailBlur(f.key, e.target.value)}
                   className="h-8 text-sm"
@@ -247,15 +285,17 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
               </div>
             ))}
             <div className="space-y-1.5">
-              <Label htmlFor="ji-work-mode" className="text-xs">Work Mode</Label>
+              <Label htmlFor="ji-work-mode" className="text-xs">
+                Work Mode
+              </Label>
               <Select
-                defaultValue={resume.work_mode ?? ''}
+                defaultValue={resume.work_mode ?? ""}
                 onValueChange={(v) => {
                   startTransition(async () => {
                     try {
                       await updateResumeMetadata(resume.id, { work_mode: v || null })
                     } catch {
-                      toast.error('Failed to update work mode')
+                      toast.error("Failed to update work mode")
                     }
                   })
                 }}
@@ -276,12 +316,16 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
             {detailFields.map((f) => (
               <div key={f.key}>
                 <p className="text-muted-foreground text-[11px]">{f.label}</p>
-                <p className="text-sm">{f.value || <span className="text-muted-foreground italic">Not set</span>}</p>
+                <p className="text-sm">
+                  {f.value || <span className="text-muted-foreground italic">Not set</span>}
+                </p>
               </div>
             ))}
             <div>
               <p className="text-muted-foreground text-[11px]">Work Mode</p>
-              <p className="text-sm capitalize">{resume.work_mode || <span className="text-muted-foreground italic">Not set</span>}</p>
+              <p className="text-sm capitalize">
+                {resume.work_mode || <span className="text-muted-foreground italic">Not set</span>}
+              </p>
             </div>
           </div>
         )}
@@ -289,7 +333,9 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
 
       <TabsContent value="description" className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
-          <p className="text-muted-foreground text-xs">Paste a job description to help AI tailor your resume</p>
+          <p className="text-muted-foreground text-xs">
+            Paste a job description to help AI tailor your resume
+          </p>
           {hasJdText && !editingJd && (
             <Button
               variant="ghost"
@@ -305,7 +351,7 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
         {editingJd || !hasJdText ? (
           <div className="space-y-2">
             <Textarea
-              defaultValue={resume.job_description_text ?? ''}
+              defaultValue={resume.job_description_text ?? ""}
               placeholder="Paste the job description here..."
               rows={12}
               className="text-sm"
@@ -324,7 +370,7 @@ function JobInfoSheet({ resume }: { resume: ResumeWithRelations }) {
           </div>
         ) : (
           <div className="max-h-[60vh] overflow-y-auto rounded-md border p-3">
-            <p className="text-muted-foreground whitespace-pre-wrap text-xs leading-relaxed">
+            <p className="text-muted-foreground text-xs leading-relaxed whitespace-pre-wrap">
               {resume.job_description_text}
             </p>
           </div>
@@ -350,12 +396,12 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
     async (templateId: string) => {
       try {
         await updateResumeTemplate(resume.id, templateId)
-        toast.success('Template updated')
+        toast.success("Template updated")
       } catch {
-        toast.error('Failed to update template')
+        toast.error("Failed to update template")
       }
     },
-    [resume.id]
+    [resume.id],
   )
 
   const handleDownloadPdf = useCallback(async () => {
@@ -368,85 +414,87 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
       }
 
       const blob = await res.blob()
-      const name = resume.contact_info?.full_name?.replace(/\s+/g, '_') || 'Resume'
+      const name = resume.contact_info?.full_name?.replace(/\s+/g, "_") || "Resume"
       const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
+      const a = document.createElement("a")
       a.href = url
       a.download = `${name}_Resume.pdf`
       a.click()
       URL.revokeObjectURL(url)
-      toast.success('PDF downloaded')
+      toast.success("PDF downloaded")
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to generate PDF')
+      toast.error(err instanceof Error ? err.message : "Failed to generate PDF")
     } finally {
       setIsGeneratingPdf(false)
     }
   }, [resume.id, resume.contact_info?.full_name])
 
   const sectionOrder = resume.settings?.section_order ?? [
-    'contact', 'summary', 'experience', 'education',
-    'skills', 'projects', 'certifications', 'extracurriculars',
+    "contact",
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+    "extracurriculars",
   ]
   const [hiddenSections, setHiddenSections] = useState(
-    () => new Set(resume.settings?.hidden_sections ?? [])
+    () => new Set(resume.settings?.hidden_sections ?? []),
   )
   const [currentOrder, setCurrentOrder] = useState<string[]>(sectionOrder)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 
-  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event
+      if (!over || active.id === over.id) return
 
-    const oldIndex = currentOrder.indexOf(active.id as string)
-    const newIndex = currentOrder.indexOf(over.id as string)
-    const newOrder = arrayMove(currentOrder, oldIndex, newIndex)
-    setCurrentOrder(newOrder)
+      const oldIndex = currentOrder.indexOf(active.id as string)
+      const newIndex = currentOrder.indexOf(over.id as string)
+      const newOrder = arrayMove(currentOrder, oldIndex, newIndex)
+      setCurrentOrder(newOrder)
 
-    try {
-      await updateResumeSettings(resume.id, { section_order: newOrder })
-    } catch {
-      toast.error('Failed to save section order')
-      setCurrentOrder(sectionOrder) // revert
-    }
-  }, [currentOrder, resume.id, sectionOrder])
+      try {
+        await updateResumeSettings(resume.id, { section_order: newOrder })
+      } catch {
+        toast.error("Failed to save section order")
+        setCurrentOrder(sectionOrder) // revert
+      }
+    },
+    [currentOrder, resume.id, sectionOrder],
+  )
 
-  const handleToggleSectionVisibility = useCallback(async (section: string) => {
-    const isHidden = hiddenSections.has(section)
-    const newHidden = isHidden
-      ? (resume.settings?.hidden_sections ?? []).filter((s) => s !== section)
-      : [...(resume.settings?.hidden_sections ?? []), section]
+  const handleToggleSectionVisibility = useCallback(
+    async (section: string) => {
+      const isHidden = hiddenSections.has(section)
+      const newHidden = isHidden
+        ? (resume.settings?.hidden_sections ?? []).filter((s) => s !== section)
+        : [...(resume.settings?.hidden_sections ?? []), section]
 
-    // Optimistic update
-    setHiddenSections(new Set(newHidden))
+      // Optimistic update
+      setHiddenSections(new Set(newHidden))
 
-    try {
-      await updateResumeSettings(resume.id, { hidden_sections: newHidden })
-    } catch {
-      // Revert on failure
-      setHiddenSections(new Set(resume.settings?.hidden_sections ?? []))
-      toast.error('Failed to toggle section visibility')
-    }
-  }, [hiddenSections, resume.id, resume.settings?.hidden_sections])
+      try {
+        await updateResumeSettings(resume.id, { hidden_sections: newHidden })
+      } catch {
+        // Revert on failure
+        setHiddenSections(new Set(resume.settings?.hidden_sections ?? []))
+        toast.error("Failed to toggle section visibility")
+      }
+    },
+    [hiddenSections, resume.id, resume.settings?.hidden_sections],
+  )
 
   const sectionMap: Record<string, React.ReactNode> = {
     contact: (
-      <ContactInfoSection
-        key="contact"
-        resumeId={resume.id}
-        contactInfo={resume.contact_info}
-      />
+      <ContactInfoSection key="contact" resumeId={resume.id} contactInfo={resume.contact_info} />
     ),
-    summary: (
-      <SummarySection
-        key="summary"
-        resumeId={resume.id}
-        summary={resume.summary}
-      />
-    ),
+    summary: <SummarySection key="summary" resumeId={resume.id} summary={resume.summary} />,
     experience: (
       <WorkExperienceSection
         key="experience"
@@ -454,27 +502,11 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
         experiences={resume.work_experiences}
       />
     ),
-    education: (
-      <EducationSection
-        key="education"
-        resumeId={resume.id}
-        entries={resume.education}
-      />
-    ),
+    education: <EducationSection key="education" resumeId={resume.id} entries={resume.education} />,
     skills: (
-      <SkillsSection
-        key="skills"
-        resumeId={resume.id}
-        categories={resume.skill_categories}
-      />
+      <SkillsSection key="skills" resumeId={resume.id} categories={resume.skill_categories} />
     ),
-    projects: (
-      <ProjectsSection
-        key="projects"
-        resumeId={resume.id}
-        projects={resume.projects}
-      />
-    ),
+    projects: <ProjectsSection key="projects" resumeId={resume.id} projects={resume.projects} />,
     certifications: (
       <CertificationsSection
         key="certifications"
@@ -508,9 +540,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
             {resume.target_role || resume.title}
           </h1>
           {resume.company_name && (
-            <p className="text-muted-foreground line-clamp-1 text-[11px]">
-              {resume.company_name}
-            </p>
+            <p className="text-muted-foreground line-clamp-1 text-[11px]">{resume.company_name}</p>
           )}
         </div>
 
@@ -522,10 +552,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
         </span>
 
         <div className="ml-auto flex items-center gap-2">
-          <Select
-            value={resume.template_id ?? ''}
-            onValueChange={handleTemplateChange}
-          >
+          <Select value={resume.template_id ?? ""} onValueChange={handleTemplateChange}>
             <SelectTrigger className="h-8 w-40 text-xs">
               <Palette className="mr-1.5 h-3.5 w-3.5" />
               <SelectValue placeholder="Template" />
@@ -534,7 +561,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
               {templates.map((t) => (
                 <SelectItem key={t.id} value={t.id}>
                   {t.name}
-                  {t.layout === 'two_column' && ' (2-col)'}
+                  {t.layout === "two_column" && " (2-col)"}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -591,29 +618,74 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
             className="hidden h-8 w-8 md:flex"
             onClick={() => setShowPreview(!showPreview)}
           >
-            {showPreview ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
+            {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
 
           <OptimizeDialog resume={resume} />
 
+          <div className="bg-border mx-1 hidden h-5 w-px md:block" />
+
+          {/* Public/Private toggle */}
           <Button
+            variant={resume.is_public ? "default" : "outline"}
             size="sm"
-            className="h-8"
-            onClick={handleDownloadPdf}
-            disabled={isGeneratingPdf}
+            className="hidden h-8 md:flex"
+            onClick={async () => {
+              try {
+                await updateResumeMetadata(resume.id, { is_public: !resume.is_public })
+                toast.success(resume.is_public ? "Resume set to private" : "Resume set to public")
+              } catch {
+                toast.error("Failed to update visibility")
+              }
+            }}
           >
+            {resume.is_public ? (
+              <Globe className="mr-1.5 h-3.5 w-3.5" />
+            ) : (
+              <Lock className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            {resume.is_public ? "Public" : "Private"}
+          </Button>
+
+          {/* Share link */}
+          {resume.short_id && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden h-8 md:flex"
+              onClick={async () => {
+                const url = `${window.location.origin}/r/${resume.short_id}`
+                try {
+                  await navigator.clipboard.writeText(url)
+                  toast.success("Share link copied to clipboard")
+                } catch {
+                  toast.error("Failed to copy link")
+                }
+              }}
+            >
+              <Share2 className="mr-1.5 h-3.5 w-3.5" />
+              Share
+            </Button>
+          )}
+
+          {/* Preview public page */}
+          {resume.short_id && resume.is_public && (
+            <Button variant="outline" size="icon" className="hidden h-8 w-8 md:flex" asChild>
+              <Link href={`/r/${resume.short_id}`} target="_blank">
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          )}
+
+          <Button size="sm" className="h-8" onClick={handleDownloadPdf} disabled={isGeneratingPdf}>
             <Download className="mr-1.5 h-3.5 w-3.5" />
-            {isGeneratingPdf ? 'Generating...' : 'PDF'}
+            {isGeneratingPdf ? "Generating..." : "PDF"}
           </Button>
         </div>
       </header>
 
       {/* Editor + Preview */}
-      <div className="min-h-0 flex-1 overflow-hidden flex">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <SectionNav
           sections={currentOrder}
           hiddenSections={hiddenSections}
@@ -633,7 +705,10 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
                       modifiers={[restrictToVerticalAxis]}
                       onDragEnd={handleDragEnd}
                     >
-                      <SortableContext items={visibleSections} strategy={verticalListSortingStrategy}>
+                      <SortableContext
+                        items={visibleSections}
+                        strategy={verticalListSortingStrategy}
+                      >
                         {visibleSections.map((sectionId) => (
                           <SortableSection key={sectionId} id={sectionId}>
                             {sectionMap[sectionId]}
@@ -650,7 +725,7 @@ export function ResumeEditor({ resume, templates }: ResumeEditorProps) {
               </PanelResizeHandle>
 
               <Panel defaultSize="50%" minSize="25%">
-                <div className="hidden h-full bg-gray-100 dark:bg-gray-900 md:block">
+                <div className="hidden h-full bg-gray-100 md:block dark:bg-gray-900">
                   <ResumePreviewPane resume={resume} />
                 </div>
               </Panel>
