@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import { AgentChat } from "@/components/agent-chat"
+import { ChatSettingsPopover } from "./chat-settings-popover"
 import { updateCoachSessionMessages } from "../actions"
 import type { CareerCoachSession, CoachSessionType, Resume } from "@/types/resume-builder"
 
@@ -72,9 +73,14 @@ function BulletItem({ text }: { text: string }) {
 interface ChatInterfaceProps {
   session: CareerCoachSession
   resumes: Resume[]
+  agentConfig: {
+    model_id: string | null
+    max_tokens: number | null
+    system_prompt: string | null
+  }
 }
 
-export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
+export function ChatInterface({ session, resumes, agentConfig }: ChatInterfaceProps) {
   const [selectedResumeId, setSelectedResumeId] = useState<string>(resumes[0]?.id ?? "")
   const [savedItems, setSavedItems] = useState<string[]>([])
 
@@ -129,6 +135,7 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
             </Badge>
           </div>
           <div className="flex items-center gap-2">
+            <ChatSettingsPopover slug="career_interviewer" initialConfig={agentConfig} />
             {selectedResume && (
               <Badge variant="outline" className="gap-1">
                 <FileText className="h-3 w-3" />
@@ -160,11 +167,18 @@ export function ChatInterface({ session, resumes }: ChatInterfaceProps) {
         {/* AgentChat — streaming agentic chat */}
         <AgentChat
           apiEndpoint="/api/agents/coach"
-          body={{ resumeId: selectedResumeId }}
+          body={{ resumeId: selectedResumeId, sessionType: session.session_type }}
+          initialMessages={[
+            {
+              id: "greeting",
+              role: "assistant" as const,
+              parts: [{ type: "text" as const, text: getWelcomeMessage(session.session_type) }],
+            },
+          ]}
           onToolResult={handleToolResult}
           onMessagesChange={handleMessagesChange}
           placeholder="Tell me about a role, project, or skill..."
-          emptyMessage={getWelcomeMessage(session.session_type)}
+          emptyStateIcon={Icon}
         />
       </div>
 
