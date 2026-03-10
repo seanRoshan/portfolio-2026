@@ -1,13 +1,8 @@
 "use client"
 
-import { useRef, useEffect, useState } from "react"
-import gsap from "gsap"
-import { SplitText } from "gsap/SplitText"
-import { useGSAP } from "@gsap/react"
+import { useRef, useEffect, useState, useMemo } from "react"
 import { MagneticButton } from "@/components/animations/MagneticButton"
-import { useMousePosition } from "@/hooks/useMousePosition"
-
-gsap.registerPlugin(SplitText)
+import { useParallaxOnMouse } from "@/hooks/useMousePosition"
 
 interface HeroProps {
   heroData: {
@@ -84,20 +79,43 @@ export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: Her
   const taglineRef = useRef<HTMLParagraphElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
   const floatingRef = useRef<HTMLDivElement>(null)
+  const blob1Ref = useRef<HTMLDivElement>(null)
+  const blob2Ref = useRef<HTMLDivElement>(null)
+  const blob3Ref = useRef<HTMLDivElement>(null)
   const [roleIndex, setRoleIndex] = useState(0)
-  const mouse = useMousePosition()
 
-  // Main entrance animation
-  useGSAP(
-    () => {
+  const parallaxTargets = useMemo(
+    () => [
+      { ref: blob1Ref, x: 20, y: 20 },
+      { ref: blob2Ref, x: -15, y: -15 },
+      { ref: blob3Ref, x: 10, y: 10 },
+    ],
+    [],
+  )
+  useParallaxOnMouse(parallaxTargets)
+
+  // Main entrance animation — dynamically import GSAP to defer parsing off critical path
+  useEffect(() => {
+    let cancelled = false
+
+    const initAnimation = async () => {
+      const [{ default: gsap }, { SplitText }] = await Promise.all([
+        import("gsap"),
+        import("gsap/SplitText"),
+      ])
+      gsap.registerPlugin(SplitText)
+
+      if (cancelled || !sectionRef.current) return
+
       const tl = gsap.timeline({ delay: 0.3 })
 
       // Greeting — set parent visible then animate chars
-      const greetingEl = document.querySelector(".hero-greeting") as HTMLElement
+      const greetingEl = sectionRef.current.querySelector(".hero-greeting") as HTMLElement
       if (greetingEl) greetingEl.style.opacity = "1"
       const greetingSplit = SplitText.create(".hero-greeting", {
         type: "chars",
       })
+      greetingEl?.removeAttribute("aria-label")
       tl.fromTo(
         greetingSplit.chars,
         { opacity: 0, y: 30, rotateX: 40 },
@@ -112,9 +130,10 @@ export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: Her
       )
 
       // Name — set parent visible, apply gradient to each char, then animate
-      const nameEl = document.querySelector(".hero-name") as HTMLElement
+      const nameEl = sectionRef.current.querySelector(".hero-name") as HTMLElement
       if (nameEl) nameEl.style.opacity = "1"
       const nameSplit = SplitText.create(".hero-name", { type: "chars" })
+      nameEl?.removeAttribute("aria-label")
       // Apply gradient to each char since background-clip:text doesn't inherit
       ;(nameSplit.chars as HTMLElement[]).forEach((char) => {
         char.style.background = "linear-gradient(135deg, oklch(0.7 0.25 264), oklch(0.7 0.2 330))"
@@ -150,6 +169,7 @@ export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: Her
         const taglineSplit = SplitText.create(taglineRef.current, {
           type: "words",
         })
+        taglineRef.current.removeAttribute("aria-label")
         tl.fromTo(
           taglineSplit.words,
           { opacity: 0, y: 20 },
@@ -185,9 +205,13 @@ export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: Her
         },
         "-=0.5",
       )
-    },
-    { scope: sectionRef },
-  )
+    }
+
+    initAnimation()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Rotating role text
   useEffect(() => {
@@ -220,28 +244,19 @@ export function Hero({ heroData: heroDataProp, siteConfig: siteConfigProp }: Her
       {/* Floating elements with parallax */}
       <div ref={floatingRef} className="absolute inset-0 -z-[5] overflow-hidden" aria-hidden="true">
         <div
-          className="hero-float absolute top-[15%] left-[10%] h-72 w-72 rounded-full opacity-20 blur-3xl"
-          style={{
-            background: "oklch(0.7 0.25 264 / 40%)",
-            transform: `translate(${mouse.normalizedX * 20}px, ${mouse.normalizedY * 20}px)`,
-            transition: "transform 0.3s ease-out",
-          }}
+          ref={blob1Ref}
+          className="hero-float absolute top-[15%] left-[10%] h-72 w-72 rounded-full opacity-20 blur-3xl will-change-transform"
+          style={{ background: "oklch(0.7 0.25 264 / 40%)" }}
         />
         <div
-          className="hero-float absolute right-[15%] bottom-[20%] h-96 w-96 rounded-full opacity-15 blur-3xl"
-          style={{
-            background: "oklch(0.7 0.2 330 / 30%)",
-            transform: `translate(${mouse.normalizedX * -15}px, ${mouse.normalizedY * -15}px)`,
-            transition: "transform 0.3s ease-out",
-          }}
+          ref={blob2Ref}
+          className="hero-float absolute right-[15%] bottom-[20%] h-96 w-96 rounded-full opacity-15 blur-3xl will-change-transform"
+          style={{ background: "oklch(0.7 0.2 330 / 30%)" }}
         />
         <div
-          className="hero-float absolute top-[40%] right-[30%] h-48 w-48 rounded-full opacity-10 blur-3xl"
-          style={{
-            background: "oklch(0.65 0.2 160 / 30%)",
-            transform: `translate(${mouse.normalizedX * 10}px, ${mouse.normalizedY * 10}px)`,
-            transition: "transform 0.3s ease-out",
-          }}
+          ref={blob3Ref}
+          className="hero-float absolute top-[40%] right-[30%] h-48 w-48 rounded-full opacity-10 blur-3xl will-change-transform"
+          style={{ background: "oklch(0.65 0.2 160 / 30%)" }}
         />
       </div>
 

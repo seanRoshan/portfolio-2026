@@ -1,14 +1,29 @@
 import type { Metadata } from "next"
+import dynamic from "next/dynamic"
 import { Hero } from "@/components/sections/Hero"
 import { About } from "@/components/sections/About"
-import { Projects } from "@/components/sections/Projects"
-import { Skills } from "@/components/sections/Skills"
-import { Experience } from "@/components/sections/Experience"
-import { Credentials } from "@/components/sections/Credentials"
-import { Ventures } from "@/components/sections/Ventures"
-import { Blog } from "@/components/sections/Blog"
-import { Contact } from "@/components/sections/Contact"
 import { JsonLd } from "@/components/JsonLd"
+
+// Dynamically import below-the-fold sections to reduce initial JS parse (TBT)
+const Ventures = dynamic(() =>
+  import("@/components/sections/Ventures").then((m) => ({ default: m.Ventures })),
+)
+const Projects = dynamic(() =>
+  import("@/components/sections/Projects").then((m) => ({ default: m.Projects })),
+)
+const Skills = dynamic(() =>
+  import("@/components/sections/Skills").then((m) => ({ default: m.Skills })),
+)
+const Experience = dynamic(() =>
+  import("@/components/sections/Experience").then((m) => ({ default: m.Experience })),
+)
+const Credentials = dynamic(() =>
+  import("@/components/sections/Credentials").then((m) => ({ default: m.Credentials })),
+)
+const Blog = dynamic(() => import("@/components/sections/Blog").then((m) => ({ default: m.Blog })))
+const Contact = dynamic(() =>
+  import("@/components/sections/Contact").then((m) => ({ default: m.Contact })),
+)
 import { getCachedSiteConfig } from "@/lib/seo"
 import { personAndWebsiteJsonLd } from "@/lib/json-ld"
 import {

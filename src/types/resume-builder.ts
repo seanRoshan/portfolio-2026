@@ -187,6 +187,7 @@ export interface ResumeProject {
   id: string
   resume_id: string
   name: string
+  company: string | null
   project_url: string | null
   source_url: string | null
   description: string | null

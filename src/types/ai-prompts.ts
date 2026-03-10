@@ -2,8 +2,10 @@ export interface AIPrompt {
   id: string
   slug: string
   name: string
-  category: "bullet" | "summary" | "description" | "general"
+  category: "bullet" | "summary" | "description" | "general" | "agent"
   description: string | null
+  persona_name: string | null
+  model_id: string | null
   system_prompt: string
   user_prompt_template: string
   model: string

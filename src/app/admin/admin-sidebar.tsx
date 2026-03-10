@@ -27,6 +27,8 @@ import {
   Search,
   Bot,
   Wand2,
+  Blocks,
+  Scissors,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -112,6 +114,23 @@ const navItems: NavItem[] = [
     href: "/admin/resume-builder/career-coach",
     label: "Career Coach",
     icon: Bot,
+    children: [
+      { hash: "general", label: "General Advice" },
+      { hash: "experience_builder", label: "Experience Builder" },
+      { hash: "project_builder", label: "Project Builder" },
+      { hash: "interview_prep", label: "Interview Prep" },
+      { hash: "career_narrative", label: "Career Narrative" },
+    ],
+  },
+  {
+    href: "/admin/resume-builder/tailor",
+    label: "Resume Tailor",
+    icon: Scissors,
+  },
+  {
+    href: "/admin/architect",
+    label: "Architect",
+    icon: Blocks,
   },
   {
     href: "/admin/prompt-engineer",
@@ -186,9 +205,21 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
   const isPageActive = useCallback(
     (href: string) => {
       if (href === "/admin") return pathname === "/admin"
-      // Exact match or match with trailing slash/segment to prevent
-      // /admin/resume matching /admin/resume-builder
-      return pathname === href || pathname.startsWith(href + "/")
+      const matches = pathname === href || pathname.startsWith(href + "/")
+      if (!matches) return false
+      // Don't highlight if a more specific nav item also matches
+      // e.g. /admin/resume-builder shouldn't highlight when /admin/resume-builder/career-coach matches
+      for (const other of navItems) {
+        if (
+          other.href !== href &&
+          other.href.length > href.length &&
+          other.href.startsWith(href + "/") &&
+          (pathname === other.href || pathname.startsWith(other.href + "/"))
+        ) {
+          return false
+        }
+      }
+      return true
     },
     [pathname],
   )
@@ -223,7 +254,7 @@ export function AdminSidebar({ unreadCount = 0 }: AdminSidebarProps) {
           </Badge>
         </Link>
       </div>
-      <ScrollArea className="flex-1 px-3 py-4">
+      <ScrollArea className="flex-1 overflow-y-auto px-3 py-4" type="auto">
         <nav aria-label="Admin navigation" className="flex flex-col gap-0.5">
           {navItems.map((item) => {
             const active = isPageActive(item.href)

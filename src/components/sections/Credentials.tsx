@@ -65,7 +65,6 @@ function EducationCard({ entry, index }: { entry: EducationItem; index: number }
                 width={40}
                 height={40}
                 className="rounded-lg object-contain"
-                unoptimized
               />
             ) : (
               <GraduationCap className="text-primary h-7 w-7" />
@@ -130,7 +129,6 @@ function CertificationBadge({ cert, index }: { cert: CertificationItem; index: n
               width={56}
               height={56}
               className="rounded-lg object-contain"
-              unoptimized
             />
           ) : (
             <div className="bg-primary/10 flex h-14 w-14 items-center justify-center rounded-xl">

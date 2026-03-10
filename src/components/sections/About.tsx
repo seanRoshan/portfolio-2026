@@ -97,7 +97,6 @@ export function About({ aboutData: aboutDataProp }: AboutProps) {
                   fill
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
-                  unoptimized
                 />
               ) : (
                 <div className="h-full w-full" />

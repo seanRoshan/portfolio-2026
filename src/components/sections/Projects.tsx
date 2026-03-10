@@ -107,7 +107,7 @@ function ProjectCard({
               alt={project.title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
-              unoptimized
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
             <div
@@ -219,7 +219,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
               alt={project.title}
               fill
               className="object-cover"
-              unoptimized
+              sizes="(max-width: 896px) 100vw, 896px"
             />
           ) : (
             <div
@@ -335,7 +335,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
                   width={800}
                   height={500}
                   className="w-full object-contain"
-                  unoptimized
+                  sizes="(max-width: 896px) 100vw, 800px"
                 />
               </div>
             </div>
@@ -361,7 +361,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
                       width={400}
                       height={250}
                       className="w-full object-cover transition-transform duration-300 group-hover/img:scale-105"
-                      unoptimized
+                      sizes="(max-width: 640px) 100vw, 400px"
                     />
                     {project.imageCaptions[img] && (
                       <p className="text-muted-foreground px-3 py-2 text-xs">
@@ -522,7 +522,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
               height={800}
               className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain"
               onClick={(e) => e.stopPropagation()}
-              unoptimized
+              sizes="90vw"
             />
 
             {/* Caption */}
