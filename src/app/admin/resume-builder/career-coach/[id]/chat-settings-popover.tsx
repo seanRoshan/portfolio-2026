@@ -7,11 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -49,13 +45,16 @@ export function ChatSettingsPopover({ slug, initialConfig }: ChatSettingsPopover
         })
         toast.success("Agent settings saved")
         setOpen(false)
-      } catch (err) {
+      } catch {
         toast.error("Failed to save settings")
       }
     })
   }
 
-  const modelEntries = Object.entries(AVAILABLE_MODELS) as [string, (typeof AVAILABLE_MODELS)[ModelId]][]
+  const modelEntries = Object.entries(AVAILABLE_MODELS) as [
+    string,
+    (typeof AVAILABLE_MODELS)[ModelId],
+  ][]
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -67,7 +66,7 @@ export function ChatSettingsPopover({ slug, initialConfig }: ChatSettingsPopover
       <PopoverContent className="w-96" align="end">
         <div className="space-y-4">
           <div>
-            <h4 className="font-medium text-sm mb-1">Agent Settings</h4>
+            <h4 className="mb-1 text-sm font-medium">Agent Settings</h4>
             <p className="text-muted-foreground text-xs">
               Changes apply to all future messages in this agent.
             </p>
@@ -85,7 +84,7 @@ export function ChatSettingsPopover({ slug, initialConfig }: ChatSettingsPopover
                   <SelectItem key={id} value={id}>
                     <div className="flex items-center gap-2">
                       <span>{info.label}</span>
-                      <Badge variant="outline" className="text-[10px] px-1 py-0">
+                      <Badge variant="outline" className="px-1 py-0 text-[10px]">
                         {info.tier}
                       </Badge>
                     </div>
@@ -99,7 +98,7 @@ export function ChatSettingsPopover({ slug, initialConfig }: ChatSettingsPopover
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="text-xs">Max Tokens</Label>
-              <span className="text-muted-foreground text-xs font-mono">{maxTokens}</span>
+              <span className="text-muted-foreground font-mono text-xs">{maxTokens}</span>
             </div>
             <Slider
               value={[maxTokens]}
@@ -117,7 +116,7 @@ export function ChatSettingsPopover({ slug, initialConfig }: ChatSettingsPopover
               value={systemPrompt}
               onChange={(e) => setSystemPrompt(e.target.value)}
               rows={6}
-              className="text-xs font-mono resize-y"
+              className="resize-y font-mono text-xs"
             />
           </div>
 

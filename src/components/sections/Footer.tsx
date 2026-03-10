@@ -124,7 +124,7 @@ export function Footer({ siteConfig: siteConfigProp, navLinks, venturesData = []
           {/* Nav columns */}
           <div className="flex gap-16">
             <div>
-              <p className="text-muted-foreground/60 mb-3 text-xs font-semibold tracking-widest uppercase">
+              <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
                 Navigate
               </p>
               <nav className="flex flex-col gap-2.5">
@@ -138,7 +138,7 @@ export function Footer({ siteConfig: siteConfigProp, navLinks, venturesData = []
               </nav>
             </div>
             <div>
-              <p className="text-muted-foreground/60 mb-3 text-xs font-semibold tracking-widest uppercase">
+              <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
                 More
               </p>
               <nav className="flex flex-col gap-2.5">
@@ -153,7 +153,7 @@ export function Footer({ siteConfig: siteConfigProp, navLinks, venturesData = []
             </div>
             {socials.length > 0 && (
               <div>
-                <p className="text-muted-foreground/60 mb-3 text-xs font-semibold tracking-widest uppercase">
+                <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
                   Social
                 </p>
                 <nav className="flex flex-col gap-2.5">
@@ -173,7 +173,7 @@ export function Footer({ siteConfig: siteConfigProp, navLinks, venturesData = []
             )}
             {venturesData.length > 0 && (
               <div>
-                <p className="text-muted-foreground/60 mb-3 text-xs font-semibold tracking-widest uppercase">
+                <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-widest uppercase">
                   Ventures
                 </p>
                 <nav className="flex flex-col gap-2.5">

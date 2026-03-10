@@ -95,6 +95,10 @@ export function createInterviewerTools(resumeId: string) {
         "Use this after gathering project details including name, description, and impact metrics.",
       inputSchema: z.object({
         name: z.string().describe("Project name"),
+        company: z
+          .string()
+          .optional()
+          .describe("Company or organization this project was built for/at"),
         description: z.string().optional().describe("Brief project description (1-2 sentences)"),
         project_url: z.string().url().optional().describe("Live project URL"),
         source_url: z.string().url().optional().describe("Source code URL (e.g. GitHub)"),
@@ -103,7 +107,7 @@ export function createInterviewerTools(resumeId: string) {
           .min(1)
           .describe("Achievement bullet points describing impact and technical details"),
       }),
-      execute: async ({ name, description, project_url, source_url, achievements }) => {
+      execute: async ({ name, company, description, project_url, source_url, achievements }) => {
         const { data: existing } = await supabase
           .from("resume_projects")
           .select("sort_order")
@@ -118,6 +122,7 @@ export function createInterviewerTools(resumeId: string) {
           .insert({
             resume_id: resumeId,
             name,
+            company: company ?? null,
             description: description ?? null,
             project_url: project_url ?? null,
             source_url: source_url ?? null,
@@ -145,7 +150,7 @@ export function createInterviewerTools(resumeId: string) {
         return {
           success: true,
           project_id: proj.id,
-          message: `Saved project "${name}" with ${achievements.length} bullet points.`,
+          message: `Saved project "${name}"${company ? ` at ${company}` : ""} with ${achievements.length} bullet points.`,
         }
       },
     }),

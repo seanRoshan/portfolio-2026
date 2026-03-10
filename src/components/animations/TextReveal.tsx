@@ -45,6 +45,7 @@ export function TextReveal({
         type: type,
         mask: type === "lines" ? "lines" : undefined,
       })
+      el.removeAttribute("aria-label")
 
       const targets = type === "chars" ? split.chars : type === "words" ? split.words : split.lines
 

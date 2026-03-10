@@ -51,7 +51,7 @@ function PostCard({ post }: { post: Post }) {
               width={640}
               height={320}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              unoptimized
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
         )}

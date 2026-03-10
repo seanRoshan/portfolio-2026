@@ -99,7 +99,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               height={480}
               className="h-full w-full object-cover"
               priority
-              unoptimized
+              sizes="(max-width: 1200px) 100vw, 1200px"
             />
           </div>
         </div>

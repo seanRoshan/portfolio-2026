@@ -73,7 +73,11 @@ export async function getAgentConfig(slug: string) {
     .single()
 
   if (error) return null
-  return data as { model_id: string | null; max_tokens: number | null; system_prompt: string | null }
+  return data as {
+    model_id: string | null
+    max_tokens: number | null
+    system_prompt: string | null
+  }
 }
 
 export async function updateAgentConfig(

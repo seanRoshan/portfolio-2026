@@ -68,7 +68,6 @@ export function Ventures({ venturesData }: VenturesProps) {
                             width={280}
                             height={80}
                             className="max-h-20 max-w-full object-contain"
-                            unoptimized
                           />
                         </div>
                         <div className="hidden dark:block">
@@ -78,7 +77,6 @@ export function Ventures({ venturesData }: VenturesProps) {
                             width={280}
                             height={80}
                             className="max-h-20 max-w-full object-contain"
-                            unoptimized
                           />
                         </div>
                       </>
@@ -89,7 +87,6 @@ export function Ventures({ venturesData }: VenturesProps) {
                         width={280}
                         height={80}
                         className="max-h-20 max-w-full object-contain"
-                        unoptimized
                       />
                     ) : (
                       <div className="bg-primary/10 flex h-20 w-20 items-center justify-center rounded-2xl">

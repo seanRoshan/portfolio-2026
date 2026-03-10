@@ -10,14 +10,22 @@ interface ChatPageProps {
 
 export default async function ChatPage({ params }: ChatPageProps) {
   const { id } = await params
-  const [session, resumes, agentConfig] = await Promise.all([getCoachSession(id), getResumes(), getAgentConfig("career_interviewer")])
+  const [session, resumes, agentConfig] = await Promise.all([
+    getCoachSession(id),
+    getResumes(),
+    getAgentConfig("career_interviewer"),
+  ])
 
   if (!session) notFound()
 
   return (
     <>
       <AdminHeader title="Career Coach" />
-      <ChatInterface session={session} resumes={resumes} agentConfig={agentConfig ?? { model_id: null, max_tokens: null, system_prompt: null }} />
+      <ChatInterface
+        session={session}
+        resumes={resumes}
+        agentConfig={agentConfig ?? { model_id: null, max_tokens: null, system_prompt: null }}
+      />
     </>
   )
 }

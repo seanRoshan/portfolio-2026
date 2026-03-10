@@ -53,7 +53,6 @@ function PhaseEntry({ phase, isLast }: { phase: RolePhase; isLast: boolean }) {
                   width={14}
                   height={14}
                   className="rounded-sm object-contain"
-                  unoptimized
                 />
               )}
               {phase.viaCompany}
@@ -117,7 +116,6 @@ function TimelineEntry({ entry, index }: { entry: ExperienceGroup; index: number
                     width={44}
                     height={44}
                     className="rounded-lg object-contain"
-                    unoptimized
                   />
                 ) : (
                   <Briefcase className="text-primary h-7 w-7" />
@@ -131,7 +129,6 @@ function TimelineEntry({ entry, index }: { entry: ExperienceGroup; index: number
                     width={18}
                     height={18}
                     className="rounded-full object-contain"
-                    unoptimized
                   />
                 </div>
               )}
@@ -179,7 +176,6 @@ function TimelineEntry({ entry, index }: { entry: ExperienceGroup; index: number
                             width={14}
                             height={14}
                             className="rounded-sm object-contain"
-                            unoptimized
                           />
                         )}
                         {entry.phases[0].viaCompany}

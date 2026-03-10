@@ -11,13 +11,19 @@ interface ToolCallCardProps {
 }
 
 const TOOL_LABELS: Record<string, string> = {
+  // Career Interviewer
   save_work_experience: "Saving work experience",
   save_project: "Saving project",
-  save_skill_category: "Saving skills",
-  update_summary: "Updating summary",
-  analyze_jd: "Analyzing job description",
+  save_education: "Saving education",
+  save_skills: "Saving skills",
+  save_certification: "Saving certification",
+  get_existing_career_data: "Loading career data",
+  // Resume Tailor
+  analyze_job_description: "Analyzing job description",
+  match_resume_to_jd: "Matching resume to JD",
   generate_tailored_bullets: "Generating tailored bullets",
-  generate_full_resume: "Generating full resume",
+  save_job_analysis: "Saving job analysis",
+  update_resume_bullets: "Updating resume bullets",
 }
 
 function getToolLabel(toolName: string): string {

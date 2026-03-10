@@ -5,7 +5,7 @@ import { useChat, type UIMessage } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { ArrowUp, Square, MessageSquare, type LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { MessageBubble } from "./message-bubble"
@@ -209,134 +209,140 @@ export function AgentChat({
   }
 
   return (
-    <div className={cn("flex h-full flex-col", className)}>
-      {/* Messages */}
-      <ScrollArea ref={scrollRef} className="flex-1 px-4">
-        <div className="mx-auto max-w-3xl space-y-4 py-4">
-          {messages.length === 0 && (
-            <div className="text-muted-foreground flex flex-col items-center justify-center py-20 text-center">
-              <div className="bg-muted/50 mb-4 rounded-full p-4">
-                <EmptyIcon className="size-10 opacity-40" />
+    <TooltipProvider>
+      <div className={cn("flex h-full flex-col", className)}>
+        {/* Messages */}
+        <ScrollArea ref={scrollRef} className="flex-1 px-4">
+          <div className="mx-auto max-w-3xl space-y-4 py-4">
+            {messages.length === 0 && (
+              <div className="text-muted-foreground flex flex-col items-center justify-center py-20 text-center">
+                <div className="bg-muted/50 mb-4 rounded-full p-4">
+                  <EmptyIcon className="size-10 opacity-40" />
+                </div>
+                <p className="text-sm">{emptyMessage}</p>
               </div>
-              <p className="text-sm">{emptyMessage}</p>
-            </div>
-          )}
+            )}
 
-          {messages.map((message) => (
-            <div key={message.id} className="space-y-2">
-              {message.parts.map((part, index) => {
-                // Text parts — extract mermaid/json blocks
-                if (part.type === "text" && part.text) {
-                  const blocks = extractBlocks(part.text)
-                  return blocks.map((block, bi) => {
-                    if (block.type === "mermaid") {
-                      return <MermaidBlock key={`${index}-${bi}`} code={block.content} />
-                    }
-                    if (block.type === "json") {
-                      try {
-                        const parsed = JSON.parse(block.content)
-                        return <JsonPreview key={`${index}-${bi}`} data={parsed} />
-                      } catch {
-                        // Fall through to text rendering
+            {messages.map((message) => (
+              <div key={message.id} className="space-y-2">
+                {message.parts.map((part, index) => {
+                  // Text parts — extract mermaid/json blocks
+                  if (part.type === "text" && part.text) {
+                    const blocks = extractBlocks(part.text)
+                    return blocks.map((block, bi) => {
+                      if (block.type === "mermaid") {
+                        return <MermaidBlock key={`${index}-${bi}`} code={block.content} />
                       }
-                    }
-                    if (renderCustomBlock) {
-                      const custom = renderCustomBlock({ type: block.type, data: block.content })
-                      if (custom) return <div key={`${index}-${bi}`}>{custom}</div>
-                    }
+                      if (block.type === "json") {
+                        try {
+                          const parsed = JSON.parse(block.content)
+                          return <JsonPreview key={`${index}-${bi}`} data={parsed} />
+                        } catch {
+                          // Fall through to text rendering
+                        }
+                      }
+                      if (renderCustomBlock) {
+                        const custom = renderCustomBlock({ type: block.type, data: block.content })
+                        if (custom) return <div key={`${index}-${bi}`}>{custom}</div>
+                      }
+                      return (
+                        <MessageBubble
+                          key={`${index}-${bi}`}
+                          role={message.role as "user" | "assistant"}
+                          content={block.content.trim()}
+                          timestamp={new Date().toISOString()}
+                        />
+                      )
+                    })
+                  }
+
+                  // Dynamic tool parts (v6 pattern for server-defined tools)
+                  if (isToolPart(part)) {
                     return (
-                      <MessageBubble
-                        key={`${index}-${bi}`}
-                        role={message.role as "user" | "assistant"}
-                        content={block.content.trim()}
-                        timestamp={new Date().toISOString()}
+                      <ToolCallCard
+                        key={`${index}-tool`}
+                        toolName={part.toolName}
+                        state={mapToolState(part.state)}
+                        output={part.state === "output-available" ? part.output : undefined}
                       />
                     )
-                  })
-                }
+                  }
 
-                // Dynamic tool parts (v6 pattern for server-defined tools)
-                if (isToolPart(part)) {
-                  return (
-                    <ToolCallCard
-                      key={`${index}-tool`}
-                      toolName={part.toolName}
-                      state={mapToolState(part.state)}
-                      output={part.state === "output-available" ? part.output : undefined}
-                    />
-                  )
-                }
+                  return null
+                })}
+              </div>
+            ))}
 
-                return null
-              })}
-            </div>
-          ))}
+            {status === "submitted" && <LoadingDots />}
 
-          {status === "submitted" && <LoadingDots />}
-
-          {error && (
-            <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border px-4 py-3 text-sm">
-              {error.message || "Something went wrong. Please try again."}
-            </div>
-          )}
-        </div>
-      </ScrollArea>
-
-      {/* Input */}
-      <div className="bg-background px-4 pb-4 pt-2">
-        <form onSubmit={handleSubmit} className="mx-auto max-w-3xl">
-          <div
-            className={cn(
-              "bg-muted/30 relative rounded-2xl border transition-all",
-              "focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/40",
+            {error && (
+              <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border px-4 py-3 text-sm">
+                {error.message || "Something went wrong. Please try again."}
+              </div>
             )}
-          >
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={placeholder}
-              disabled={isLoading}
-              rows={1}
-              className="w-full resize-none bg-transparent px-4 pt-3 pb-12 text-sm outline-none placeholder:text-muted-foreground disabled:opacity-50"
-            />
-
-            <div className="absolute right-3 bottom-3">
-              {isLoading ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="size-8 rounded-lg"
-                      onClick={() => stop()}
-                    >
-                      <Square className="size-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Stop generating</TooltipContent>
-                </Tooltip>
-              ) : (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="submit"
-                      size="icon"
-                      className="size-8 rounded-lg"
-                      disabled={!input.trim()}
-                    >
-                      <ArrowUp className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Send message (Enter)</TooltipContent>
-                </Tooltip>
-              )}
-            </div>
           </div>
-        </form>
+        </ScrollArea>
+
+        {/* Input */}
+        <div className="bg-background border-t px-4 py-3">
+          <form onSubmit={handleSubmit} className="mx-auto max-w-3xl">
+            <div
+              className={cn(
+                "bg-muted/50 flex overflow-hidden rounded-2xl border transition-colors",
+                "focus-within:border-primary",
+              )}
+            >
+              {/* Text region — flex-1, owns its own padding */}
+              <div className="min-w-0 flex-1 py-1 pl-5">
+                <textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={placeholder}
+                  disabled={isLoading}
+                  rows={1}
+                  className="placeholder:text-muted-foreground block w-full resize-none bg-transparent py-2 pl-2 text-sm leading-normal outline-none disabled:opacity-50"
+                />
+              </div>
+
+              {/* Button region — fixed width, self-aligned to end */}
+              <div className="flex items-end p-2">
+                {isLoading ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="size-8 rounded-lg"
+                        onClick={() => stop()}
+                      >
+                        <Square className="size-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Stop generating</TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="submit"
+                        size="icon"
+                        className="size-8 rounded-lg"
+                        disabled={!input.trim()}
+                      >
+                        <ArrowUp className="size-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Send message</TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   )
 }
